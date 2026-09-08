@@ -9,6 +9,9 @@ out/
 # Environment local files
 .env.local
 .env.*.local
+*-adminsdk-*.json
+*.service-account.json
+service-account*.json
 
 # TypeScript
 *.tsbuildinfo

@@ -2,7 +2,8 @@ import { db } from "./index";
 import { sql } from "drizzle-orm";
 
 export interface SessionContext {
-  userId: string;
+  uid?: string;
+  userId?: string;
   role: "platform" | "admin" | "staff";
   tenantId: string | null;
 }
