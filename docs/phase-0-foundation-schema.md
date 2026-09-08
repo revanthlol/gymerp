@@ -1,120 +1,321 @@
-# Phase 0 — Foundation: Supabase Schema + RLS + Auth (4-tier)
+# Phase 0 — Foundation: PostgreSQL Schema, Drizzle ORM, RLS & Firebase Auth
 
-**Do this phase yourself — don't hand RLS policy design to a coding agent unsupervised.** This is the layer that makes "Platform can't touch member data" actually true instead of a UI-level suggestion.
+> **Mandatory Security Rule:**
+> Multi-tenancy is enforced with **defense-in-depth**:
+> 1. **Application Layer:** Drizzle tenant repository queries always filter by `tenant_id`.
+> 2. **Database Layer (RLS):** PostgreSQL Row-Level Security enforces tenant isolation via `SET LOCAL app.current_tenant_id`.
+> 3. **Privacy Invariant:** The `platform` superadmin role has **zero** RLS access path to member-level tables (`members`, `payments`, `attendance`, `memberships`, `membership_plans`).
 
-**Note:** Supabase's Auth Hooks / custom claims API has shifted over time — verify the exact current syntax against Supabase's docs when you implement this, don't blindly copy the SQL below as gospel if it's been a while since you wrote it.
+---
 
-## Goals
-- Stand up Supabase project
-- Define schema for MVP entities, including `tenants.status` for Platform-level lifecycle management
-- Write and test RLS policies for every table — hard rule: **no policy grants `platform` role access to member-level tables, ever, by default**
-- Set up auth roles (platform/admin/staff) via JWT custom claims
+## 1. Objectives & Scope
 
-## Schema
+1. Provision local PostgreSQL 16 via Docker Compose.
+2. Define type-safe schema definitions in Drizzle ORM with foreign keys, indexes, and constraints.
+3. Configure PostgreSQL Row-Level Security (RLS) policies for all tables.
+4. Build `withTenantScope` transaction wrapper for Drizzle.
+5. Set up Firebase Admin SDK with custom claims (`role`, `tenant_id`).
+6. Implement database seeding and automated RLS verification test scripts.
 
-```sql
-create table tenants (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  status text check (status in ('trial','active','suspended')) default 'trial',
-  created_at timestamptz default now()
-);
+---
 
-create table users (
-  id uuid primary key references auth.users(id),
-  tenant_id uuid references tenants(id), -- null for platform-role users
-  role text check (role in ('platform','admin','staff')) not null,
-  full_name text,
-  created_at timestamptz default now()
-);
+## 2. Drizzle ORM TypeScript Schema (`src/lib/db/schema.ts`)
 
-create table membership_plans (
-  id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references tenants(id) not null,
-  name text not null,
-  price numeric not null,
-  duration_days int not null,
-  created_at timestamptz default now()
-);
+```typescript
+import {
+  pgTable,
+  uuid,
+  text,
+  numeric,
+  integer,
+  date,
+  timestamp,
+  pgEnum,
+  index,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
-create table members (
-  id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references tenants(id) not null,
-  full_name text not null,
-  contact_info text,
-  join_date date default now(),
-  status text check (status in ('active','expired','frozen')) default 'active',
-  qr_token uuid default gen_random_uuid() unique
-);
+// Enums
+export const tenantStatusEnum = pgEnum("tenant_status", ["trial", "active", "suspended"]);
+export const userRoleEnum = pgEnum("user_role", ["platform", "admin", "staff"]);
+export const memberStatusEnum = pgEnum("member_status", ["active", "expired", "frozen"]);
+export const membershipStatusEnum = pgEnum("membership_status", ["active", "expired", "cancelled"]);
+export const paymentMethodEnum = pgEnum("payment_method", ["razorpay", "manual"]);
+export const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed"]);
 
-create table memberships (
-  id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references tenants(id) not null,
-  member_id uuid references members(id) not null,
-  plan_id uuid references membership_plans(id) not null,
-  start_date date not null,
-  end_date date not null,
-  status text check (status in ('active','expired','cancelled')) default 'active'
-);
+// 1. Tenants Table (Gyms / Dojos)
+export const tenants = pgTable("tenants", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  status: tenantStatusEnum("status").default("trial").notNull(),
+  contactEmail: text("contact_email"),
+  phone: text("phone"),
+  logoUrl: text("logo_url"),
+  licenseExpiresAt: timestamp("license_expires_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
 
-create table payments (
-  id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references tenants(id) not null,
-  member_id uuid references members(id) not null,
-  amount numeric not null,
-  method text check (method in ('razorpay','manual')) not null,
-  status text check (status in ('pending','paid','failed')) not null,
-  razorpay_payment_id text,
-  paid_at timestamptz
-);
+// 2. Users Table (Platform superadmins, Gym Admins, Front-Desk Staff)
+export const users = pgTable("users", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  firebaseUid: text("firebase_uid").notNull().unique(),
+  tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }), // null for platform role
+  role: userRoleEnum("role").notNull(),
+  email: text("email").notNull(),
+  fullName: text("full_name").notNull(),
+  avatarUrl: text("avatar_url"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("users_tenant_idx").on(table.tenantId),
+  index("users_firebase_uid_idx").on(table.firebaseUid),
+]);
 
-create table attendance (
-  id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references tenants(id) not null,
-  member_id uuid references members(id) not null,
-  checked_in_at timestamptz default now(),
-  method text default 'qr'
-);
+// 3. Membership Plans (Configured per gym)
+export const membershipPlans = pgTable("membership_plans", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  durationDays: integer("duration_days").notNull(),
+  isActive: text("is_active").default("true").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("plans_tenant_idx").on(table.tenantId),
+]);
+
+// 4. Members (Athletes, clients - Records without login credentials)
+export const members = pgTable("members", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
+  fullName: text("full_name").notNull(),
+  email: text("email"),
+  phone: text("phone").notNull(),
+  gender: text("gender"),
+  dateOfBirth: date("date_of_birth"),
+  emergencyContact: text("emergency_contact"),
+  avatarUrl: text("avatar_url"),
+  status: memberStatusEnum("status").default("active").notNull(),
+  qrToken: uuid("qr_token").defaultRandom().notNull().unique(),
+  joinDate: date("join_date").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("members_tenant_idx").on(table.tenantId),
+  uniqueIndex("members_qr_token_idx").on(table.qrToken),
+  index("members_phone_idx").on(table.phone),
+]);
+
+// 5. Memberships (Subscriptions linking members to plans)
+export const memberships = pgTable("memberships", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
+  memberId: uuid("member_id").references(() => members.id, { onDelete: "cascade" }).notNull(),
+  planId: uuid("plan_id").references(() => membershipPlans.id, { onDelete: "restrict" }).notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  status: membershipStatusEnum("status").default("active").notNull(),
+  autoRenew: text("auto_renew").default("false").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("memberships_tenant_idx").on(table.tenantId),
+  index("memberships_member_idx").on(table.memberId),
+  index("memberships_end_date_idx").on(table.endDate),
+]);
+
+// 6. Payments (Financial transactions)
+export const payments = pgTable("payments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
+  memberId: uuid("member_id").references(() => members.id, { onDelete: "cascade" }).notNull(),
+  membershipId: uuid("membership_id").references(() => memberships.id, { onDelete: "set null" }),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  method: paymentMethodEnum("method").notNull(),
+  status: paymentStatusEnum("status").notNull(),
+  razorpayOrderId: text("razorpay_order_id"),
+  razorpayPaymentId: text("razorpay_payment_id"),
+  notes: text("notes"),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("payments_tenant_idx").on(table.tenantId),
+  index("payments_member_idx").on(table.memberId),
+]);
+
+// 7. Attendance (Check-in log)
+export const attendance = pgTable("attendance", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
+  memberId: uuid("member_id").references(() => members.id, { onDelete: "cascade" }).notNull(),
+  checkedInAt: timestamp("checked_in_at", { withTimezone: true }).defaultNow().notNull(),
+  method: text("method").default("qr").notNull(), // 'qr' | 'manual'
+  kioskId: text("kiosk_id"),
+}, (table) => [
+  index("attendance_tenant_idx").on(table.tenantId),
+  index("attendance_member_idx").on(table.memberId),
+  index("attendance_date_idx").on(table.checkedInAt),
+]);
 ```
 
-`members` has no `user_id`/login — they're records, not accounts, per the MVP decision to drop member self-service.
+---
 
-## RLS policies
+## 3. PostgreSQL Row-Level Security Policies (`0001_enable_rls.sql`)
 
-**Tenant-scoped tables** (`members`, `membership_plans`, `memberships`, `payments`, `attendance`):
+PostgreSQL RLS policies are applied directly to the database engine:
 
 ```sql
-alter table members enable row level security;
+-- Enable RLS across all tables
+ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE membership_plans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE memberships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
 
-create policy tenant_scoped_access on members
-  using (
-    tenant_id = (auth.jwt() ->> 'tenant_id')::uuid
-    and (auth.jwt() ->> 'role') in ('admin','staff')
+-- -----------------------------------------------------------------------------
+-- 1. Tenants Table
+-- -----------------------------------------------------------------------------
+CREATE POLICY tenants_platform_all ON tenants
+  FOR ALL
+  USING (current_setting('app.current_role', true) = 'platform');
+
+CREATE POLICY tenants_tenant_select ON tenants
+  FOR SELECT
+  USING (id::text = current_setting('app.current_tenant_id', true));
+
+-- -----------------------------------------------------------------------------
+-- 2. Users Table
+-- -----------------------------------------------------------------------------
+CREATE POLICY users_platform_all ON users
+  FOR ALL
+  USING (current_setting('app.current_role', true) = 'platform');
+
+CREATE POLICY users_tenant_scoped ON users
+  FOR ALL
+  USING (
+    tenant_id::text = current_setting('app.current_tenant_id', true)
+    AND current_setting('app.current_role', true) IN ('admin', 'staff')
+  );
+
+-- -----------------------------------------------------------------------------
+-- 3. Tenant-Scoped Tables (Hard Isolation)
+-- Notice: Platform role is completely blocked from member data.
+-- -----------------------------------------------------------------------------
+CREATE POLICY members_tenant_isolation ON members
+  FOR ALL
+  USING (
+    tenant_id::text = current_setting('app.current_tenant_id', true)
+    AND current_setting('app.current_role', true) IN ('admin', 'staff')
+  );
+
+CREATE POLICY membership_plans_select ON membership_plans
+  FOR SELECT
+  USING (
+    tenant_id::text = current_setting('app.current_tenant_id', true)
+    AND current_setting('app.current_role', true) IN ('admin', 'staff')
+  );
+
+CREATE POLICY membership_plans_admin_mutate ON membership_plans
+  FOR INSERT
+  WITH CHECK (
+    tenant_id::text = current_setting('app.current_tenant_id', true)
+    AND current_setting('app.current_role', true) = 'admin'
+  );
+
+CREATE POLICY memberships_tenant_isolation ON memberships
+  FOR ALL
+  USING (
+    tenant_id::text = current_setting('app.current_tenant_id', true)
+    AND current_setting('app.current_role', true) IN ('admin', 'staff')
+  );
+
+CREATE POLICY payments_tenant_isolation ON payments
+  FOR ALL
+  USING (
+    tenant_id::text = current_setting('app.current_tenant_id', true)
+    AND current_setting('app.current_role', true) IN ('admin', 'staff')
+  );
+
+CREATE POLICY attendance_tenant_isolation ON attendance
+  FOR ALL
+  USING (
+    tenant_id::text = current_setting('app.current_tenant_id', true)
+    AND current_setting('app.current_role', true) IN ('admin', 'staff')
   );
 ```
 
-Repeat for `membership_plans`, `memberships`, `payments`, `attendance`. Add a stricter `insert`/`update` policy on `membership_plans` requiring `role = 'admin'` (staff read-only on pricing).
+---
 
-**`tenants` table** — platform-only, with a narrow self-read exception:
+## 4. Tenant Scope Helper (`src/lib/db/tenant.ts`)
 
-```sql
-alter table tenants enable row level security;
+To execute database queries within a safe tenant context:
 
-create policy platform_manages_tenants on tenants
-  using ((auth.jwt() ->> 'role') = 'platform');
+```typescript
+import { db } from "./index";
+import { sql } from "drizzle-orm";
 
-create policy tenant_self_read on tenants
-  for select
-  using (id = (auth.jwt() ->> 'tenant_id')::uuid);
+export interface SessionContext {
+  userId: string;
+  role: "platform" | "admin" | "staff";
+  tenantId: string | null;
+}
+
+export async function withTenantDb<T>(
+  context: SessionContext,
+  operation: (tx: any) => Promise<T>
+): Promise<T> {
+  return await db.transaction(async (tx) => {
+    if (context.role === "platform") {
+      await tx.execute(sql`SET LOCAL app.current_role = 'platform'`);
+      await tx.execute(sql`SET LOCAL app.current_tenant_id = ''`);
+    } else {
+      if (!context.tenantId) {
+        throw new Error("Tenant ID required for non-platform roles");
+      }
+      await tx.execute(sql`SET LOCAL app.current_role = ${context.role}`);
+      await tx.execute(sql`SET LOCAL app.current_tenant_id = ${context.tenantId}`);
+    }
+    return await operation(tx);
+  });
+}
 ```
 
-**Do not** write a policy anywhere that lets `role = 'platform'` touch `members`/`payments`/`attendance`/`memberships`/`membership_plans`. The absence is the whole point.
+---
 
-## Auth / claims
-Postgres function + Supabase Auth Hook injects `role` and `tenant_id` (null for platform users) into the JWT on login.
+## 5. Firebase Admin Custom Claims Sync
 
-## Exit criteria
-- [ ] All tenant-scoped tables have RLS enabled, admin/staff can only see their own tenant's rows
-- [ ] A `platform`-role session **cannot** select from `members`, `payments`, or `attendance` — confirm this fails, don't assume
-- [ ] A `platform`-role session **can** create/suspend a tenant row
-- [ ] Staff session blocked from `insert`/`update` on `membership_plans` pricing fields
+When creating or modifying staff/admin accounts, Firebase custom claims must be kept in sync:
+
+```typescript
+// src/lib/firebase/claims.ts
+import { adminAuth } from "./admin";
+
+export async function setUserClaims(
+  firebaseUid: string,
+  role: "platform" | "admin" | "staff",
+  tenantId: string | null
+) {
+  await adminAuth.setCustomUserClaims(firebaseUid, {
+    role,
+    tenant_id: tenantId,
+  });
+}
+```
+
+---
+
+## 6. Verification Checklist & Exit Criteria
+
+- [ ] PostgreSQL 16 container running and healthy on port `5432`.
+- [ ] Drizzle migrations successfully applied via `pnpm db:push` or `pnpm db:migrate`.
+- [ ] RLS enabled on all 7 tables (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`).
+- [ ] Automated verification script `pnpm test:rls` passes:
+  - [ ] Platform role cannot select from `members` (returns 0 rows).
+  - [ ] Admin from Tenant 1 cannot select members belonging to Tenant 2.
+  - [ ] Staff user cannot insert or update `membership_plans` price.
+- [ ] Database seeder script `pnpm db:seed` executes cleanly and generates initial demo users.

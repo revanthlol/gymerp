@@ -4,120 +4,387 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GymERP — Platform Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg-base:#0A0A0A;--bg-surface:#111113;--bg-elevated:#1A1A1F;--bg-muted:#222228;--border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.15);--text-primary:#F4F4F5;--text-secondary:#A1A1AA;--text-muted:#52525B;--accent:#FF5722;--accent-hover:#FF6D3A;--accent-glow:rgba(255,87,34,0.18);--accent-subtle:rgba(255,87,34,0.1);--accent-fg:#fff;}
-[data-theme=blue]{--accent:#00B4FF;--accent-glow:rgba(0,180,255,0.18);--accent-subtle:rgba(0,180,255,0.1);}
-[data-theme=green]{--accent:#39FF14;--accent-glow:rgba(57,255,20,0.15);--accent-subtle:rgba(57,255,20,0.08);--accent-fg:#0a0a0a;}
-[data-theme=purple]{--accent:#8B5CF6;--accent-glow:rgba(139,92,246,0.18);--accent-subtle:rgba(139,92,246,0.1);}
+:root{
+  --bg-base:#09090b;--bg-surface:#111115;--bg-elevated:#18181d;--bg-muted:#202027;
+  --border:rgba(255,255,255,0.07);--border-strong:rgba(255,255,255,0.14);
+  --text-primary:#f4f4f6;--text-secondary:#9ca3af;--text-muted:#52525b;
+  --accent:#ff5722;--accent-hover:#ff6e3a;--accent-glow:rgba(255,87,34,0.18);--accent-subtle:rgba(255,87,34,0.1);--accent-fg:#ffffff;
+}
+[data-theme=blue]{--accent:#0ea5e9;--accent-hover:#38bdf8;--accent-glow:rgba(14,165,233,0.18);--accent-subtle:rgba(14,165,233,0.1);--accent-fg:#ffffff;}
+[data-theme=green]{--accent:#22c55e;--accent-hover:#4ade80;--accent-glow:rgba(34,197,94,0.16);--accent-subtle:rgba(34,197,94,0.09);--accent-fg:#051509;}
+[data-theme=purple]{--accent:#8b5cf6;--accent-hover:#a78bfa;--accent-glow:rgba(139,92,246,0.18);--accent-subtle:rgba(139,92,246,0.1);--accent-fg:#ffffff;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:var(--bg-base);color:var(--text-primary);height:100vh;display:flex;overflow:hidden;}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg-base);
+  color:var(--text-primary);
+  height:100vh;
+  display:flex;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
 /* SIDEBAR */
-.sidebar{width:240px;flex-shrink:0;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:0;}
-.sb-logo{display:flex;align-items:center;gap:.6rem;padding:1.25rem 1rem;border-bottom:1px solid var(--border);}
-.sb-logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 0 12px var(--accent-glow);}
-.sb-logo-text{font-size:.9rem;font-weight:700;}
-.sb-logo-badge{font-size:.6rem;color:var(--accent);font-weight:600;background:var(--accent-subtle);padding:.15rem .4rem;border-radius:4px;letter-spacing:.04em;}
-.sb-nav{flex:1;padding:.75rem .5rem;display:flex;flex-direction:column;gap:.15rem;}
-.nav-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .6rem;border-radius:7px;font-size:.85rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all 120ms;text-decoration:none;}
+.sidebar{
+  width:240px;
+  flex-shrink:0;
+  background:var(--bg-surface);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  box-shadow:inset -1px 0 0 0 rgba(255,255,255,0.03);
+}
+.sb-logo{display:flex;align-items:center;gap:.65rem;padding:1.15rem 1rem;border-bottom:1px solid var(--border);}
+.sb-logo-icon{
+  width:32px;
+  height:32px;
+  background:linear-gradient(135deg,var(--accent) 0%,color-mix(in srgb,var(--accent) 70%,#000) 100%);
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.1),0 0 16px var(--accent-glow);
+}
+.sb-logo-icon svg{color:#fff;width:17px;height:17px;}
+.sb-logo-text{font-size:.92rem;font-weight:700;letter-spacing:-0.02em;}
+.sb-logo-badge{
+  font-size:.58rem;
+  color:var(--accent);
+  font-weight:700;
+  background:var(--accent-subtle);
+  border:1px solid var(--accent-glow);
+  padding:.12rem .4rem;
+  border-radius:4px;
+  letter-spacing:.06em;
+  display:inline-block;
+  margin-top:.1rem;
+}
+.sb-nav{flex:1;padding:.75rem .5rem;display:flex;flex-direction:column;gap:.2rem;}
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:.65rem;
+  padding:.45rem .65rem;
+  border-radius:7px;
+  font-size:.84rem;
+  font-weight:500;
+  color:var(--text-secondary);
+  cursor:pointer;
+  transition:all 120ms;
+  text-decoration:none;
+}
+.nav-item svg{width:16px;height:16px;stroke-width:2;color:var(--text-muted);transition:color 120ms;}
 .nav-item:hover{background:var(--bg-muted);color:var(--text-primary);}
-.nav-item.active{background:var(--accent-subtle);color:var(--accent);}
-.nav-icon{width:18px;text-align:center;font-size:.95rem;}
-.sb-bottom{padding:.75rem .75rem 1rem;border-top:1px solid var(--border);}
-.sb-user{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
-.sb-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-subtle);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--accent);}
-.sb-user-name{font-size:.8rem;font-weight:600;}
+.nav-item:hover svg{color:var(--text-primary);}
+.nav-item.active{
+  background:var(--accent-subtle);
+  color:var(--text-primary);
+  border-left:2px solid var(--accent);
+  font-weight:600;
+}
+.nav-item.active svg{color:var(--accent);}
+.sb-bottom{padding:.85rem .85rem 1rem;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:.6rem;margin-bottom:.85rem;}
+.sb-avatar{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--accent-subtle),var(--bg-elevated));
+  border:1.5px solid var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.75rem;
+  font-weight:700;
+  color:var(--accent);
+}
+.sb-user-name{font-size:.82rem;font-weight:600;}
 .sb-user-role{font-size:.68rem;color:var(--text-muted);}
 .theme-dots{display:flex;align-items:center;gap:.4rem;}
-.theme-dots span{font-size:.68rem;color:var(--text-muted);}
-.dot{width:12px;height:12px;border-radius:50%;cursor:pointer;border:1.5px solid transparent;transition:box-shadow 100ms;}
-.dot.active{border-color:rgba(255,255,255,.4);}
-.dot-orange{background:#FF5722;}.dot-blue{background:#00B4FF;}.dot-green{background:#39FF14;}.dot-purple{background:#8B5CF6;}
+.theme-dots span{font-size:.68rem;color:var(--text-muted);font-weight:500;}
+.dot{width:13px;height:13px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 120ms;}
+.dot.active{border-color:rgba(255,255,255,.5);transform:scale(1.15);}
+.dot-orange{background:#ff5722;}.dot-blue{background:#0ea5e9;}.dot-green{background:#22c55e;}.dot-purple{background:#8b5cf6;}
+
 /* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.page-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.5rem;border-bottom:1px solid var(--border);flex-shrink:0;}
-.page-title{font-size:1.1rem;font-weight:700;}
-.btn-primary{height:34px;padding:0 1rem;background:var(--accent);color:var(--accent-fg);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;border:none;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;transition:background 150ms,box-shadow 150ms;}
-.btn-primary:hover{box-shadow:0 0 16px var(--accent-glow);}
-.content{flex:1;overflow-y:auto;padding:1.25rem 1.5rem;}
+.page-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:.85rem 1.75rem;
+  border-bottom:1px solid var(--border);
+  background:rgba(17,17,21,0.5);
+  backdrop-filter:blur(8px);
+  flex-shrink:0;
+}
+.page-title-wrap{display:flex;align-items:center;gap:.75rem;}
+.page-title{font-size:1.15rem;font-weight:700;letter-spacing:-0.02em;}
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  font-size:.68rem;
+  font-weight:600;
+  color:#10b981;
+  background:rgba(16,185,129,0.08);
+  border:1px solid rgba(16,185,129,0.2);
+  padding:.15rem .5rem;
+  border-radius:20px;
+}
+.status-pill-dot{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;}
+.btn-primary{
+  height:34px;
+  padding:0 .95rem;
+  background:var(--accent);
+  color:var(--accent-fg);
+  font-family:'Inter',sans-serif;
+  font-size:.8rem;
+  font-weight:600;
+  border:none;
+  border-radius:7px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  transition:all 150ms;
+}
+.btn-primary svg{width:15px;height:15px;stroke-width:2.2;}
+.btn-primary:hover{box-shadow:0 0 16px var(--accent-glow);background:var(--accent-hover);}
+.content{flex:1;overflow-y:auto;padding:1.5rem 1.75rem;}
+
+/* METRICS */
+.platform-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem;}
+.p-metric{
+  background:var(--bg-surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:1rem;
+  box-shadow:inset 0 1px 0 0 rgba(255,255,255,0.04);
+}
+.p-metric-label{font-size:.68rem;font-weight:600;color:var(--text-muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.4rem;}
+.p-metric-val{font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;line-height:1;}
+.p-metric-sub{font-size:.7rem;color:var(--text-secondary);margin-top:.4rem;display:flex;align-items:center;gap:.25rem;}
+.p-metric-sub svg{width:13px;height:13px;}
+
+/* TOOLBAR */
 .toolbar{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;}
 .search-box{position:relative;flex:1;max-width:320px;}
-.search-box input{width:100%;height:34px;background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:7px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:.82rem;padding:0 .75rem 0 2rem;outline:none;transition:border-color 150ms,box-shadow 150ms;}
+.search-box input{
+  width:100%;
+  height:36px;
+  background:var(--bg-muted);
+  border:1px solid var(--border-strong);
+  border-radius:7px;
+  color:var(--text-primary);
+  font-family:'Inter',sans-serif;
+  font-size:.82rem;
+  padding:0 .75rem 0 2.2rem;
+  outline:none;
+  transition:all 150ms;
+}
 .search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow);}
 .search-box input::placeholder{color:var(--text-muted);}
-.search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.85rem;}
-.select-filter{height:34px;background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:7px;color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:.82rem;padding:0 .75rem;outline:none;cursor:pointer;}
+.search-icon{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);display:flex;align-items:center;pointer-events:none;}
+.search-icon svg{width:15px;height:15px;}
+.select-filter{
+  height:36px;
+  background:var(--bg-muted);
+  border:1px solid var(--border-strong);
+  border-radius:7px;
+  color:var(--text-secondary);
+  font-family:'Inter',sans-serif;
+  font-size:.82rem;
+  padding:0 .75rem;
+  outline:none;
+  cursor:pointer;
+}
+
 /* TABLE */
-.table-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.table-wrap{
+  background:var(--bg-surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:inset 0 1px 0 0 rgba(255,255,255,0.04);
+}
 table{width:100%;border-collapse:collapse;}
-thead th{padding:.6rem 1rem;text-align:left;font-size:.68rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);}
+thead th{
+  padding:.7rem 1.1rem;
+  text-align:left;
+  font-size:.68rem;
+  font-weight:600;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.015);
+}
 thead th.sortable{cursor:pointer;user-select:none;}
 thead th.sortable:hover{color:var(--text-secondary);}
+.th-content{display:inline-flex;align-items:center;gap:.35rem;}
+.th-content svg{width:12px;height:12px;}
 tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background 100ms;}
 tbody tr:last-child{border-bottom:none;}
 tbody tr:hover{background:rgba(255,255,255,0.03);}
-tbody td{padding:.65rem 1rem;font-size:.85rem;}
+tbody td{padding:.75rem 1.1rem;font-size:.84rem;}
+.gym-cell{display:flex;flex-direction:column;gap:.15rem;}
+.gym-name{font-weight:600;}
+.gym-owner{font-size:.72rem;color:var(--text-muted);}
 .badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:600;padding:.2rem .55rem;border-radius:5px;}
-.badge-active{background:var(--accent-subtle);color:var(--accent);}
-.badge-trial{background:rgba(234,179,8,.1);color:#eab308;}
-.badge-suspended{background:rgba(239,68,68,.1);color:#f87171;}
-.badge-plan{background:var(--bg-muted);color:var(--text-secondary);}
-.dot-status{width:7px;height:7px;border-radius:50%;display:inline-block;}
-.dot-a{background:var(--accent);}.dot-t{background:#eab308;}.dot-s{background:#f87171;}
-.pagination{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;border-top:1px solid var(--border);}
+.badge-active{background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.25);}
+.badge-trial{background:rgba(234,179,8,.1);color:#facc15;border:1px solid rgba(234,179,8,.25);}
+.badge-suspended{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.25);}
+.badge-plan{background:var(--bg-muted);color:var(--text-secondary);border:1px solid var(--border-strong);}
+.dot-status{width:6px;height:6px;border-radius:50%;display:inline-block;}
+.dot-a{background:#10b981;box-shadow:0 0 5px #10b981;}.dot-t{background:#eab308;box-shadow:0 0 5px #eab308;}.dot-s{background:#ef4444;box-shadow:0 0 5px #ef4444;}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.1rem;border-top:1px solid var(--border);}
 .pag-info{font-size:.78rem;color:var(--text-muted);}
 .pag-btns{display:flex;gap:.35rem;}
-.pag-btn{width:28px;height:28px;border-radius:5px;background:var(--bg-muted);border:1px solid var(--border);color:var(--text-secondary);font-size:.78rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 100ms;}
+.pag-btn{
+  width:28px;
+  height:28px;
+  border-radius:6px;
+  background:var(--bg-muted);
+  border:1px solid var(--border);
+  color:var(--text-secondary);
+  font-size:.78rem;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 100ms;
+}
+.pag-btn svg{width:14px;height:14px;}
 .pag-btn:hover,.pag-btn.active{background:var(--accent-subtle);color:var(--accent);border-color:var(--accent);}
+
 /* DRAWER */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;animation:fadeIn 200ms;}
-.drawer{position:fixed;right:0;top:0;bottom:0;width:380px;background:var(--bg-elevated);border-left:1px solid var(--border-strong);z-index:101;display:none;flex-direction:column;transform:translateX(100%);transition:transform 250ms cubic-bezier(0.32,0.72,0,1);}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:100;display:none;animation:fadeIn 200ms;}
+.drawer{
+  position:fixed;
+  right:0;
+  top:0;
+  bottom:0;
+  width:400px;
+  background:var(--bg-elevated);
+  border-left:1px solid var(--border-strong);
+  box-shadow:-8px 0 32px rgba(0,0,0,0.5);
+  z-index:101;
+  display:none;
+  flex-direction:column;
+  transform:translateX(100%);
+  transition:transform 250ms cubic-bezier(0.32,0.72,0,1);
+}
 .drawer.open{transform:translateX(0);}
 @keyframes fadeIn{from{opacity:0}}
-.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);}
 .drawer-title{font-size:.95rem;font-weight:700;}
-.close-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem;padding:.25rem;line-height:1;border-radius:4px;transition:color 150ms;}
-.close-btn:hover{color:var(--text-primary);}
-.drawer-body{flex:1;overflow-y:auto;padding:1.25rem;}
-.detail-name{font-size:1.2rem;font-weight:700;margin-bottom:.25rem;}
-.detail-id{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-muted);margin-bottom:1rem;}
-.detail-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--border);}
+.close-btn{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text-secondary);
+  cursor:pointer;
+  width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  transition:all 150ms;
+}
+.close-btn svg{width:15px;height:15px;}
+.close-btn:hover{color:var(--text-primary);border-color:var(--border-strong);background:var(--bg-muted);}
+.drawer-body{flex:1;overflow-y:auto;padding:1.35rem;}
+.detail-name{font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:.25rem;}
+.detail-id{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-muted);margin-bottom:1.25rem;display:flex;align-items:center;gap:.35rem;}
+.detail-id svg{width:13px;height:13px;}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border);}
 .detail-row:last-of-type{border-bottom:none;}
-.detail-label{font-size:.78rem;color:var(--text-secondary);}
+.detail-label{font-size:.78rem;color:var(--text-secondary);display:flex;align-items:center;gap:.45rem;}
+.detail-label svg{width:14px;height:14px;color:var(--text-muted);}
 .detail-val{font-size:.85rem;font-weight:500;}
-.drawer-actions{display:flex;flex-direction:column;gap:.6rem;padding:1rem 1.25rem;border-top:1px solid var(--border);}
-.btn-danger{height:36px;padding:0 1rem;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#f87171;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;border-radius:7px;cursor:pointer;transition:all 150ms;}
-.btn-danger:hover{background:rgba(239,68,68,.25);}
-.btn-accent{height:36px;padding:0 1rem;background:var(--accent);color:var(--accent-fg);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;border:none;border-radius:7px;cursor:pointer;transition:all 150ms;}
+.drawer-actions{display:flex;flex-direction:column;gap:.6rem;padding:1.1rem 1.25rem;border-top:1px solid var(--border);}
+.btn-danger{
+  height:36px;
+  padding:0 1rem;
+  background:rgba(239,68,68,.12);
+  border:1px solid rgba(239,68,68,.35);
+  color:#f87171;
+  font-family:'Inter',sans-serif;
+  font-size:.82rem;
+  font-weight:600;
+  border-radius:7px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.4rem;
+  transition:all 150ms;
+}
+.btn-danger svg{width:15px;height:15px;}
+.btn-danger:hover{background:rgba(239,68,68,.2);}
+.btn-accent{
+  height:36px;
+  padding:0 1rem;
+  background:var(--accent);
+  color:var(--accent-fg);
+  font-family:'Inter',sans-serif;
+  font-size:.82rem;
+  font-weight:600;
+  border:none;
+  border-radius:7px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.4rem;
+  transition:all 150ms;
+}
+.btn-accent svg{width:15px;height:15px;}
 .btn-accent:hover{box-shadow:0 0 14px var(--accent-glow);}
+
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;animation:fadeIn 150ms;}
-.modal{background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:12px;padding:1.5rem;width:100%;max-width:420px;box-shadow:inset 0 0 0 1px var(--accent-glow),0 8px 40px rgba(0,0,0,.5);}
-.modal-title{font-size:1rem;font-weight:700;margin-bottom:.25rem;}
-.modal-divider{height:1px;background:var(--border);margin:.75rem 0 1.25rem;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;animation:fadeIn 150ms;}
+.modal{background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:12px;padding:1.75rem;width:100%;max-width:440px;box-shadow:inset 0 1px 0 0 rgba(255,255,255,0.06),0 8px 40px rgba(0,0,0,.6);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.modal-title{font-size:1.05rem;font-weight:700;}
 .field{margin-bottom:1rem;}
-.field label{display:block;font-size:.7rem;font-weight:600;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.35rem;}
-.field input,.field select{width:100%;height:36px;background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:7px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:.83rem;padding:0 .75rem;outline:none;transition:border-color 150ms;}
+.field label{display:block;font-size:.7rem;font-weight:600;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.4rem;}
+.field input,.field select{width:100%;height:38px;background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:7px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:.83rem;padding:0 .75rem;outline:none;transition:border-color 150ms;}
 .field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow);}
-.modal-btns{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.25rem;}
-.btn-ghost{height:34px;padding:0 .9rem;background:transparent;border:1px solid var(--border-strong);color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:.8rem;border-radius:7px;cursor:pointer;transition:all 150ms;}
-.btn-ghost:hover{color:var(--text-primary);border-color:var(--border-strong);}
+.modal-btns{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.5rem;}
+.btn-ghost{height:36px;padding:0 1rem;background:transparent;border:1px solid var(--border-strong);color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:.8rem;border-radius:7px;cursor:pointer;transition:all 150ms;}
+.btn-ghost:hover{color:var(--text-primary);border-color:var(--border-strong);background:var(--bg-muted);}
 </style>
 </head>
 <body>
 
 <div class="sidebar">
   <div class="sb-logo">
-    <div class="sb-logo-icon">🏋️</div>
+    <div class="sb-logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M3 8h4M17 8h4M3 16h4M17 16h4M7 12h10"/></svg>
+    </div>
     <div>
       <div class="sb-logo-text">GymERP</div>
       <div class="sb-logo-badge">PLATFORM</div>
     </div>
   </div>
   <div class="sb-nav">
-    <div class="nav-item active"><span class="nav-icon">🏢</span> Tenants</div>
-    <div class="nav-item"><span class="nav-icon">⚙️</span> Settings</div>
-    <div class="nav-item"><span class="nav-icon">👤</span> Account</div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+      Tenants
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+      Settings
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      Account
+    </div>
   </div>
   <div class="sb-bottom">
     <div class="sb-user">
@@ -131,20 +398,59 @@ tbody td{padding:.65rem 1rem;font-size:.85rem;}
       <div class="dot dot-green" onclick="setTheme('green',this)"></div>
       <div class="dot dot-purple" onclick="setTheme('purple',this)"></div>
     </div>
-    <div style="margin-top:.75rem;"><a href="index.html" style="font-size:.72rem;color:var(--text-muted);text-decoration:none;">← All Demos</a></div>
+    <div style="margin-top:.85rem;">
+      <a href="index.html" style="font-size:.74rem;color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;">
+        <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        All Demos
+      </a>
+    </div>
   </div>
 </div>
 
 <div class="main">
   <div class="page-header">
-    <div class="page-title">Tenants</div>
-    <button class="btn-primary" onclick="openModal()">+ New Tenant</button>
+    <div class="page-title-wrap">
+      <div class="page-title">Tenants</div>
+      <div class="status-pill"><span class="status-pill-dot"></span>Multi-Tenant Mesh Active</div>
+    </div>
+    <button class="btn-primary" onclick="openModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+      New Tenant
+    </button>
   </div>
   <div class="content">
+    <div class="platform-metrics">
+      <div class="p-metric">
+        <div class="p-metric-label">Total Tenants</div>
+        <div class="p-metric-val">7</div>
+        <div class="p-metric-sub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          <span style="color:#10b981">+2 this month</span>
+        </div>
+      </div>
+      <div class="p-metric">
+        <div class="p-metric-label">Active Members</div>
+        <div class="p-metric-val">660</div>
+        <div class="p-metric-sub">Across all gym tenants</div>
+      </div>
+      <div class="p-metric">
+        <div class="p-metric-label">Platform ARR</div>
+        <div class="p-metric-val" style="color:var(--accent)">₹3.4M</div>
+        <div class="p-metric-sub">Subscription revenue</div>
+      </div>
+      <div class="p-metric">
+        <div class="p-metric-label">Database Health</div>
+        <div class="p-metric-val" style="color:#10b981">99.98%</div>
+        <div class="p-metric-sub">RLS tenant isolation active</div>
+      </div>
+    </div>
+
     <div class="toolbar">
       <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search tenants..." oninput="filterTable()">
+        <span class="search-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <input type="text" id="searchInput" placeholder="Search tenants or owners..." oninput="filterTable()">
       </div>
       <select class="select-filter" id="statusFilter" onchange="filterTable()">
         <option value="">Status: All</option>
@@ -158,11 +464,17 @@ tbody td{padding:.65rem 1rem;font-size:.85rem;}
       <table>
         <thead>
           <tr>
-            <th class="sortable">Gym Name ↕</th>
+            <th class="sortable">
+              <span class="th-content">Gym Name <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+            </th>
             <th>Status</th>
-            <th class="sortable">Members ↕</th>
+            <th class="sortable">
+              <span class="th-content">Members <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+            </th>
             <th>Plan</th>
-            <th class="sortable">Since ↕</th>
+            <th class="sortable">
+              <span class="th-content">Since <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></span>
+            </th>
           </tr>
         </thead>
         <tbody id="tenantTable">
@@ -171,11 +483,15 @@ tbody td{padding:.65rem 1rem;font-size:.85rem;}
       <div class="pagination">
         <div class="pag-info" id="pagInfo"></div>
         <div class="pag-btns">
-          <div class="pag-btn">‹</div>
+          <div class="pag-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </div>
           <div class="pag-btn active">1</div>
           <div class="pag-btn">2</div>
           <div class="pag-btn">3</div>
-          <div class="pag-btn">›</div>
+          <div class="pag-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
         </div>
       </div>
     </div>
@@ -186,8 +502,10 @@ tbody td{padding:.65rem 1rem;font-size:.85rem;}
 <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-header">
-    <div class="drawer-title">Tenant Detail</div>
-    <button class="close-btn" onclick="closeDrawer()">✕</button>
+    <div class="drawer-title">Tenant Overview</div>
+    <button class="close-btn" onclick="closeDrawer()" aria-label="Close drawer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+    </button>
   </div>
   <div class="drawer-body" id="drawerBody"></div>
   <div class="drawer-actions">
@@ -199,23 +517,30 @@ tbody td{padding:.65rem 1rem;font-size:.85rem;}
 <!-- New Tenant Modal -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal">
-    <div class="modal-title">Create New Tenant</div>
-    <div class="modal-divider"></div>
+    <div class="modal-header">
+      <div class="modal-title">Create New Tenant</div>
+      <button class="close-btn" onclick="closeModal()" aria-label="Close modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+      </button>
+    </div>
     <div class="field"><label>Gym Name</label><input type="text" id="newGymName" placeholder="e.g. FitZone Gym"></div>
     <div class="field"><label>Owner Email</label><input type="email" id="newOwnerEmail" placeholder="owner@theirgym.com"></div>
-    <div class="field"><label>Plan</label>
+    <div class="field"><label>Subscription Tier</label>
       <select id="newPlan"><option>Trial</option><option>Basic</option><option>Pro</option></select>
     </div>
     <div class="modal-btns">
       <button class="btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="createTenant()">Create Tenant →</button>
+      <button class="btn-primary" onclick="createTenant()">
+        Create Tenant
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
     </div>
   </div>
 </div>
 
 <script>
 const tenants=[
-  {id:'tenant_abc123',name:'FitZone Gym',owner:'owner@fitzzone.com',status:'active',members:142,plan:'Pro',since:'Jan 2025',lastLogin:'2h ago'},
+  {id:'tenant_abc123',name:'FitZone Gym',owner:'owner@fitzone.com',status:'active',members:142,plan:'Pro',since:'Jan 2025',lastLogin:'2h ago'},
   {id:'tenant_def456',name:'PowerHouse Pro',owner:'owner@powerhouse.com',status:'trial',members:0,plan:'Trial',since:'Aug 2026',lastLogin:'1d ago'},
   {id:'tenant_ghi789',name:'Iron Will Club',owner:'owner@ironwill.com',status:'suspended',members:89,plan:'Basic',since:'Mar 2024',lastLogin:'30d ago'},
   {id:'tenant_jkl012',name:'Peak Performance',owner:'owner@peakperf.com',status:'active',members:231,plan:'Pro',since:'Jun 2024',lastLogin:'4h ago'},
@@ -235,9 +560,14 @@ function renderTable(){
   const tb=document.getElementById('tenantTable');
   tb.innerHTML=filtered.map(t=>`
     <tr onclick="openDrawer('${t.id}')">
-      <td style="font-weight:500">${t.name}</td>
+      <td>
+        <div class="gym-cell">
+          <span class="gym-name">${t.name}</span>
+          <span class="gym-owner">${t.owner}</span>
+        </div>
+      </td>
       <td>${badgeHtml(t.status)}</td>
-      <td>${t.members}</td>
+      <td style="font-weight:600;font-variant-numeric:tabular-nums">${t.members}</td>
       <td><span class="badge badge-plan">${t.plan}</span></td>
       <td style="color:var(--text-secondary)">${t.since}</td>
     </tr>
@@ -260,13 +590,52 @@ function openDrawer(id){
   const t=selectedTenant;
   document.getElementById('drawerBody').innerHTML=`
     <div class="detail-name">${t.name}</div>
-    <div class="detail-id">ID: ${t.id}</div>
-    <div class="detail-row"><span class="detail-label">Status</span>${badgeHtml(t.status)}</div>
-    <div class="detail-row"><span class="detail-label">Owner</span><span class="detail-val" style="font-size:.78rem">${t.owner}</span></div>
-    <div class="detail-row"><span class="detail-label">Members</span><span class="detail-val">${t.members}</span></div>
-    <div class="detail-row"><span class="detail-label">Plan</span><span class="detail-val">${t.plan}</span></div>
-    <div class="detail-row"><span class="detail-label">Since</span><span class="detail-val">${t.since}</span></div>
-    <div class="detail-row"><span class="detail-label">Last Login</span><span class="detail-val" style="color:var(--text-secondary)">${t.lastLogin}</span></div>
+    <div class="detail-id">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      ${t.id}
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+        Status
+      </span>
+      ${badgeHtml(t.status)}
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        Owner Email
+      </span>
+      <span class="detail-val" style="font-size:.78rem">${t.owner}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Members
+      </span>
+      <span class="detail-val">${t.members}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/></svg>
+        Tier Plan
+      </span>
+      <span class="detail-val">${t.plan}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+        Tenant Since
+      </span>
+      <span class="detail-val">${t.since}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Last Active
+      </span>
+      <span class="detail-val" style="color:var(--text-secondary)">${t.lastLogin}</span>
+    </div>
   `;
   updateDrawerBtns();
   document.getElementById('overlay').style.display='block';
@@ -278,17 +647,27 @@ function updateDrawerBtns(){
   const t=selectedTenant;
   const db=document.getElementById('drawerDangerBtn');
   const ab=document.getElementById('drawerAccentBtn');
-  if(t.status==='suspended'){db.style.display='none';ab.textContent='Activate Tenant';}
-  else{db.style.display='block';db.textContent='Suspend Tenant';ab.textContent='View Details →';}
+  if(t.status==='suspended'){
+    db.style.display='none';
+    ab.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 12 15 16 10"/></svg> Reactivate Tenant`;
+  } else {
+    db.style.display='inline-flex';
+    db.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"/></svg> Suspend Tenant`;
+    ab.innerHTML=`View Gym Portal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+  }
 }
 function toggleTenantStatus(){
   if(!selectedTenant) return;
   if(selectedTenant.status!=='suspended'){
-    if(confirm('Suspend '+selectedTenant.name+'? They will lose access.')){
+    if(confirm('Suspend '+selectedTenant.name+'? Their portal access will be temporarily halted.')){
       selectedTenant.status='suspended';
       renderTable();
       openDrawer(selectedTenant.id);
     }
+  } else {
+    selectedTenant.status='active';
+    renderTable();
+    openDrawer(selectedTenant.id);
   }
 }
 function closeDrawer(){
@@ -297,20 +676,29 @@ function closeDrawer(){
   setTimeout(()=>{dr.style.display='none';document.getElementById('overlay').style.display='none';},260);
 }
 function openModal(){document.getElementById('modalOverlay').style.display='flex';}
-function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').style.display='none';}
+function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay')||e.target.closest('.close-btn')||e.target.closest('.btn-ghost'))document.getElementById('modalOverlay').style.display='none';}
 function createTenant(){
   const name=document.getElementById('newGymName').value.trim();
   const email=document.getElementById('newOwnerEmail').value.trim();
   const plan=document.getElementById('newPlan').value;
   if(!name||!email){alert('Please fill in all fields.');return;}
-  tenants.unshift({id:'tenant_new'+Date.now(),name,owner:email,status:'trial',members:0,plan,since:'Sep 2026',lastLogin:'just now'});
+  tenants.unshift({id:'tenant_new'+Date.now(),name,owner:email,status:'trial',members:0,plan,since:'Sep 2026',lastLogin:'Just now'});
   filterTable();
-  closeModal();
+  document.getElementById('modalOverlay').style.display='none';
   document.getElementById('newGymName').value='';
   document.getElementById('newOwnerEmail').value='';
 }
-function setTheme(t,el){document.documentElement.setAttribute('data-theme',t);document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));el.classList.add('active');localStorage.setItem('gymerp-theme',t);}
-const s=localStorage.getItem('gymerp-theme');if(s){const el=document.querySelector('.dot-'+s);if(el)setTheme(s,el);}
+function setTheme(t,el){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));
+  el.classList.add('active');
+  localStorage.setItem('gymerp-theme',t);
+}
+const s=localStorage.getItem('gymerp-theme');
+if(s){
+  const el=document.querySelector('.dot-'+s);
+  if(el)setTheme(s,el);
+}
 renderTable();
 </script>
 </body>

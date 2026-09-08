@@ -4,82 +4,260 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GymERP — Demo Launcher</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg-base:#0A0A0A;--bg-surface:#111113;--bg-elevated:#1A1A1F;--bg-muted:#222228;--border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.15);--text-primary:#F4F4F5;--text-secondary:#A1A1AA;--text-muted:#52525B;--accent:#FF5722;--accent-hover:#FF6D3A;--accent-glow:rgba(255,87,34,0.18);--accent-subtle:rgba(255,87,34,0.1);--accent-fg:#fff;}
-[data-theme=blue]{--accent:#00B4FF;--accent-hover:#22C3FF;--accent-glow:rgba(0,180,255,0.18);--accent-subtle:rgba(0,180,255,0.1);}
-[data-theme=green]{--accent:#39FF14;--accent-hover:#50FF30;--accent-glow:rgba(57,255,20,0.15);--accent-subtle:rgba(57,255,20,0.08);--accent-fg:#0a0a0a;}
-[data-theme=purple]{--accent:#8B5CF6;--accent-hover:#9D70FF;--accent-glow:rgba(139,92,246,0.18);--accent-subtle:rgba(139,92,246,0.1);}
+:root{
+  --bg-base:#080809;--bg-surface:#0f0f12;--bg-elevated:#161619;--bg-muted:#1d1d22;
+  --border:rgba(255,255,255,0.06);--border-strong:rgba(255,255,255,0.14);
+  --text-primary:#EDEDEF;--text-secondary:#9ca3af;--text-muted:#52525B;
+  --accent:#FF4F12;--accent-glow:rgba(255,79,18,0.18);--accent-subtle:rgba(255,79,18,0.1);--accent-fg:#fff;
+}
+[data-theme=blue]{--accent:#0EA5E9;--accent-glow:rgba(14,165,233,0.18);--accent-subtle:rgba(14,165,233,0.1);}
+[data-theme=green]{--accent:#22C55E;--accent-glow:rgba(34,197,94,0.16);--accent-subtle:rgba(34,197,94,0.09);--accent-fg:#020804;}
+[data-theme=purple]{--accent:#8B5CF6;--accent-glow:rgba(139,92,246,0.18);--accent-subtle:rgba(139,92,246,0.1);}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
-.logo{display:flex;align-items:center;gap:.75rem;margin-bottom:2.5rem;}
-.logo-icon{width:44px;height:44px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 24px var(--accent-glow);}
-.logo-text{font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;}
-.logo-sub{font-size:.72rem;color:var(--text-secondary);font-weight:500;}
-h1{font-size:2rem;font-weight:800;letter-spacing:-0.03em;text-align:center;margin-bottom:.5rem;}
-.subtitle{color:var(--text-secondary);text-align:center;margin-bottom:3rem;font-size:.88rem;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;max-width:880px;width:100%;}
-.card{background:rgba(17,17,19,0.85);border:1px solid var(--border);box-shadow:inset 0 0 0 1px var(--accent-glow),0 1px 1px rgba(0,0,0,0.4);border-radius:10px;padding:1.5rem;cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:.6rem;transition:box-shadow 150ms,transform 150ms;backdrop-filter:blur(8px);}
-.card:hover{box-shadow:inset 0 0 18px var(--accent-glow),0 0 0 1px var(--accent);transform:translateY(-2px);}
-.card-icon{font-size:2rem;}
-.card-role{font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
-.card-title{font-size:1.1rem;font-weight:700;}
-.card-desc{font-size:.78rem;color:var(--text-secondary);line-height:1.55;}
-.card-route{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-muted);margin-top:auto;padding-top:.4rem;}
-.theme-bar{display:flex;align-items:center;gap:.75rem;margin-top:3rem;}
-.theme-bar span{font-size:.75rem;color:var(--text-secondary);}
-.swatch{width:18px;height:18px;border-radius:50%;cursor:pointer;transition:box-shadow 150ms;border:2px solid transparent;}
-.swatch.active{border-color:rgba(255,255,255,.4);box-shadow:0 0 8px currentColor;}
-.sw-orange{background:#FF5722;}.sw-blue{background:#00B4FF;}.sw-green{background:#39FF14;}.sw-purple{background:#8B5CF6;}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg-base);
+  color:var(--text-primary);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:2.5rem 1.5rem;
+  position:relative;
+  -webkit-font-smoothing:antialiased;
+}
+.noise{position:fixed;inset:0;pointer-events:none;opacity:.022;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");z-index:0;}
+.glow-bg{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 55% 38% at 50% 50%, var(--accent-glow) 0%, transparent 72%);z-index:0;transition:background 400ms;}
+.wrap{position:relative;z-index:1;width:100%;max-width:960px;}
+
+/* HEADER */
+.header{display:flex;flex-direction:column;align-items:center;margin-bottom:2.75rem;}
+.badge-top{
+  display:inline-flex;
+  align-items:center;
+  gap:.45rem;
+  font-size:.66rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--text-secondary);
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border-strong);
+  padding:.3rem .75rem;
+  border-radius:20px;
+  margin-bottom:1.5rem;
+  backdrop-filter:blur(8px);
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;}
+.logo-mark{
+  width:52px;
+  height:52px;
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--accent) 0%,color-mix(in srgb,var(--accent) 70%,#000) 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:1.25rem;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 0 32px var(--accent-glow),0 8px 24px rgba(0,0,0,.5);
+  transition:box-shadow 400ms;
+}
+.logo-mark svg{color:#fff;}
+.headline{font-size:2.5rem;font-weight:800;letter-spacing:-0.04em;line-height:1.05;text-align:center;}
+.headline span{color:var(--accent);}
+.subline{font-size:.9rem;color:var(--text-secondary);margin-top:.65rem;text-align:center;max-width:500px;line-height:1.6;}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.85rem;}
+.card{
+  background:var(--bg-surface);
+  border:1px solid var(--border);
+  box-shadow:inset 0 1px 0 0 rgba(255,255,255,0.05);
+  border-radius:14px;
+  padding:1.75rem;
+  cursor:pointer;
+  text-decoration:none;
+  color:inherit;
+  display:flex;
+  flex-direction:column;
+  gap:.75rem;
+  position:relative;
+  overflow:hidden;
+  transition:border-color 180ms,transform 180ms,box-shadow 180ms;
+}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-glow) 0%,transparent 60%);opacity:0;transition:opacity 200ms;pointer-events:none;}
+.card:hover{border-color:var(--border-strong);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 0 1px var(--accent-glow),inset 0 1px 0 0 rgba(255,255,255,0.08);}
+.card:hover::before{opacity:1;}
+.card-header-row{display:flex;align-items:center;justify-content:space-between;}
+.card-icon-wrap{
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  background:var(--accent-subtle);
+  border:1px solid var(--accent-glow);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.card-icon-wrap svg{color:var(--accent);width:20px;height:20px;}
+.card-pill{
+  font-size:.62rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--accent);
+  background:var(--accent-subtle);
+  border:1px solid var(--accent-glow);
+  padding:.2rem .55rem;
+  border-radius:5px;
+}
+.card-title{font-size:1.1rem;font-weight:700;letter-spacing:-0.02em;}
+.card-desc{font-size:.82rem;color:var(--text-secondary);line-height:1.6;flex:1;}
+.card-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.15rem;}
+.card-tag{
+  font-size:.68rem;
+  color:var(--text-muted);
+  background:var(--bg-muted);
+  border:1px solid var(--border);
+  padding:.15rem .45rem;
+  border-radius:4px;
+}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.35rem;padding-top:.85rem;border-top:1px solid var(--border);}
+.card-route{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text-muted);display:flex;align-items:center;gap:.35rem;}
+.card-arrow{color:var(--text-muted);transition:transform 180ms,color 180ms;}
+.card:hover .card-arrow{color:var(--accent);transform:translateX(3px);}
+
+/* THEME */
+.theme-row{display:flex;align-items:center;gap:1rem;margin-top:2.25rem;justify-content:center;}
+.theme-label{font-size:.72rem;color:var(--text-muted);font-weight:500;}
+.swatches{display:flex;gap:.5rem;}
+.sw{width:20px;height:20px;border-radius:50%;cursor:pointer;transition:transform 150ms,box-shadow 150ms;border:2px solid transparent;position:relative;}
+.sw.active{border-color:rgba(255,255,255,.4);transform:scale(1.15);}
+.sw-orange{background:#FF4F12;}.sw-blue{background:#0EA5E9;}.sw-green{background:#22C55E;}.sw-purple{background:#8B5CF6;}
+
+@media (max-width: 640px) {
+  .grid{grid-template-columns:1fr;}
+  body{padding:1.5rem 1rem;}
+}
 </style>
 </head>
 <body>
-<div class="logo">
-  <div class="logo-icon">🏋️</div>
-  <div><div class="logo-text">GymERP</div><div class="logo-sub">Interactive Demo Launcher</div></div>
-</div>
-<h1>Choose a Portal</h1>
-<p class="subtitle">Click any tile to launch the interactive demo. All data is mocked — no backend needed.</p>
-<div class="grid">
-  <a href="01-login.html" class="card">
-    <div class="card-icon">🔐</div>
-    <div class="card-role">Shared · All Roles</div>
-    <div class="card-title">Login Page</div>
-    <div class="card-desc">Glassmorphic auth card with role-based redirect simulation, loading state, and inline error.</div>
-    <div class="card-route">/login</div>
-  </a>
-  <a href="02-platform.html" class="card">
-    <div class="card-icon">⚙️</div>
-    <div class="card-role">Platform Admin</div>
-    <div class="card-title">Platform Portal</div>
-    <div class="card-desc">Tenant list table, search/filter, slide-in detail drawer, suspend/activate, create tenant modal.</div>
-    <div class="card-route">/platform</div>
-  </a>
-  <a href="03-admin.html" class="card">
-    <div class="card-icon">🏠</div>
-    <div class="card-role">Gym Owner · Admin</div>
-    <div class="card-title">Admin Portal</div>
-    <div class="card-desc">Dashboard stat cards, members table, plans grid, payments table, member detail sheet, modals.</div>
-    <div class="card-route">/admin</div>
-  </a>
-  <a href="04-staff.html" class="card">
-    <div class="card-icon">📋</div>
-    <div class="card-role">Staff · Front Desk</div>
-    <div class="card-title">Staff + Check-In Kiosk</div>
-    <div class="card-desc">Quick action home, member list, and simulated QR kiosk with success / expired / offline states.</div>
-    <div class="card-route">/staff</div>
-  </a>
-</div>
-<div class="theme-bar">
-  <span>Accent theme:</span>
-  <div class="swatch sw-orange active" onclick="setTheme('orange',this)" title="Orange (default)"></div>
-  <div class="swatch sw-blue" onclick="setTheme('blue',this)" title="Electric Blue"></div>
-  <div class="swatch sw-green" onclick="setTheme('green',this)" title="Neon Green"></div>
-  <div class="swatch sw-purple" onclick="setTheme('purple',this)" title="Vivid Purple"></div>
+<div class="noise"></div>
+<div class="glow-bg"></div>
+<div class="wrap">
+  <div class="header">
+    <div class="badge-top">
+      <span class="badge-dot"></span>
+      Interactive Sandbox · Multi-Tenant System
+    </div>
+    <div class="logo-mark">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M3 8h4M17 8h4M3 16h4M17 16h4M7 12h10"/></svg>
+    </div>
+    <div class="headline">Explore <span>GymERP</span> Portals</div>
+    <p class="subline">Interactive high-fidelity prototypes for each user role. Zero backend dependencies required.</p>
+  </div>
+
+  <div class="grid">
+    <a href="01-login.html" class="card">
+      <div class="card-header-row">
+        <div class="card-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="card-pill">All Roles</div>
+      </div>
+      <div class="card-title">Login Authentication</div>
+      <div class="card-desc">Glassmorphic auth experience with role-based JWT redirect simulation, password visibility toggle, and instant client feedback.</div>
+      <div class="card-tags">
+        <span class="card-tag">JWT Claim Detection</span>
+        <span class="card-tag">Role Switcher</span>
+      </div>
+      <div class="card-footer">
+        <span class="card-route">01-login.html</span>
+        <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+    <a href="02-platform.html" class="card">
+      <div class="card-header-row">
+        <div class="card-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+        </div>
+        <div class="card-pill">Platform Admin</div>
+      </div>
+      <div class="card-title">Platform Operator Portal</div>
+      <div class="card-desc">Multi-tenant management mesh — live tenant search, tier statistics, slide-in details drawer, account suspension, and tenant onboarding modal.</div>
+      <div class="card-tags">
+        <span class="card-tag">Tenant Isolation</span>
+        <span class="card-tag">Drawer Inspector</span>
+      </div>
+      <div class="card-footer">
+        <span class="card-route">02-platform.html</span>
+        <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+    <a href="03-admin.html" class="card">
+      <div class="card-header-row">
+        <div class="card-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        </div>
+        <div class="card-pill">Gym Owner · Admin</div>
+      </div>
+      <div class="card-title">Gym Administrator Dashboard</div>
+      <div class="card-desc">Complete administrative suite — live member roster, subscription tier manager, counter payment ledger, and interactive member inspection sheets.</div>
+      <div class="card-tags">
+        <span class="card-tag">Roster & Billing</span>
+        <span class="card-tag">Revenue Analytics</span>
+      </div>
+      <div class="card-footer">
+        <span class="card-route">03-admin.html</span>
+        <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+    <a href="04-staff.html" class="card">
+      <div class="card-header-row">
+        <div class="card-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/><path d="M21 12v.01"/><path d="M12 21v-1"/><path d="M12 17v-1"/><path d="M17 12h.01"/><path d="M12 12h.01"/><path d="M12 8v1"/></svg>
+        </div>
+        <div class="card-pill">Front Desk Staff</div>
+      </div>
+      <div class="card-title">Staff Portal & Check-In Kiosk</div>
+      <div class="card-desc">Front desk operations console paired with a fullscreen laser-scanning QR kiosk terminal featuring online turnstile unlocks and offline queue simulation.</div>
+      <div class="card-tags">
+        <span class="card-tag">Kiosk Scanner</span>
+        <span class="card-tag">IndexedDB Offline Queue</span>
+      </div>
+      <div class="card-footer">
+        <span class="card-route">04-staff.html</span>
+        <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+  </div>
+
+  <div class="theme-row">
+    <span class="theme-label">Accent theme:</span>
+    <div class="swatches">
+      <div class="sw sw-orange active" onclick="setTheme('orange',this)" title="Orange"></div>
+      <div class="sw sw-blue" onclick="setTheme('blue',this)" title="Electric Blue"></div>
+      <div class="sw sw-green" onclick="setTheme('green',this)" title="Neon Green"></div>
+      <div class="sw sw-purple" onclick="setTheme('purple',this)" title="Vivid Purple"></div>
+    </div>
+  </div>
 </div>
 <script>
-function setTheme(t,el){document.documentElement.setAttribute('data-theme',t);document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');localStorage.setItem('gymerp-theme',t);}
-const s=localStorage.getItem('gymerp-theme');if(s){const el=document.querySelector('.sw-'+s);if(el)setTheme(s,el);}
+function setTheme(t,el){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('.sw').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  localStorage.setItem('gymerp-theme',t);
+}
+const sv=localStorage.getItem('gymerp-theme');
+if(sv){
+  const el=document.querySelector('.sw-'+sv);
+  if(el)setTheme(sv,el);
+}
 </script>
 </body>
 </html>

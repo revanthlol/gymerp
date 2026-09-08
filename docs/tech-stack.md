@@ -1,10 +1,12 @@
 # GymERP — Tech Stack Reference
 
-> **Two-phase model:**
-> - **Phase A (Build):** Supabase-managed \u2014 fast to iterate, zero infra ops.
-> - **Phase B (Production):** Migrate to self-hosted VM (EC2/Oracle) with Docker Compose. Frontend stays on Vercel permanently.
->
-> Every abstraction below is chosen so Phase A → Phase B is a **config swap**, not a rewrite.
+> **Architecture Model:**
+> - **Application & UI:** Next.js 14+ (App Router) deployed permanently to Vercel (or Node container on VM).
+> - **Identity & Access:** Firebase Auth with HTTP-only Session Cookies (`__session`) and custom user claims (`role`, `tenant_id`).
+> - **Database:** PostgreSQL 16 managed via Docker Compose locally and deployed on a dedicated Linux VPS (EC2/Hetzner/Oracle) with automated daily backups.
+> - **Data Access & Schema:** Drizzle ORM + Drizzle Kit with type-safe schema declarations.
+> - **Multi-Tenant Security:** Defense-in-depth: Application-layer tenant scoping via Drizzle repository wrappers + PostgreSQL Row-Level Security (RLS) policies enforcing `SET LOCAL app.current_tenant_id`.
+> - **File Storage:** Firebase Storage with security rules enforcing tenant boundaries for member avatars and gym branding assets.
 
 ---
 
@@ -13,76 +15,70 @@
 | Concern | Choice | Notes |
 |---|---|---|
 | Framework | **Next.js 14+ (App Router)** | RSC for data-heavy dashboard pages, streaming/Suspense, PWA-compatible |
-| UI primitives | **shadcn/ui** (installed via CLI, not a starter fork) | Full customization control; components added incrementally |
+| UI primitives | **shadcn/ui** (installed via CLI) | Full customization control; components added incrementally |
 | Styling | **Tailwind CSS v4** | CSS variables for theme tokens; glassmorphism/glow via CSS, not a lib |
-| State (client) | **Zustand** | Auth context (role, tenant\_id, user), accent theme, sidebar state |
+| State (client) | **Zustand** | Auth context (role, tenant_id, user), accent theme, sidebar state |
 | Data tables | **TanStack Table v8** + shadcn `<Table>` | Sortable, filterable, paginated — one reusable `<DataTable>` built in Phase 1 |
 | Forms | **react-hook-form + Zod** + shadcn `<Form>` | One form pattern built in Phase 1, reused everywhere |
-| PWA | **Serwist** (`@serwist/next`) | Service worker caches **app shell only** (JS/CSS/fonts/icons). Never caches API/Supabase responses |
-| Font | **Inter** (primary) + one display/heading variant for visual hierarchy | Via `next/font/google` |
-| Icons | **Lucide React** | Consistent icon set across shadcn/ui |
-| QR scanning | **html5-qrcode** or **zxing-js/browser** | Browser-camera QR decode on `/staff/checkin` |
-| Hosting | **Vercel** (permanent) | Edge-optimized, zero config for Next.js, stays here even in Phase B |
+| PWA | **Serwist** (`@serwist/next`) | Service worker caches **app shell only** (JS/CSS/fonts/icons). Never caches API/database responses |
+| Font | **Inter** (primary) + **JetBrains Mono** (metrics, IDs, prices) | Loaded via `next/font/google` |
+| Icons | **Lucide React** | Consistent, sharp SVG vector icon set |
+| QR scanning | **html5-qrcode** or **zxing-js/browser** | Browser-camera QR decode on `/staff/checkin` and `/staff/kiosk` |
+| Hosting | **Vercel** (permanent) | Edge-optimized, zero config for Next.js, stays here even with VM database |
 
 ---
 
-## Backend
+## Backend & API
 
-### Phase A — Supabase-only (initial build)
-
-All server-side logic lives in **Next.js Server Actions** and **API Routes**. No custom backend server.
-
-| Concern | Choice |
-|---|---|
-| API layer | Next.js Server Actions (mutations) + Supabase JS client (queries) |
-| Webhook handler | Next.js API Route (`/api/webhooks/payments`) |
-| Business logic | Co-located with Server Actions in the Next.js app |
-
-### Phase B — VM (production)
+All server-side logic lives in **Next.js Server Actions** and **Route Handlers**, structured into clean modular services in `src/lib/api/`.
 
 | Concern | Choice | Notes |
 |---|---|---|
-| Custom API server | **Hono** | TypeScript-native, ultra-lightweight, runs on Bun/Node. Sits in front of Postgres |
-| Runtime | **Bun** (preferred) or **Node 22+** | Fast startup, native TypeScript |
-| Containerization | **Docker Compose** on EC2/Oracle VM | Postgres + Hono API + Nginx reverse proxy |
-| Process manager | **PM2** or `docker compose restart: always` | |
-| Reverse proxy | **Nginx** | TLS termination, routes `/api/*` → Hono, serves nothing else |
-
-> **Migration principle:** In Phase A, all server logic is in `/src/lib/api/` modules called by Server Actions. In Phase B, those same modules become Hono route handlers. The business logic doesn't move — only the entry point does.
+| API layer | Next.js Server Actions (mutations) + Drizzle ORM (queries) | High developer velocity, type-safe RPC |
+| Modular services | `src/lib/api/` modules | Pure business logic functions decoupled from Next.js request objects |
+| Webhook handler | Next.js Route Handler (`/api/webhooks/payments`) | Verifies provider HMAC signature before executing mutations |
+| Optional Standalone API | **Hono** (Bun / Node 22+) | Optional future containerized microservice; consumes existing `src/lib/api/` modules |
+| Reverse proxy | **Nginx** | TLS termination for PostgreSQL VPS or standalone API server |
 
 ---
 
-## Database
+## Database & Multi-Tenancy
 
-| Concern | Phase A | Phase B |
+| Concern | Choice | Notes |
 |---|---|---|
-| Database | **Supabase Postgres** (managed) | **Self-hosted Postgres 16** on VM (Docker) |
-| Auth | **Supabase Auth** (managed) | **Custom auth** (JWT, bcrypt) via Hono — or keep GoTrue self-hosted |
-| Row-Level Security | **Supabase RLS** (PostgRES engine) | RLS stays — same policies work on self-hosted Postgres |
-| ORM / query layer | **Drizzle ORM** | Same Drizzle schema/queries work against both Supabase and raw Postgres |
-| Migrations | **Drizzle Kit** | Same tooling, different connection string |
-| Storage | **Supabase Storage** | S3-compatible (AWS S3 or self-hosted MinIO on VM) |
-| Realtime | **Supabase Realtime** | Postgres LISTEN/NOTIFY or lightweight WS via Hono in Phase B |
+| Database Engine | **PostgreSQL 16** | Running in Docker Compose locally (`postgres:16-alpine`) and on dedicated Linux VPS |
+| ORM / Query Layer | **Drizzle ORM** | Zero-overhead, type-safe SQL-like queries with Drizzle schema relations |
+| Migrations Tooling | **Drizzle Kit** | Generates SQL migrations; executes migrations via `pnpm db:migrate` |
+| Multi-Tenant Layer 1 | **Drizzle Repository Wrapper** | Injects `where: eq(table.tenantId, tenantId)` on all tenant queries |
+| Multi-Tenant Layer 2 | **PostgreSQL RLS** | Enforces `tenant_id = current_setting('app.current_tenant_id', true)::uuid` via `SET LOCAL` |
+| Storage | **Firebase Storage** | Tenant-scoped security rules for member photos and gym logos |
 
-### Schema (entities)
+### Core Schema (Entities)
 `tenants`, `users`, `members`, `membership_plans`, `memberships`, `payments`, `attendance`
 
 ### RLS Hard Rule
-> Platform role has **zero** RLS path to `members`, `payments`, `attendance`, `memberships`, `membership_plans`. Enforced at the DB layer — not UI.
+> Platform Superadmin role has **zero** RLS path to `members`, `payments`, `attendance`, `memberships`, `membership_plans`. Enforced at the PostgreSQL engine level — never dependent on UI filtering alone.
 
 ---
 
-## Auth & Roles
+## Auth & Access Control
 
-| Tier | Role | Scope |
-|---|---|---|
-| Platform | `platform` | CRUD on `tenants` only |
-| Admin | `admin` | Full CRUD within own tenant |
-| Staff | `staff` | Member CRUD, check-in, manual payments; no plan/pricing edits |
-| Members | — | No login in MVP. Records, not accounts |
+| Tier | Role | Scope | Database Access |
+|---|---|---|---|
+| Platform Superadmin | `platform` | Global | CRUD on `tenants` table only. Cannot query member PII or financial rows. |
+| Gym Admin | `admin` | Single Tenant | Full CRUD within assigned `tenant_id`. |
+| Front-Desk Staff | `staff` | Single Tenant | Member CRUD, check-in kiosk operations, manual payments. Cannot modify membership plan pricing. |
+| Gym Member | End User | Single Tenant | Unauthenticated database entity with unique `qr_token` for kiosk scanning. |
 
-- **Phase A:** Supabase Auth. JWT custom claims inject `role` + `tenant_id` via Auth Hook (Postgres function).
-- **Phase B:** GoTrue self-hosted **or** custom JWT via Hono. Same claim structure (`role`, `tenant_id`) so the frontend doesn't change.
+- **Identity Provider:** Firebase Auth (Email/Password).
+- **Custom Claims:** Injected via Firebase Admin SDK upon account provisioning:
+  ```json
+  {
+    "role": "platform" | "admin" | "staff",
+    "tenant_id": "uuid-string" | null
+  }
+  ```
+- **Session Strategy:** Next.js Route Handler `/api/auth/session` exchanges Firebase ID token for an HTTP-only, secure, `sameSite: 'lax'` session cookie (`__session`). Server Components read verified claims directly without client roundtrips.
 
 ---
 
@@ -90,12 +86,15 @@ All server-side logic lives in **Next.js Server Actions** and **API Routes**. No
 
 | Concern | Choice | Notes |
 |---|---|---|
-| Payment gateway | **Abstracted** behind a `PaymentProvider` interface | Razorpay likely first implementation; swappable |
-| Webhook handling | Next.js API Route (Phase A) → Hono route (Phase B) | Signature verification is per-provider, inside the implementation |
-| Payment records | Stored in `payments` table by the webhook handler | |
-| Subscription billing | Modelled in `memberships` table; provider handles recurring | |
+| Payment gateway | **Abstracted** behind a `PaymentProvider` interface | Razorpay default implementation; swappable to Stripe |
+| Webhook handling | Next.js Route Handler (`/api/webhooks/payments`) | Verifies cryptographic HMAC-SHA256 signature |
+| Payment records | Stored in `payments` table | Includes provider payment ID, order ID, amount, method, status |
+| Subscription billing | Modeled in `memberships` table | Tracks `start_date`, `end_date`, `status` (`active`, `expired`, `cancelled`) |
 
-> `PaymentProvider` interface: `createOrder()`, `verifyWebhook()`, `refund()`. First impl: Razorpay.
+> **`PaymentProvider` Interface:**
+> `createOrder(params: CreateOrderParams): Promise<PaymentOrder>`
+> `verifyWebhook(payload: string, signature: string): boolean`
+> `refund(paymentId: string, amount: number): Promise<RefundResult>`
 
 ---
 
@@ -103,31 +102,21 @@ All server-side logic lives in **Next.js Server Actions** and **API Routes**. No
 
 | Concern | Choice | Notes |
 |---|---|---|
-| Member notifications | **WhatsApp Business API** | High open rates in Indian gym market |
-| Provider | **Twilio / Gupshup / Wati** (TBD at integration time) | Abstracted behind a `NotificationProvider` interface |
-| Triggers | Membership expiry reminders, payment confirmations | Cron via Supabase Scheduled Functions (Phase A) or Hono cron (Phase B) |
-| Internal alerts | In-app toast / dashboard badges | No external channel |
+| Member notifications | **WhatsApp Business API** | High engagement in gym & fitness market |
+| Provider | **Twilio / Gupshup / Wati** | Abstracted behind `NotificationProvider` interface |
+| Triggers | Membership expiration alerts, renewal receipts, welcome QR codes | Triggered via background worker / cron runner |
+| In-App Alerts | Toast notifications & live badges | Sonner / shadcn toast components |
 
 ---
 
-## Pricing Model
+## Testing & Quality Assurance
 
-| Component | Detail |
-|---|---|
-| Model | **One-time license fee** + **per-active-member monthly/annual fee** |
-| Platform panel | Tracks `tenants.status` (trial / active / suspended) and active member count |
-| License tracking | Stored in `tenants` table with a `license_expires_at` / `active_members_count` field |
-
----
-
-## Testing
-
-| Type | Tooling |
-|---|---|
-| Unit + component | **Vitest** + **React Testing Library** |
-| E2E | **Playwright** |
-| Priority E2E flows | Login → role redirect, QR check-in scan, payment webhook, logout cache clear |
-| Type safety | TypeScript strict mode + Zod at all API boundaries |
+| Type | Tooling | Scope |
+|---|---|---|
+| Unit & Integration | **Vitest** + **React Testing Library** | Business logic services, tenant repository wrappers, UI components |
+| Multi-Tenant Boundary Tests | **Custom Vitest PostgreSQL Suite** | Verifies RLS blocks cross-tenant access and platform role leakage |
+| E2E Testing | **Playwright** | Critical user journeys: login redirect, QR check-in, member creation, webhook handling |
+| Static Analysis | **TypeScript strict** + **ESLint** + **Zod** | Type validation at all network and database boundaries |
 
 ---
 
@@ -135,32 +124,19 @@ All server-side logic lives in **Next.js Server Actions** and **API Routes**. No
 
 | Concern | Choice |
 |---|---|
-| Error tracking | **Sentry** (Next.js SDK) |
-| Performance | Vercel Analytics + Lighthouse CI |
-| Logs (Phase B) | Docker logs → optional Loki/Grafana or Datadog |
+| Error Tracking | **Sentry** (Next.js SDK) |
+| Performance Monitoring | Vercel Analytics + Core Web Vitals |
+| Database Metrics | PostgreSQL `pg_stat_statements` + container healthchecks |
+| Container Logs | Docker Compose journal / Vector to cloud log aggregator |
 
 ---
 
-## CI/CD
+## CI/CD Pipeline
 
-| Concern | Choice |
+| Pipeline Stage | Implementation |
 |---|---|
-| Version control | Git (GitHub) |
-| Frontend deploys | **Vercel** (auto-deploy on push to `main`) |
-| Backend deploys (Phase B) | GitHub Actions → SSH → `docker compose pull && up -d` on VM |
-| DB migrations | Drizzle Kit migrations run in CI before app deploy |
-| Secrets | Vercel env vars (Phase A); VM `.env` + GitHub Actions Secrets (Phase B) |
-
----
-
-## Phase A → Phase B Migration Checklist
-
-- [ ] Swap Supabase Postgres DSN → self-hosted Postgres DSN in Drizzle config
-- [ ] Swap Supabase Auth → GoTrue/custom JWT (same claim structure)
-- [ ] Swap Supabase Storage → S3/MinIO endpoint
-- [ ] Extract Server Actions business logic → Hono route handlers
-- [ ] Set up Nginx + Docker Compose on VM
-- [ ] Re-point webhook URLs to VM endpoint
-- [ ] Replace Supabase Realtime → Postgres LISTEN/NOTIFY or WS
-
-> Each swap is isolated. No step requires touching another step's code.
+| Version Control | GitHub Repository with branch protection rules |
+| Lint & Typecheck | GitHub Actions workflow on pull requests (`pnpm lint`, `pnpm typecheck`) |
+| DB Migration Test | GitHub Actions runs test PostgreSQL container and executes `pnpm db:migrate` |
+| Frontend Deployment | Vercel auto-deploy on push to `main` |
+| VPS DB Deployment | Automated SSH runner applying `docker compose pull && pnpm db:migrate` |
