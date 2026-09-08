@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="orange">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymERP — Staff Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg-base:#0A0A0A;--bg-surface:#111113;--bg-elevated:#1A1A1F;--bg-muted:#222228;--border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.15);--text-primary:#F4F4F5;--text-secondary:#A1A1AA;--text-muted:#52525B;--accent:#FF5722;--accent-hover:#FF6D3A;--accent-glow:rgba(255,87,34,0.18);--accent-subtle:rgba(255,87,34,0.1);--accent-fg:#fff;}
+[data-theme=blue]{--accent:#00B4FF;--accent-glow:rgba(0,180,255,0.18);--accent-subtle:rgba(0,180,255,0.1);}
+[data-theme=green]{--accent:#39FF14;--accent-glow:rgba(57,255,20,0.15);--accent-subtle:rgba(57,255,20,0.08);--accent-fg:#0a0a0a;}
+[data-theme=purple]{--accent:#8B5CF6;--accent-glow:rgba(139,92,246,0.18);--accent-subtle:rgba(139,92,246,0.1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg-base);color:var(--text-primary);height:100vh;display:flex;overflow:hidden;}
+.sidebar{width:240px;flex-shrink:0;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.sb-logo{display:flex;align-items:center;gap:.6rem;padding:1.1rem .9rem;border-bottom:1px solid var(--border);}
+.sb-logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 10px var(--accent-glow);}
+.sb-gym{font-size:.88rem;font-weight:700;}
+.sb-nav{flex:1;padding:.6rem .45rem;display:flex;flex-direction:column;gap:.1rem;}
+.nav-item{display:flex;align-items:center;gap:.55rem;padding:.42rem .55rem;border-radius:6px;font-size:.83rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all 120ms;}
+.nav-item:hover{background:var(--bg-muted);color:var(--text-primary);}
+.nav-item.active{background:var(--accent-subtle);color:var(--accent);}
+.sb-bottom{padding:.6rem .7rem .9rem;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:.55rem;margin-bottom:.6rem;}
+.sb-avatar{width:26px;height:26px;border-radius:50%;background:var(--accent-subtle);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--accent);}
+.theme-dots{display:flex;align-items:center;gap:.35rem;}
+.theme-dots span{font-size:.66rem;color:var(--text-muted);}
+.dot{width:11px;height:11px;border-radius:50%;cursor:pointer;border:1.5px solid transparent;}
+.dot.active{border-color:rgba(255,255,255,.4);}
+.dot-orange{background:#FF5722;}.dot-blue{background:#00B4FF;}.dot-green{background:#39FF14;}.dot-purple{background:#8B5CF6;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.page-header{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;}
+.page-title{font-size:1.05rem;font-weight:700;}
+.content{flex:1;overflow-y:auto;padding:1.25rem;}
+/* HOME */
+.greet{margin-bottom:1.5rem;}
+.greet-name{font-size:1rem;font-weight:700;}
+.greet-role{font-size:.78rem;color:var(--text-muted);margin-top:.15rem;}
+.actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:600px;margin-bottom:1.5rem;}
+.action-tile{background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;transition:box-shadow 150ms,transform 150ms;}
+.action-tile:hover{box-shadow:inset 0 0 16px var(--accent-glow);transform:translateY(-2px);}
+.action-tile.checkin-tile:hover{box-shadow:inset 0 0 24px var(--accent-glow),0 0 0 1px var(--accent);}
+.tile-icon{font-size:2rem;}
+.tile-title{font-size:.95rem;font-weight:700;}
+.tile-desc{font-size:.75rem;color:var(--text-muted);}
+.divider{height:1px;background:var(--border);margin-bottom:1rem;}
+.recent-title{font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:.75rem;}
+.checkin-row{display:flex;align-items:center;gap:.75rem;padding:.45rem 0;border-bottom:1px solid var(--border);}
+.checkin-row:last-child{border-bottom:none;}
+.checkin-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0;}
+.checkin-name{font-size:.85rem;font-weight:500;}
+.checkin-time{margin-left:auto;font-size:.75rem;color:var(--text-muted);}
+.view-all{font-size:.75rem;color:var(--accent);cursor:pointer;margin-top:.5rem;display:inline-block;}
+/* KIOSK */
+.kiosk{position:fixed;inset:0;background:#070708;z-index:500;display:none;flex-direction:column;}
+.kiosk-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border-strong);}
+.kiosk-logo{display:flex;align-items:center;gap:.6rem;}
+.kiosk-logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.kiosk-logo-text{font-size:.9rem;font-weight:700;}
+.kiosk-gym{font-size:.85rem;color:var(--text-secondary);}
+.kiosk-exit{height:30px;padding:0 .75rem;background:rgba(255,255,255,.06);border:1px solid var(--border-strong);color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:.76rem;border-radius:6px;cursor:pointer;transition:all 150ms;}
+.kiosk-exit:hover{color:var(--text-primary);}
+.offline-banner{background:rgba(120,53,15,.5);border-bottom:1px solid rgba(217,119,6,.4);color:#fbbf24;font-size:.8rem;padding:.6rem 1.5rem;display:flex;align-items:center;gap:.5rem;display:none;}
+.kiosk-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;}
+.camera-area{width:100%;max-width:320px;aspect-ratio:1;position:relative;border-radius:12px;overflow:hidden;background:#0d0d0f;}
+.camera-feed{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.85rem;flex-direction:column;gap:.5rem;}
+.camera-feed-icon{font-size:3rem;opacity:.3;}
+.corner{position:absolute;width:24px;height:24px;border-color:var(--accent);border-style:solid;}
+.corner-tl{top:10px;left:10px;border-width:3px 0 0 3px;}
+.corner-tr{top:10px;right:10px;border-width:3px 3px 0 0;}
+.corner-bl{bottom:10px;left:10px;border-width:0 0 3px 3px;}
+.corner-br{bottom:10px;right:10px;border-width:0 3px 3px 0;}
+.scan-hint{font-size:.85rem;color:var(--text-secondary);text-align:center;}
+.kiosk-divider{width:100%;max-width:500px;height:1px;background:var(--border);}
+/* RESULT STATES */
+.result-card{width:100%;max-width:460px;border-radius:10px;padding:1.25rem 1.5rem;display:none;animation:fadeSlideUp 250ms ease;}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(8px)}}
+.result-card.show{display:flex;flex-direction:column;gap:.3rem;}
+.result-card.success{border:1px solid rgba(34,197,94,.5);background:rgba(34,197,94,.06);box-shadow:0 0 24px rgba(34,197,94,.2);}
+.result-card.error{border:1px solid rgba(239,68,68,.5);background:rgba(239,68,68,.06);box-shadow:0 0 24px rgba(239,68,68,.2);animation:fadeSlideUp 250ms ease, shake 300ms 260ms ease;}
+.result-card.queued{border:1px solid rgba(217,119,6,.4);background:rgba(120,53,15,.2);box-shadow:0 0 24px rgba(120,53,15,.3);}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.result-icon{font-size:1.4rem;}
+.result-name{font-size:1.05rem;font-weight:700;}
+.result-detail{font-size:.82rem;color:var(--text-secondary);}
+.result-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:600;padding:.2rem .5rem;border-radius:4px;margin-top:.2rem;width:fit-content;}
+.rb-active{background:var(--accent-subtle);color:var(--accent);}
+.rb-expired{background:rgba(239,68,68,.1);color:#f87171;}
+.rb-queued{background:rgba(120,53,15,.3);color:#fbbf24;}
+.kiosk-footer{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.5rem;border-top:1px solid var(--border);}
+.kiosk-footer-stat{font-size:.8rem;color:var(--text-secondary);}
+.kiosk-footer-stat span{color:var(--accent);font-weight:700;}
+/* DEMO BUTTONS */
+.demo-buttons{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:.25rem;}
+.demo-btn{height:30px;padding:0 .75rem;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid var(--border-strong);background:var(--bg-elevated);color:var(--text-secondary);transition:all 150ms;}
+.demo-btn:hover{color:var(--text-primary);}
+.demo-btn-success{border-color:rgba(34,197,94,.4);color:#4ade80;background:rgba(34,197,94,.06);}
+.demo-btn-error{border-color:rgba(239,68,68,.4);color:#f87171;background:rgba(239,68,68,.06);}
+.demo-btn-offline{border-color:rgba(217,119,6,.4);color:#fbbf24;background:rgba(120,53,15,.1);}
+/* MEMBERS TABLE */
+.toolbar{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
+.search-box{position:relative;flex:1;max-width:280px;}
+.search-box input{width:100%;height:32px;background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:6px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:.8rem;padding:0 .65rem 0 1.8rem;outline:none;}
+.search-box input::placeholder{color:var(--text-muted);}
+.search-icon{position:absolute;left:.5rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.8rem;}
+.table-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:.55rem .9rem;text-align:left;font-size:.65rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);transition:background 100ms;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(255,255,255,.025);}
+tbody td{padding:.6rem .9rem;font-size:.83rem;}
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.68rem;font-weight:600;padding:.18rem .5rem;border-radius:4px;}
+.b-active{background:var(--accent-subtle);color:var(--accent);}
+.b-expired{background:rgba(239,68,68,.1);color:#f87171;}
+.b-frozen{background:rgba(59,130,246,.1);color:#60a5fa;}
+.b-expiring{background:rgba(234,179,8,.1);color:#eab308;}
+.d-s{width:6px;height:6px;border-radius:50%;display:inline-block;}
+.d-a{background:var(--accent);}.d-ex{background:#f87171;}.d-fr{background:#60a5fa;}.d-ep{background:#eab308;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">🏋️</div>
+    <div class="sb-gym">FitZone Gym</div>
+  </div>
+  <div class="sb-nav">
+    <div class="nav-item active" onclick="showPage('home',this)"><span>🏠</span> Home</div>
+    <div class="nav-item" onclick="showPage('checkin-entry',this)"><span>📷</span> Check-In</div>
+    <div class="nav-item" onclick="showPage('members',this)"><span>👥</span> Members</div>
+    <div class="nav-item"><span>💳</span> Payments</div>
+    <div class="nav-item"><span>📋</span> Today's Log</div>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar">R</div>
+      <div style="font-size:.8rem;font-weight:600;">Rahul<br><span style="font-size:.65rem;color:var(--text-muted);font-weight:400">Staff</span></div>
+    </div>
+    <div class="theme-dots">
+      <span>Theme:</span>
+      <div class="dot dot-orange active" onclick="setTheme('orange',this)"></div>
+      <div class="dot dot-blue" onclick="setTheme('blue',this)"></div>
+      <div class="dot dot-green" onclick="setTheme('green',this)"></div>
+      <div class="dot dot-purple" onclick="setTheme('purple',this)"></div>
+    </div>
+    <div style="margin-top:.6rem;"><a href="index.html" style="font-size:.7rem;color:var(--text-muted);text-decoration:none;">← All Demos</a></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <div class="page-title" id="pageTitle">Home</div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<!-- KIOSK OVERLAY -->
+<div class="kiosk" id="kiosk">
+  <div class="kiosk-header">
+    <div class="kiosk-logo">
+      <div class="kiosk-logo-icon">🏋️</div>
+      <div class="kiosk-logo-text">GymERP</div>
+    </div>
+    <div class="kiosk-gym">FitZone Gym</div>
+    <button class="kiosk-exit" onclick="closeKiosk()">← Exit Kiosk</button>
+  </div>
+  <div class="offline-banner" id="offlineBanner">⚠&nbsp; Offline — scans are being queued locally</div>
+  <div class="kiosk-body">
+    <div class="camera-area">
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+      <div class="camera-feed" id="cameraFeed">
+        <div class="camera-feed-icon">📷</div>
+        <div>Waiting for QR code…</div>
+      </div>
+    </div>
+    <div class="scan-hint" id="scanHint">Scan member QR code</div>
+    <div class="demo-buttons">
+      <div style="font-size:.7rem;color:var(--text-muted);width:100%;text-align:center;margin-bottom:-.2rem">Simulate scan result:</div>
+      <button class="demo-btn demo-btn-success" onclick="simulateScan('success')">✓ Active Member</button>
+      <button class="demo-btn demo-btn-error" onclick="simulateScan('expired')">✗ Expired Member</button>
+      <button class="demo-btn demo-btn-offline" onclick="simulateScan('offline')">⚡ Offline Queue</button>
+    </div>
+    <div class="kiosk-divider"></div>
+    <div class="result-card" id="resultCard"></div>
+  </div>
+  <div class="kiosk-footer">
+    <div class="kiosk-footer-stat">Today's check-ins: <span id="checkInCount">34</span></div>
+    <div style="font-size:.75rem;color:var(--text-muted)">View Log</div>
+  </div>
+</div>
+
+<script>
+const members=[
+  {id:1,name:'Ravi Kumar',phone:'9876543210',plan:'Monthly',status:'active',joined:'Jan 2025'},
+  {id:2,name:'Priya Mehta',phone:'9123456789',plan:'Quarterly',status:'expiring',joined:'Mar 2025'},
+  {id:3,name:'Arjun Singh',phone:'9988776655',plan:'Monthly',status:'frozen',joined:'Nov 2024'},
+  {id:4,name:'Meera Thomas',phone:'8877665544',plan:'Annual',status:'active',joined:'Jun 2024'},
+  {id:5,name:'Vikram Rao',phone:'7766554433',plan:'Monthly',status:'expired',joined:'Aug 2024'},
+  {id:6,name:'Sunita Patel',phone:'9654321870',plan:'Quarterly',status:'active',joined:'Feb 2025'},
+];
+const recentCheckins=[
+  {name:'Ravi Kumar',time:'10:23am'},
+  {name:'Priya Mehta',time:'10:18am'},
+  {name:'Arjun Singh',time:'10:05am'},
+  {name:'Meera Thomas',time:'9:52am'},
+  {name:'Sunita Patel',time:'9:41am'},
+];
+let checkInCount=34;
+let resetTimer=null;
+
+function statusBadge(s){
+  const map={active:['b-active','d-a','Active'],expiring:['b-expiring','d-ep','Expiring'],frozen:['b-frozen','d-fr','Frozen'],expired:['b-expired','d-ex','Expired']};
+  const [bc,dc,label]=map[s]||['b-active','d-a',s];
+  return `<span class="badge ${bc}"><span class="d-s ${dc}"></span>${label}</span>`;
+}
+
+function showHome(){
+  document.getElementById('pageTitle').textContent='Home';
+  document.getElementById('content').innerHTML=`
+    <div class="greet">
+      <div class="greet-name">Good morning, Rahul 👋</div>
+      <div class="greet-role">Staff · Front Desk</div>
+    </div>
+    <div class="actions-grid">
+      <div class="action-tile checkin-tile" onclick="openKiosk()">
+        <div class="tile-icon">📷</div>
+        <div class="tile-title">Check-In Kiosk</div>
+        <div class="tile-desc">Scan member QR codes</div>
+      </div>
+      <div class="action-tile" onclick="showPage('members',document.querySelector('.nav-item:nth-child(3)'))">
+        <div class="tile-icon">👥</div>
+        <div class="tile-title">Members List</div>
+        <div class="tile-desc">Browse all members</div>
+      </div>
+      <div class="action-tile">
+        <div class="tile-icon">💳</div>
+        <div class="tile-title">Manual Payment</div>
+        <div class="tile-desc">Record cash payment</div>
+      </div>
+      <div class="action-tile">
+        <div class="tile-icon">📋</div>
+        <div class="tile-title">Today's Log</div>
+        <div class="tile-desc">Check-in history</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="recent-title">Recent Check-ins Today</div>
+    ${recentCheckins.map(c=>`
+      <div class="checkin-row">
+        <div class="checkin-dot"></div>
+        <div class="checkin-name">${c.name}</div>
+        <div class="checkin-time">${c.time}</div>
+      </div>
+    `).join('')}
+    <a class="view-all" onclick="openKiosk()">Open kiosk →</a>
+  `;
+}
+
+function showMembers(){
+  document.getElementById('pageTitle').textContent='Members';
+  document.getElementById('content').innerHTML=`
+    <div class="toolbar">
+      <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search members..."></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Phone</th><th>Plan</th><th>Status</th><th>Joined</th></tr></thead>
+        <tbody>
+          ${members.map(m=>`
+            <tr>
+              <td style="font-weight:500">${m.name}</td>
+              <td style="color:var(--text-secondary);font-size:.78rem">${m.phone}</td>
+              <td>${m.plan}</td>
+              <td>${statusBadge(m.status)}</td>
+              <td style="color:var(--text-secondary)">${m.joined}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="padding:.6rem .9rem;border-top:1px solid var(--border);font-size:.75rem;color:var(--text-muted)">Showing 1–${members.length} of ${members.length} members</div>
+    </div>
+  `;
+}
+
+function showPage(page,el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(page==='home') showHome();
+  else if(page==='members') showMembers();
+  else if(page==='checkin-entry') openKiosk();
+}
+
+function openKiosk(){
+  const k=document.getElementById('kiosk');
+  k.style.display='flex';
+  resetKioskState();
+}
+function closeKiosk(){
+  document.getElementById('kiosk').style.display='none';
+}
+function resetKioskState(){
+  const rc=document.getElementById('resultCard');
+  rc.className='result-card';
+  rc.innerHTML='';
+  document.getElementById('cameraFeed').innerHTML='<div class="camera-feed-icon">📷</div><div>Waiting for QR code…</div>';
+  document.getElementById('scanHint').textContent='Scan member QR code';
+  document.getElementById('offlineBanner').style.display='none';
+  if(resetTimer) clearTimeout(resetTimer);
+}
+
+function simulateScan(type){
+  if(resetTimer) clearTimeout(resetTimer);
+  const rc=document.getElementById('resultCard');
+  const feed=document.getElementById('cameraFeed');
+  feed.innerHTML='<div style="font-size:.8rem;color:var(--text-secondary)">Processing…</div>';
+
+  setTimeout(()=>{
+    rc.className='result-card';
+    rc.innerHTML='';
+
+    if(type==='success'){
+      checkInCount++;
+      document.getElementById('checkInCount').textContent=checkInCount;
+      rc.className='result-card success show';
+      rc.innerHTML=`
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div class="result-icon" style="color:#4ade80">✓</div>
+          <div>
+            <div class="result-name">Ravi Kumar</div>
+            <div class="result-detail">Monthly Plan · Expires Sep 30, 2026</div>
+            <div class="result-badge rb-active"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span>Active</div>
+          </div>
+        </div>
+      `;
+      feed.innerHTML='<div style="font-size:1.5rem">✓</div><div style="font-size:.75rem;color:#4ade80">Checked in!</div>';
+      resetTimer=setTimeout(resetKioskState,3000);
+    } else if(type==='expired'){
+      rc.className='result-card error show';
+      rc.innerHTML=`
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div class="result-icon" style="color:#f87171">✗</div>
+          <div>
+            <div class="result-name">Vikram Rao</div>
+            <div class="result-detail">Membership EXPIRED — Aug 12, 2026</div>
+            <div class="result-badge rb-expired">Contact Admin to renew</div>
+          </div>
+        </div>
+      `;
+      feed.innerHTML='<div style="font-size:1.5rem">✗</div><div style="font-size:.75rem;color:#f87171">Membership expired</div>';
+      resetTimer=setTimeout(resetKioskState,3000);
+    } else if(type==='offline'){
+      document.getElementById('offlineBanner').style.display='flex';
+      rc.className='result-card queued show';
+      rc.innerHTML=`
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div class="result-icon" style="color:#fbbf24">⚡</div>
+          <div>
+            <div class="result-name">Meera Thomas</div>
+            <div class="result-detail">Offline — scan queued in IndexedDB</div>
+            <div class="result-badge rb-queued">Will sync when online</div>
+          </div>
+        </div>
+      `;
+      feed.innerHTML='<div style="font-size:1.5rem">⚡</div><div style="font-size:.75rem;color:#fbbf24">Queued offline</div>';
+      resetTimer=setTimeout(resetKioskState,3000);
+    }
+  },600);
+}
+
+function setTheme(t,el){document.documentElement.setAttribute('data-theme',t);document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));el.classList.add('active');localStorage.setItem('gymerp-theme',t);}
+const s=localStorage.getItem('gymerp-theme');if(s){const el=document.querySelector('.dot-'+s);if(el)setTheme(s,el);}
+showHome();
+</script>
+</body>
+</html>

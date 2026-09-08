@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="orange">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymERP — Admin Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg-base:#0A0A0A;--bg-surface:#111113;--bg-elevated:#1A1A1F;--bg-muted:#222228;--border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.15);--text-primary:#F4F4F5;--text-secondary:#A1A1AA;--text-muted:#52525B;--accent:#FF5722;--accent-hover:#FF6D3A;--accent-glow:rgba(255,87,34,0.18);--accent-subtle:rgba(255,87,34,0.1);--accent-fg:#fff;}
+[data-theme=blue]{--accent:#00B4FF;--accent-glow:rgba(0,180,255,0.18);--accent-subtle:rgba(0,180,255,0.1);}
+[data-theme=green]{--accent:#39FF14;--accent-glow:rgba(57,255,20,0.15);--accent-subtle:rgba(57,255,20,0.08);--accent-fg:#0a0a0a;}
+[data-theme=purple]{--accent:#8B5CF6;--accent-glow:rgba(139,92,246,0.18);--accent-subtle:rgba(139,92,246,0.1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg-base);color:var(--text-primary);height:100vh;display:flex;overflow:hidden;}
+.sidebar{width:240px;flex-shrink:0;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.sb-logo{display:flex;align-items:center;gap:.6rem;padding:1.1rem .9rem;border-bottom:1px solid var(--border);}
+.sb-logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 10px var(--accent-glow);}
+.sb-gym{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-nav{flex:1;padding:.6rem .45rem;display:flex;flex-direction:column;gap:.1rem;}
+.nav-item{display:flex;align-items:center;gap:.55rem;padding:.42rem .55rem;border-radius:6px;font-size:.83rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all 120ms;position:relative;}
+.nav-item:hover{background:var(--bg-muted);color:var(--text-primary);}
+.nav-item.active{background:var(--accent-subtle);color:var(--accent);}
+.sb-bottom{padding:.6rem .7rem .9rem;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:.55rem;margin-bottom:.6rem;}
+.sb-avatar{width:26px;height:26px;border-radius:50%;background:var(--accent-subtle);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--accent);}
+.theme-dots{display:flex;align-items:center;gap:.35rem;}
+.theme-dots span{font-size:.66rem;color:var(--text-muted);}
+.dot{width:11px;height:11px;border-radius:50%;cursor:pointer;border:1.5px solid transparent;}
+.dot.active{border-color:rgba(255,255,255,.4);}
+.dot-orange{background:#FF5722;}.dot-blue{background:#00B4FF;}.dot-green{background:#39FF14;}.dot-purple{background:#8B5CF6;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.page-header{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;}
+.page-title{font-size:1.05rem;font-weight:700;}
+.breadcrumb{font-size:.72rem;color:var(--text-muted);margin-bottom:.1rem;}
+.content{flex:1;overflow-y:auto;padding:1.25rem;}
+/* DASHBOARD */
+.greet{font-size:1rem;font-weight:600;margin-bottom:1.25rem;}
+.greet span{color:var(--accent);}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem;}
+.stat-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:1rem;box-shadow:inset 0 0 0 1px var(--accent-glow);animation:fadeUp 300ms both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}}
+.stat-card:nth-child(1){animation-delay:0ms}
+.stat-card:nth-child(2){animation-delay:80ms}
+.stat-card:nth-child(3){animation-delay:160ms}
+.stat-card:nth-child(4){animation-delay:240ms}
+.stat-label{font-size:.68rem;font-weight:600;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.5rem;}
+.stat-num{font-size:2.25rem;font-weight:800;letter-spacing:-0.03em;line-height:1;}
+.stat-trend{font-size:.72rem;margin-top:.4rem;}
+.trend-up{color:#4ade80;}.trend-warn{color:#facc15;}.trend-rev{color:var(--accent);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem;}
+.mini-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.mini-card-title{font-size:.8rem;font-weight:600;margin-bottom:.75rem;}
+.mini-row{display:flex;justify-content:space-between;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--border);font-size:.8rem;}
+.mini-row:last-child{border-bottom:none;}
+.mini-row-name{font-weight:500;}
+.mini-row-meta{color:var(--text-secondary);font-size:.75rem;}
+.view-all{display:block;text-align:center;font-size:.75rem;color:var(--accent);margin-top:.75rem;cursor:pointer;text-decoration:none;}
+/* CHART */
+.chart-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.chart-title{font-size:.8rem;font-weight:600;margin-bottom:.75rem;}
+.bar-chart{display:flex;align-items:flex-end;gap:.5rem;height:80px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex:1;}
+.bar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;opacity:.8;min-height:4px;transition:opacity 150ms;}
+.bar:hover{opacity:1;}
+.bar-label{font-size:.6rem;color:var(--text-muted);}
+.bar-val{font-size:.6rem;color:var(--text-secondary);}
+/* TABLE */
+.toolbar{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
+.search-box{position:relative;flex:1;max-width:280px;}
+.search-box input{width:100%;height:32px;background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:6px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:.8rem;padding:0 .65rem 0 1.8rem;outline:none;transition:border-color 150ms;}
+.search-box input:focus{border-color:var(--accent);}
+.search-box input::placeholder{color:var(--text-muted);}
+.search-icon{position:absolute;left:.5rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.8rem;}
+.select-f{height:32px;background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:6px;color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:.8rem;padding:0 .65rem;outline:none;cursor:pointer;}
+.btn-sm{height:32px;padding:0 .85rem;background:var(--accent);color:var(--accent-fg);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;border:none;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;transition:box-shadow 150ms;margin-left:auto;}
+.btn-sm:hover{box-shadow:0 0 14px var(--accent-glow);}
+.table-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:.55rem .9rem;text-align:left;font-size:.65rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background 100ms;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(255,255,255,.025);}
+tbody td{padding:.6rem .9rem;font-size:.83rem;}
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.68rem;font-weight:600;padding:.18rem .5rem;border-radius:4px;}
+.b-active{background:var(--accent-subtle);color:var(--accent);}
+.b-expired{background:rgba(239,68,68,.1);color:#f87171;}
+.b-frozen{background:rgba(59,130,246,.1);color:#60a5fa;}
+.b-expiring{background:rgba(234,179,8,.1);color:#eab308;}
+.d-s{width:6px;height:6px;border-radius:50%;display:inline-block;}
+.d-a{background:var(--accent);}.d-ex{background:#f87171;}.d-fr{background:#60a5fa;}.d-ep{background:#eab308;}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-top:1px solid var(--border);}
+.pag-info{font-size:.75rem;color:var(--text-muted);}
+.pag-btns{display:flex;gap:.3rem;}
+.pag-btn{width:26px;height:26px;border-radius:5px;background:var(--bg-muted);border:1px solid var(--border);color:var(--text-secondary);font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 100ms;}
+.pag-btn:hover,.pag-btn.active{background:var(--accent-subtle);color:var(--accent);border-color:var(--accent);}
+/* PLANS */
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;}
+.plan-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem;transition:box-shadow 150ms;}
+.plan-card:hover{box-shadow:inset 0 0 16px var(--accent-glow);}
+.plan-name{font-size:.88rem;font-weight:700;margin-bottom:.25rem;}
+.plan-price{font-size:1.8rem;font-weight:800;color:var(--accent);letter-spacing:-0.03em;line-height:1.1;}
+.plan-days{font-size:.72rem;color:var(--text-secondary);}
+.plan-active{font-size:.72rem;color:var(--text-muted);margin:.5rem 0 .75rem;}
+.plan-btns{display:flex;gap:.4rem;}
+.btn-ghost{height:28px;padding:0 .7rem;background:transparent;border:1px solid var(--border-strong);color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:.73rem;border-radius:5px;cursor:pointer;transition:all 120ms;}
+.btn-ghost:hover{color:var(--text-primary);}
+.btn-danger-sm{height:28px;padding:0 .7rem;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;font-family:'Inter',sans-serif;font-size:.73rem;border-radius:5px;cursor:pointer;}
+.archived-label{font-size:.8rem;font-weight:600;color:var(--text-muted);margin-top:1rem;margin-bottom:.5rem;}
+.archived-item{font-size:.78rem;color:var(--text-muted);padding:.3rem 0;}
+/* DRAWER */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:360px;background:var(--bg-elevated);border-left:1px solid var(--border-strong);z-index:101;display:none;flex-direction:column;transform:translateX(100%);transition:transform 250ms cubic-bezier(0.32,0.72,0,1);}
+.drawer.open{transform:translateX(0);}
+.dh{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border);}
+.dh-title{font-size:.9rem;font-weight:700;}
+.close-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;padding:.2rem;border-radius:4px;transition:color 150ms;}
+.close-btn:hover{color:var(--text-primary);}
+.drawer-body{flex:1;overflow-y:auto;padding:1.1rem;}
+.db-avatar{width:48px;height:48px;border-radius:50%;background:var(--accent-subtle);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:700;color:var(--accent);margin-bottom:.75rem;}
+.db-name{font-size:1rem;font-weight:700;}
+.db-sec-title{font-size:.72rem;font-weight:600;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;margin:.9rem 0 .4rem;}
+.db-row{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--border);font-size:.8rem;}
+.db-row:last-child{border-bottom:none;}
+.db-label{color:var(--text-muted);}
+.progress-bar{height:5px;background:var(--bg-muted);border-radius:3px;margin-top:.5rem;overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent);border-radius:3px;}
+.drawer-footer{display:flex;gap:.4rem;flex-wrap:wrap;padding:.9rem 1.1rem;border-top:1px solid var(--border);}
+.btn-df{height:30px;padding:0 .75rem;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;border-radius:5px;cursor:pointer;border:1px solid var(--border-strong);background:var(--bg-muted);color:var(--text-secondary);transition:all 120ms;}
+.btn-df:hover{color:var(--text-primary);}
+.btn-df-danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#f87171;}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;}
+.modal{background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:12px;padding:1.5rem;width:100%;max-width:400px;box-shadow:inset 0 0 0 1px var(--accent-glow),0 8px 40px rgba(0,0,0,.5);}
+.modal-title{font-size:.95rem;font-weight:700;margin-bottom:.5rem;}
+.modal-divider{height:1px;background:var(--border);margin:.6rem 0 1rem;}
+.mfield{margin-bottom:.85rem;}
+.mfield label{display:block;font-size:.67rem;font-weight:600;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.3rem;}
+.mfield input,.mfield select,.mfield textarea{width:100%;height:34px;background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:6px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:.8rem;padding:0 .65rem;outline:none;transition:border-color 150ms;}
+.mfield input:focus,.mfield select:focus{border-color:var(--accent);}
+.mfield textarea{height:60px;padding:.5rem .65rem;resize:none;}
+.modal-btns{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem;}
+.btn-mg{height:32px;padding:0 .85rem;background:transparent;border:1px solid var(--border-strong);color:var(--text-secondary);font-family:'Inter',sans-serif;font-size:.78rem;border-radius:6px;cursor:pointer;}
+.btn-ma{height:32px;padding:0 .85rem;background:var(--accent);color:var(--accent-fg);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;border:none;border-radius:6px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">🏋️</div>
+    <div class="sb-gym">FitZone Gym</div>
+  </div>
+  <div class="sb-nav">
+    <div class="nav-item active" onclick="switchPage('dashboard',this)"><span>🏠</span> Dashboard</div>
+    <div class="nav-item" onclick="switchPage('members',this)"><span>👥</span> Members</div>
+    <div class="nav-item" onclick="switchPage('plans',this)"><span>📋</span> Plans</div>
+    <div class="nav-item" onclick="switchPage('payments',this)"><span>💳</span> Payments</div>
+    <div class="nav-item"><span>📊</span> Reports</div>
+    <div class="nav-item"><span>⚙️</span> Settings</div>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar">J</div>
+      <div style="font-size:.8rem;font-weight:600;">John<br><span style="font-size:.65rem;color:var(--text-muted);font-weight:400">Admin</span></div>
+    </div>
+    <div class="theme-dots">
+      <span>Theme:</span>
+      <div class="dot dot-orange active" onclick="setTheme('orange',this)"></div>
+      <div class="dot dot-blue" onclick="setTheme('blue',this)"></div>
+      <div class="dot dot-green" onclick="setTheme('green',this)"></div>
+      <div class="dot dot-purple" onclick="setTheme('purple',this)"></div>
+    </div>
+    <div style="margin-top:.6rem;"><a href="index.html" style="font-size:.7rem;color:var(--text-muted);text-decoration:none;">← All Demos</a></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <div><div class="breadcrumb" id="breadcrumb">Dashboard</div><div class="page-title" id="pageTitle">Overview</div></div>
+    <div id="headerAction"></div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<!-- DRAWER -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="dh"><div class="dh-title">Member Details</div><button class="close-btn" onclick="closeDrawer()">✕</button></div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-footer" id="drawerFooter"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<script>
+const members=[
+  {id:1,name:'Ravi Kumar',phone:'9876543210',email:'ravi@email.com',plan:'Monthly',planPrice:999,status:'active',joined:'Jan 15, 2025',expires:'Sep 30, 2026',daysLeft:28,progress:85,payments:[{amt:999,date:'Aug 1',method:'Online'},{amt:999,date:'Jul 1',method:'Cash'},{amt:999,date:'Jun 1',method:'Online'}],attendance:['Sep 7 10:23am','Sep 5 9:15am','Sep 3 8:47am']},
+  {id:2,name:'Priya Mehta',phone:'9123456789',email:'priya@email.com',plan:'Quarterly',planPrice:2499,status:'expiring',joined:'Mar 10, 2025',expires:'Sep 13, 2026',daysLeft:5,progress:92,payments:[{amt:2499,date:'Jun 10',method:'Online'}],attendance:['Sep 6 7:30am','Sep 4 8:00am']},
+  {id:3,name:'Arjun Singh',phone:'9988776655',email:'arjun@email.com',plan:'Monthly',planPrice:999,status:'frozen',joined:'Nov 1, 2024',expires:'Oct 15, 2026',daysLeft:45,progress:50,payments:[{amt:999,date:'Aug 1',method:'Cash'}],attendance:['Aug 20 9:00am']},
+  {id:4,name:'Meera Thomas',phone:'8877665544',email:'meera@email.com',plan:'Annual',planPrice:7999,status:'active',joined:'Jun 5, 2024',expires:'Jun 4, 2027',daysLeft:270,progress:30,payments:[{amt:7999,date:'Jun 5',method:'Online'}],attendance:['Sep 7 6:45am','Sep 6 6:50am','Sep 5 7:00am']},
+  {id:5,name:'Vikram Rao',phone:'7766554433',email:'vikram@email.com',plan:'Monthly',planPrice:999,status:'expired',joined:'Aug 12, 2024',expires:'Aug 12, 2026',daysLeft:0,progress:100,payments:[{amt:999,date:'Aug 12',method:'Cash'}],attendance:['Aug 10 10:00am']},
+  {id:6,name:'Sunita Patel',phone:'9654321870',email:'sunita@email.com',plan:'Quarterly',planPrice:2499,status:'active',joined:'Feb 20, 2025',expires:'Nov 20, 2026',daysLeft:82,progress:55,payments:[{amt:2499,date:'Aug 20',method:'Online'}],attendance:['Sep 7 8:30am','Sep 6 8:40am']},
+];
+const payments=[
+  {id:1,member:'Ravi Kumar',amount:'₹999',method:'Online',status:'paid',date:'Sep 1'},
+  {id:2,member:'Priya Mehta',amount:'₹2,499',method:'Cash',status:'paid',date:'Aug 28'},
+  {id:3,member:'Arjun Singh',amount:'₹999',method:'Online',status:'failed',date:'Aug 27'},
+  {id:4,member:'Meera Thomas',amount:'₹7,999',method:'Online',status:'paid',date:'Aug 25'},
+  {id:5,member:'Sunita Patel',amount:'₹2,499',method:'Online',status:'paid',date:'Aug 20'},
+];
+const plans=[
+  {id:1,name:'Monthly',price:'₹999',days:'30 days',active:128},
+  {id:2,name:'Quarterly',price:'₹2,499',days:'90 days',active:12},
+  {id:3,name:'Annual',price:'₹7,999',days:'365 days',active:2},
+];
+let currentPage='dashboard';
+let filteredMembers=[...members];
+
+function statusBadge(s){
+  const map={active:['b-active','d-a','Active'],expiring:['b-expiring','d-ep','Expiring'],frozen:['b-frozen','d-fr','Frozen'],expired:['b-expired','d-ex','Expired']};
+  const [bc,dc,label]=map[s]||['b-active','d-a',s];
+  return `<span class="badge ${bc}"><span class="d-s ${dc}"></span>${label}</span>`;
+}
+
+function renderDashboard(){
+  document.getElementById('breadcrumb').textContent='Admin';
+  document.getElementById('pageTitle').textContent='Dashboard';
+  document.getElementById('headerAction').innerHTML='';
+  const barData=[{d:'Mon',v:42},{d:'Tue',v:61},{d:'Wed',v:58},{d:'Thu',v:39},{d:'Fri',v:67},{d:'Sat',v:78},{d:'Sun',v:31}];
+  const maxV=Math.max(...barData.map(b=>b.v));
+  document.getElementById('content').innerHTML=`
+    <div class="greet">Good morning, <span>John</span> 👋</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Total Members</div><div class="stat-num">142</div><div class="stat-trend trend-up">↑ 3 this week</div></div>
+      <div class="stat-card"><div class="stat-label">Active Members</div><div class="stat-num">128</div><div class="stat-trend trend-up">↑ 5 this month</div></div>
+      <div class="stat-card"><div class="stat-label">Expiring (7 days)</div><div class="stat-num" style="color:#facc15">14</div><div class="stat-trend trend-warn">⚠ action needed</div></div>
+      <div class="stat-card"><div class="stat-label">Revenue (Month)</div><div class="stat-num trend-rev">₹87K</div><div class="stat-trend trend-up">↑ 12% vs last</div></div>
+    </div>
+    <div class="two-col">
+      <div class="mini-card">
+        <div class="mini-card-title">Recent Payments</div>
+        ${payments.slice(0,3).map(p=>`<div class="mini-row"><span class="mini-row-name">${p.member}</span><span class="mini-row-meta">${p.amount} · ${p.method}</span></div>`).join('')}
+        <a class="view-all" onclick="switchPage('payments',document.querySelector('.nav-item:nth-child(4)'))">View all payments →</a>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-title">Expiring Soon</div>
+        <div class="mini-row"><span class="mini-row-name">Priya Mehta</span><span class="mini-row-meta" style="color:#facc15">5 days left</span></div>
+        <div class="mini-row"><span class="mini-row-name">Ravi Kumar</span><span class="mini-row-meta" style="color:#facc15">28 days left</span></div>
+        <div class="mini-row"><span class="mini-row-name">Sunita Patel</span><span class="mini-row-meta">82 days left</span></div>
+        <a class="view-all" onclick="switchPage('members',document.querySelector('.nav-item:nth-child(2)'))">View all →</a>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Attendance — Last 7 Days</div>
+      <div class="bar-chart">
+        ${barData.map(b=>`
+          <div class="bar-col">
+            <div class="bar-val">${b.v}</div>
+            <div class="bar" style="height:${Math.round((b.v/maxV)*60)+8}px"></div>
+            <div class="bar-label">${b.d}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderMembers(){
+  document.getElementById('breadcrumb').textContent='Admin › Members';
+  document.getElementById('pageTitle').textContent='Members';
+  document.getElementById('headerAction').innerHTML=`<button class="btn-sm" onclick="openAddMember()">+ Add Member</button>`;
+  document.getElementById('content').innerHTML=`
+    <div class="toolbar">
+      <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="mSearch" placeholder="Search members..." oninput="filterMembers()"></div>
+      <select class="select-f" id="mStatus" onchange="filterMembers()">
+        <option value="">Status: All</option><option value="active">Active</option><option value="expiring">Expiring</option><option value="frozen">Frozen</option><option value="expired">Expired</option>
+      </select>
+      <button class="btn-sm" style="background:var(--bg-muted);color:var(--text-secondary);border:1px solid var(--border-strong);box-shadow:none">Export CSV</button>
+      <button class="btn-sm" onclick="openAddMember()">+ Add Member</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Contact</th><th>Plan</th><th>Status</th><th>Joined</th></tr></thead>
+        <tbody id="membersTable"></tbody>
+      </table>
+      <div class="pagination"><div class="pag-info" id="mPagInfo"></div><div class="pag-btns"><div class="pag-btn">‹</div><div class="pag-btn active">1</div><div class="pag-btn">2</div><div class="pag-btn">›</div></div></div>
+    </div>
+  `;
+  renderMembersTable();
+}
+
+function filterMembers(){
+  const q=document.getElementById('mSearch')?.value?.toLowerCase()||'';
+  const st=document.getElementById('mStatus')?.value||'';
+  filteredMembers=members.filter(m=>{
+    return (!q||m.name.toLowerCase().includes(q)||m.phone.includes(q))&&(!st||m.status===st);
+  });
+  renderMembersTable();
+}
+
+function renderMembersTable(){
+  const tb=document.getElementById('membersTable');
+  if(!tb) return;
+  tb.innerHTML=filteredMembers.map(m=>`
+    <tr onclick="openMemberDrawer(${m.id})">
+      <td style="font-weight:500">${m.name}</td>
+      <td style="color:var(--text-secondary);font-size:.78rem">${m.phone}</td>
+      <td>${m.plan}</td>
+      <td>${statusBadge(m.status)}</td>
+      <td style="color:var(--text-secondary)">${m.joined}</td>
+    </tr>
+  `).join('');
+  const pi=document.getElementById('mPagInfo');
+  if(pi) pi.textContent=`Showing 1–${filteredMembers.length} of ${members.length} members`;
+}
+
+function openMemberDrawer(id){
+  const m=members.find(x=>x.id===id);
+  if(!m) return;
+  document.getElementById('drawerBody').innerHTML=`
+    <div class="db-avatar">${m.name[0]}</div>
+    <div class="db-name">${m.name}</div>
+    <div style="margin-top:.3rem">${statusBadge(m.status)}</div>
+    <div class="db-sec-title">Contact</div>
+    <div class="db-row"><span class="db-label">📞</span><span>${m.phone}</span></div>
+    <div class="db-row"><span class="db-label">📧</span><span style="font-size:.75rem">${m.email}</span></div>
+    <div class="db-row"><span class="db-label">📅 Joined</span><span>${m.joined}</span></div>
+    <div class="db-sec-title">Current Membership</div>
+    <div class="db-row"><span class="db-label">Plan</span><span>${m.plan} — ₹${m.planPrice}/mo</span></div>
+    <div class="db-row"><span class="db-label">Expires</span><span>${m.expires}</span></div>
+    <div class="db-row"><span class="db-label">Days left</span><span style="color:${m.daysLeft<=7?'#f87171':m.daysLeft<=30?'#facc15':'var(--text-primary)'}">${m.daysLeft}</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${m.progress}%"></div></div>
+    <div class="db-sec-title">Payment History</div>
+    ${m.payments.map(p=>`<div class="db-row"><span class="db-label">${p.date}</span><span>₹${p.amt} · ${p.method} <span style="color:#4ade80">✓</span></span></div>`).join('')}
+    <div class="db-sec-title">Attendance (last ${m.attendance.length})</div>
+    ${m.attendance.map(a=>`<div class="db-row"><span style="color:#4ade80">✓</span><span style="color:var(--text-secondary);font-size:.78rem">${a}</span></div>`).join('')}
+  `;
+  document.getElementById('drawerFooter').innerHTML=`
+    <button class="btn-df">Edit</button>
+    <button class="btn-df">Renew</button>
+    <button class="btn-df">${m.status==='frozen'?'Unfreeze':'Freeze'}</button>
+    <button class="btn-df btn-df-danger">Delete</button>
+  `;
+  showDrawer();
+}
+
+function renderPlans(){
+  document.getElementById('breadcrumb').textContent='Admin › Plans';
+  document.getElementById('pageTitle').textContent='Plans';
+  document.getElementById('headerAction').innerHTML=`<button class="btn-sm" onclick="openAddPlan()">+ New Plan</button>`;
+  document.getElementById('content').innerHTML=`
+    <div class="plans-grid">
+      ${plans.map(p=>`
+        <div class="plan-card">
+          <div class="plan-name">${p.name}</div>
+          <div class="plan-price">${p.price}</div>
+          <div class="plan-days">${p.days}</div>
+          <div class="plan-active">${p.active} active members</div>
+          <div class="plan-btns">
+            <button class="btn-ghost">Edit</button>
+            <button class="btn-danger-sm">Archive</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="archived-label">Archived (1)</div>
+    <div class="archived-item">▸ 6-Month Plan — archived Jun 2025</div>
+  `;
+}
+
+function renderPayments(){
+  document.getElementById('breadcrumb').textContent='Admin › Payments';
+  document.getElementById('pageTitle').textContent='Payments';
+  document.getElementById('headerAction').innerHTML=`<button class="btn-sm" onclick="openCashModal()">+ Record Cash Payment</button>`;
+  document.getElementById('content').innerHTML=`
+    <div class="toolbar">
+      <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..."></div>
+      <select class="select-f"><option>Method: All</option><option>Online</option><option>Cash</option></select>
+      <select class="select-f"><option>Status: All</option><option>Paid</option><option>Failed</option></select>
+      <button class="btn-sm" onclick="openCashModal()">+ Record Cash Payment</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Member</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          ${payments.map(p=>`
+            <tr>
+              <td style="font-weight:500">${p.member}</td>
+              <td>${p.amount}</td>
+              <td><span class="badge" style="background:var(--bg-muted);color:var(--text-secondary)">${p.method}</span></td>
+              <td>${p.status==='paid'?`<span style="color:#4ade80;font-size:.8rem">✓ Paid</span>`:`<span style="color:#f87171;font-size:.8rem">✗ Failed</span>`}</td>
+              <td style="color:var(--text-secondary)">${p.date}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="pagination"><div class="pag-info">Showing 1–${payments.length} of ${payments.length} payments</div></div>
+    </div>
+  `;
+}
+
+function switchPage(page,el){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(page==='dashboard') renderDashboard();
+  else if(page==='members') renderMembers();
+  else if(page==='plans') renderPlans();
+  else if(page==='payments') renderPayments();
+}
+
+function showDrawer(){
+  document.getElementById('overlay').style.display='block';
+  const dr=document.getElementById('drawer');
+  dr.style.display='flex';
+  requestAnimationFrame(()=>dr.classList.add('open'));
+}
+function closeDrawer(){
+  const dr=document.getElementById('drawer');
+  dr.classList.remove('open');
+  setTimeout(()=>{dr.style.display='none';document.getElementById('overlay').style.display='none';},260);
+}
+
+function openAddMember(){
+  document.getElementById('modalBox').innerHTML=`
+    <div class="modal-title">Add New Member</div>
+    <div class="modal-divider"></div>
+    <div class="mfield"><label>Full Name</label><input type="text" placeholder="e.g. Ravi Kumar"></div>
+    <div class="mfield"><label>Phone</label><input type="tel" placeholder="9876543210"></div>
+    <div class="mfield"><label>Email</label><input type="email" placeholder="member@email.com"></div>
+    <div class="mfield"><label>Plan</label><select>${plans.map(p=>`<option>${p.name} — ${p.price}</option>`).join('')}</select></div>
+    <div class="modal-btns"><button class="btn-mg" onclick="closeModal()">Cancel</button><button class="btn-ma" onclick="closeModal()">Add Member →</button></div>
+  `;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+function openAddPlan(){
+  document.getElementById('modalBox').innerHTML=`
+    <div class="modal-title">New Plan</div>
+    <div class="modal-divider"></div>
+    <div class="mfield"><label>Plan Name</label><input type="text" placeholder="e.g. Half-Yearly"></div>
+    <div class="mfield"><label>Price (₹)</label><input type="number" placeholder="4999"></div>
+    <div class="mfield"><label>Duration (days)</label><input type="number" placeholder="180"></div>
+    <div class="modal-btns"><button class="btn-mg" onclick="closeModal()">Cancel</button><button class="btn-ma" onclick="closeModal()">Create Plan →</button></div>
+  `;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+function openCashModal(){
+  document.getElementById('modalBox').innerHTML=`
+    <div class="modal-title">Record Cash Payment</div>
+    <div class="modal-divider"></div>
+    <div class="mfield"><label>Member</label><input type="text" placeholder="🔍 Search member..."></div>
+    <div class="mfield"><label>Plan</label><select>${plans.map(p=>`<option>${p.name} — ${p.price}</option>`).join('')}</select></div>
+    <div class="mfield"><label>Amount (₹)</label><input type="number" placeholder="999"></div>
+    <div class="mfield"><label>Notes (optional)</label><textarea placeholder="e.g. Cash received at desk"></textarea></div>
+    <div class="modal-btns"><button class="btn-mg" onclick="closeModal()">Cancel</button><button class="btn-ma" onclick="closeModal()">Record Payment →</button></div>
+  `;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').style.display='none';}
+function setTheme(t,el){document.documentElement.setAttribute('data-theme',t);document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));el.classList.add('active');localStorage.setItem('gymerp-theme',t);}
+const s=localStorage.getItem('gymerp-theme');if(s){const el=document.querySelector('.dot-'+s);if(el)setTheme(s,el);}
+renderDashboard();
+</script>
+</body>
+</html>
