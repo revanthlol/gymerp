@@ -73,3 +73,61 @@ body {
 .animate-laser {
   animation: laserScan 2.4s ease-in-out infinite;
 }
+
+/* Bottom-anchored ambient glow — sits beneath glass surfaces like a light rising from below */
+.glow-bottom {
+  position: relative;
+  isolation: isolate;
+}
+
+.glow-bottom::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -18%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 40%;
+  background: radial-gradient(ellipse at center, var(--primary) 0%, transparent 72%);
+  filter: blur(24px);
+  opacity: 0.35;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.glow-bottom:hover::after,
+.glow-bottom:focus-visible::after {
+  opacity: 0.6;
+}
+
+/* Thinner variant for nav bars / headers — a glow strip along the bottom edge */
+.glow-bar {
+  position: relative;
+}
+
+.glow-bar::after {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.5;
+  filter: blur(1px);
+}
+
+.glow-bar::before {
+  content: "";
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: -12px;
+  height: 24px;
+  background: radial-gradient(ellipse at center, var(--primary) 0%, transparent 75%);
+  filter: blur(16px);
+  opacity: 0.18;
+  pointer-events: none;
+}
+

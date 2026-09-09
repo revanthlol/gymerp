@@ -2,13 +2,14 @@
 
 import React from "react";
 import { useAuth } from "@/lib/auth/context";
-import { Shield, LogOut, Database, Building2, Activity } from "lucide-react";
+import { Shield, LogOut, Database } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function PlatformNav({ userEmail }: { userEmail: string }) {
   const { logout } = useAuth();
 
   return (
-    <header className="border-b border-zinc-800/80 bg-zinc-950/70 backdrop-blur-md sticky top-0 z-40">
+    <header className="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40 glow-bar">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
@@ -39,13 +40,15 @@ export function PlatformNav({ userEmail }: { userEmail: string }) {
             <p className="text-xs font-medium text-zinc-200">{userEmail}</p>
             <p className="text-[10px] text-purple-400 font-mono">platform_superadmin</p>
           </div>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={logout}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs transition-colors"
+            className="flex items-center gap-1.5 h-8 text-xs"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Sign Out</span>
-          </button>
+          </Button>
         </div>
       </div>
     </header>

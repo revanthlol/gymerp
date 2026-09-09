@@ -73,8 +73,8 @@ export default function KioskPage() {
         </div>
       </div>
 
-      {/* Futuristic Scanner Card */}
-      <div className="glass-panel p-8 rounded-3xl text-center space-y-6 relative overflow-hidden">
+      {/* Clean Scanner Card without glass/blur overhead */}
+      <div className="bg-zinc-950 border border-zinc-800 p-8 rounded-3xl text-center space-y-6 relative overflow-hidden">
         <div>
           <h1 className="text-xl font-bold text-white">Self-Service Check-In Terminal</h1>
           <p className="text-xs text-zinc-400 mt-1">Hold your digital member QR code or card directly before the camera</p>

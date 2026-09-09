@@ -1,7 +1,17 @@
 import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { members, membershipPlans, attendance, payments } from "@/lib/db/schema";
-import { Users, QrCode, CreditCard, Sliders } from "lucide-react";
+import { Users, QrCode, CreditCard, Sliders, ShieldCheck } from "lucide-react";
+import { Reveal } from "@/components/Reveal";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -31,24 +41,25 @@ export default async function AdminDashboardPage() {
   });
 
   const activeMembers = data.members.filter((m) => m.status === "active").length;
+  const inactiveMembers = data.members.length - activeMembers;
   const totalRevenue = data.payments.reduce(
     (acc, p) => acc + (p.status === "paid" ? parseFloat(p.amount) : 0),
     0
   );
 
   return (
-    <div className="space-y-8">
+    <Reveal className="space-y-8">
       {/* Top Welcome */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Gym Admin Dashboard</h1>
           <p className="text-sm text-zinc-400 mt-1">
             Real-time membership metrics, daily turnstile check-ins, and active plans.
           </p>
         </div>
-        <div className="text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1.5 rounded-xl flex items-center gap-2">
+        <div className="text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1.5 rounded-xl flex items-center gap-2 self-start sm:self-auto">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>RLS Scoped: {session!.tenantId?.slice(0, 8)}...</span>
+          <span>Tenant Partition: {session!.tenantId?.slice(0, 8)}...</span>
         </div>
       </div>
 
@@ -60,25 +71,27 @@ export default async function AdminDashboardPage() {
             <Users className="w-4 h-4 text-orange-400" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">{activeMembers}</p>
-          <p className="text-xs text-zinc-500 font-mono">{data.members.length} total registered</p>
+          <p className="text-xs text-zinc-500 font-mono">
+            {data.members.length} total · {inactiveMembers} expired
+          </p>
         </div>
 
         <div className="glass-panel p-5 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-zinc-400">
-            <span className="text-xs font-medium uppercase tracking-wider">Today Check-Ins</span>
+            <span className="text-xs font-medium uppercase tracking-wider">Turnstile Scans</span>
             <QrCode className="w-4 h-4 text-blue-400" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">{data.attendance.length}</p>
-          <p className="text-xs text-blue-400/90 font-mono">Front-desk turnstile</p>
+          <p className="text-xs text-blue-400/90 font-mono">Front-desk kiosk</p>
         </div>
 
         <div className="glass-panel p-5 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-zinc-400">
-            <span className="text-xs font-medium uppercase tracking-wider">Collected Revenue</span>
+            <span className="text-xs font-medium uppercase tracking-wider">Settled Revenue</span>
             <CreditCard className="w-4 h-4 text-emerald-400" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">${totalRevenue.toFixed(2)}</p>
-          <p className="text-xs text-emerald-400/90 font-mono">{data.payments.length} settlements</p>
+          <p className="text-xs text-emerald-400/90 font-mono">{data.payments.length} transactions</p>
         </div>
 
         <div className="glass-panel p-5 rounded-2xl space-y-2">
@@ -96,17 +109,17 @@ export default async function AdminDashboardPage() {
         <h2 className="text-lg font-semibold text-white">Configured Membership Plans</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {data.plans.map((p) => (
-            <div key={p.id} className="glass-panel p-5 rounded-2xl space-y-3 relative overflow-hidden">
+            <div key={p.id} className="glass-panel p-5 rounded-2xl space-y-3 relative overflow-hidden border border-zinc-800/80">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-white text-base">{p.name}</h3>
                 <span className="text-xs font-mono text-orange-400 bg-orange-950/40 px-2 py-0.5 rounded-full border border-orange-800/40">
                   {p.durationDays} days
                 </span>
               </div>
-              <p className="text-xs text-zinc-400 min-h-[32px]">{p.description || "Standard pass"}</p>
+              <p className="text-xs text-zinc-400 min-h-[32px]">{p.description || "Standard gym pass"}</p>
               <div className="pt-2 border-t border-zinc-800 flex items-baseline justify-between">
                 <p className="text-2xl font-bold text-white font-mono">${parseFloat(p.price).toFixed(2)}</p>
-                <span className="text-[11px] text-zinc-500 font-mono">Admin Managed</span>
+                <span className="text-[11px] text-zinc-500 font-mono">Managed Plan</span>
               </div>
             </div>
           ))}
@@ -114,7 +127,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Members Overview Table */}
-      <div className="glass-panel rounded-2xl overflow-hidden">
+      <div className="glass-panel rounded-2xl overflow-hidden border border-zinc-800/80">
         <div className="p-5 border-b border-zinc-800/80 flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-white">Registered Athletes & Members</h2>
@@ -122,52 +135,54 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-zinc-800 text-[11px] font-mono text-zinc-400 uppercase tracking-wider bg-zinc-900/50">
-                <th className="py-3 px-5">Member Name</th>
-                <th className="py-3 px-5">Phone</th>
-                <th className="py-3 px-5">Status</th>
-                <th className="py-3 px-5">QR Token (Kiosk Pass)</th>
-                <th className="py-3 px-5">Joined Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800/60 text-sm">
-              {data.members.map((m) => (
-                <tr key={m.id} className="hover:bg-zinc-800/30 transition-colors">
-                  <td className="py-3.5 px-5 font-medium text-white flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center text-xs font-bold">
-                      {m.fullName.charAt(0)}
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-zinc-900/50">
+              <TableHead>Member Name</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>QR Token (Kiosk Pass)</TableHead>
+              <TableHead>Joined Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.members.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center text-zinc-500">
+                  No members registered in this gym yet.
+                </TableCell>
+              </TableRow>
+            ) : (
+              data.members.map((m) => (
+                <TableRow key={m.id} className="hover:bg-zinc-800/30">
+                  <TableCell className="font-medium text-white">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center text-xs font-bold">
+                        {m.fullName.charAt(0).toUpperCase()}
+                      </div>
+                      <span>{m.fullName}</span>
                     </div>
-                    <span>{m.fullName}</span>
-                  </td>
-                  <td className="py-3.5 px-5 font-mono text-xs text-zinc-300">{m.phone}</td>
-                  <td className="py-3.5 px-5">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        m.status === "active"
-                          ? "bg-emerald-950/40 text-emerald-400 border border-emerald-800/50"
-                          : "bg-red-950/40 text-red-400 border border-red-800/50"
-                      }`}
-                    >
+                  </TableCell>
+                  <TableCell className="font-mono text-xs text-zinc-300">{m.phone}</TableCell>
+                  <TableCell>
+                    <Badge variant={m.status === "active" ? "success" : "destructive"}>
                       {m.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs text-zinc-400">
+                    <span className="bg-zinc-900 px-2 py-1 rounded border border-zinc-800 select-all">
+                      {m.qrToken.slice(0, 10)}...
                     </span>
-                  </td>
-                  <td className="py-3.5 px-5 font-mono text-xs text-zinc-400">
-                    <span className="bg-zinc-900 px-2 py-1 rounded border border-zinc-800">
-                      {m.qrToken.slice(0, 8)}...
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-5 font-mono text-xs text-zinc-400">
+                  </TableCell>
+                  <TableCell className="font-mono text-xs text-zinc-400">
                     {m.joinDate ? new Date(m.joinDate).toLocaleDateString() : "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
-    </div>
+    </Reveal>
   );
 }

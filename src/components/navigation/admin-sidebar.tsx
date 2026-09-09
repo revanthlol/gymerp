@@ -7,12 +7,12 @@ import { useAuth } from "@/lib/auth/context";
 import {
   LayoutDashboard,
   Users,
-  CreditCard,
   QrCode,
   Sliders,
   LogOut,
   Building2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface AdminSidebarProps {
   gymName: string;
@@ -32,8 +32,8 @@ export function AdminSidebar({ gymName, userEmail }: AdminSidebarProps) {
 
   return (
     <aside className="w-64 border-r border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md flex flex-col justify-between shrink-0 h-screen sticky top-0">
-      {/* Top Brand */}
-      <div className="p-5 space-y-6">
+      {/* Top Brand with glow-bar */}
+      <div className="p-5 space-y-6 glow-bar pb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-500 shadow-[0_0_16px_rgba(255,94,30,0.15)]">
             <Building2 className="w-5 h-5" />
@@ -77,13 +77,15 @@ export function AdminSidebar({ gymName, userEmail }: AdminSidebarProps) {
             <p className="text-xs font-medium text-zinc-200 truncate">{userEmail}</p>
             <p className="text-[10px] text-orange-400 font-mono">gym_admin</p>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={logout}
             title="Sign Out"
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            className="h-8 w-8 text-zinc-400 hover:text-white"
           >
             <LogOut className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
     </aside>
