@@ -57,9 +57,11 @@ export default async function AdminDashboardPage() {
             Real-time membership metrics, daily turnstile check-ins, and active plans.
           </p>
         </div>
-        <div className="text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1.5 rounded-xl flex items-center gap-2 self-start sm:self-auto">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Tenant Partition: {session!.tenantId?.slice(0, 8)}...</span>
+        <div className="flex items-center gap-2.5">
+          <div className="text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1.5 rounded-xl flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Partition: {session!.tenantId?.slice(0, 8)}...</span>
+          </div>
         </div>
       </div>
 

@@ -193,19 +193,20 @@ async function seed() {
       isActive: "true",
     });
 
-    // 4. Create Members for Iron Pulse
-    console.log("\n4. Creating Members...");
+    // 4. Create Members for Iron Pulse (Exact GRYM wireframe athletes)
+    console.log("\n4. Creating Members (GRYM wireframe athletes)...");
     const [member1] = await db
       .insert(members)
       .values({
         tenantId: tenant1.id,
-        fullName: "Rohan Varma",
-        phone: "+91 99887 76655",
-        email: "rohan@example.com",
-        gender: "male",
-        dateOfBirth: "1994-05-12",
+        fullName: "Sarah Cole",
+        phone: "+380 (66) 237 98 54",
+        email: "email_sample@gmail.com",
+        gender: "Female",
+        dateOfBirth: "1992-07-23",
+        emergencyContact: "Korolenko Street 24, 4/51",
         status: "active",
-        joinDate: "2026-01-15",
+        joinDate: "2021-11-05",
       })
       .returning();
 
@@ -213,13 +214,69 @@ async function seed() {
       .insert(members)
       .values({
         tenantId: tenant1.id,
-        fullName: "Priya Nair",
-        phone: "+91 98877 66554",
-        email: "priya@example.com",
-        gender: "female",
-        dateOfBirth: "1998-11-20",
+        fullName: "James Frau",
+        phone: "+380 (95) 107 22 23",
+        email: "james.frau@example.com",
+        gender: "Male",
+        dateOfBirth: "1990-03-15",
         status: "active",
-        joinDate: "2026-02-01",
+        joinDate: "2022-03-01",
+      })
+      .returning();
+
+    const [member3] = await db
+      .insert(members)
+      .values({
+        tenantId: tenant1.id,
+        fullName: "Nicole Whiston",
+        phone: "+380 (50) 866 21 12",
+        email: "nicole.w@example.com",
+        gender: "Female",
+        dateOfBirth: "1995-10-18",
+        status: "active",
+        joinDate: "2022-10-22",
+      })
+      .returning();
+
+    const [member4] = await db
+      .insert(members)
+      .values({
+        tenantId: tenant1.id,
+        fullName: "James Cameron",
+        phone: "+380 (67) 111 25 54",
+        email: "j.cameron@example.com",
+        gender: "Male",
+        dateOfBirth: "1988-06-11",
+        status: "active",
+        joinDate: "2023-05-12",
+      })
+      .returning();
+
+    const [member5] = await db
+      .insert(members)
+      .values({
+        tenantId: tenant1.id,
+        fullName: "Kyle Janner",
+        phone: "+380 (67) 397 06 12",
+        email: "kyle.j@example.com",
+        gender: "Male",
+        dateOfBirth: "1997-01-28",
+        status: "active",
+        joinDate: "2023-06-30",
+      })
+      .returning();
+
+    const [member6] = await db
+      .insert(members)
+      .values({
+        tenantId: tenant1.id,
+        fullName: "Alicia Torres",
+        phone: "+380 (50) 234 56 78",
+        email: "alicia.t@example.com",
+        gender: "Female",
+        dateOfBirth: "1993-09-04",
+        status: "active",
+        joinDate: "2023-09-04",
       })
       .returning();
 

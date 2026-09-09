@@ -18,6 +18,8 @@ const badgeVariants = cva(
           "border-emerald-800/50 bg-emerald-950/40 text-emerald-400",
         warning:
           "border-amber-800/50 bg-amber-950/40 text-amber-400",
+        vip:
+          "border-brand/40 bg-brand/15 text-brand font-semibold text-[10px] tracking-wider uppercase px-2 py-0.5",
       },
     },
     defaultVariants: {

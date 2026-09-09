@@ -5,23 +5,23 @@
 :root {
   --background: #080809;
   --foreground: #f4f4f6;
-  --card: #0e0e12;
+  --card: #0d0d11;
   --card-foreground: #f4f4f6;
-  --popover: #0e0e12;
+  --popover: #0d0d11;
   --popover-foreground: #f4f4f6;
-  --primary: #ff5e1e;
-  --primary-foreground: #ffffff;
-  --secondary: #18181f;
+  --primary: #c6ff00;
+  --primary-foreground: #080809;
+  --secondary: #14141a;
   --secondary-foreground: #f4f4f6;
-  --muted: #181820;
-  --muted-foreground: #8a8f98;
-  --accent: #1e1e27;
+  --muted: #14141a;
+  --muted-foreground: #808593;
+  --accent: #1a1a23;
   --accent-foreground: #f4f4f6;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.08);
-  --ring: #ff5e1e;
+  --ring: #c6ff00;
   --radius: 0.75rem;
 }
 
@@ -32,25 +32,25 @@ body {
   min-height: 100vh;
 }
 
-/* Glassmorphism Containers */
+/* Glassmorphism Containers - selective, understated, high-contrast */
 .glass-panel {
-  background: rgba(14, 14, 18, 0.7);
+  background: rgba(14, 14, 18, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 }
 
 .glass-input {
-  background: rgba(10, 10, 13, 0.6);
+  background: rgba(10, 10, 14, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #f4f4f6;
   transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: #ff5e1e;
-  box-shadow: 0 0 0 1px #ff5e1e, 0 0 16px rgba(255, 94, 30, 0.2);
+  border-color: #c6ff00;
+  box-shadow: 0 0 0 1px #c6ff00, 0 0 16px rgba(198, 255, 0, 0.2);
   outline: none;
 }
 
@@ -74,7 +74,7 @@ body {
   animation: laserScan 2.4s ease-in-out infinite;
 }
 
-/* Bottom-anchored ambient glow — sits beneath glass surfaces like a light rising from below */
+/* Bottom-anchored ambient glow — sits beneath glass surfaces */
 .glow-bottom {
   position: relative;
   isolation: isolate;
@@ -101,7 +101,7 @@ body {
   opacity: 0.6;
 }
 
-/* Thinner variant for nav bars / headers — a glow strip along the bottom edge */
+/* Glow bar for top headers */
 .glow-bar {
   position: relative;
 }
@@ -130,4 +130,3 @@ body {
   opacity: 0.18;
   pointer-events: none;
 }
-

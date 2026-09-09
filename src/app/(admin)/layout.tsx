@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { tenants } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { AdminSidebar } from "@/components/navigation/admin-sidebar";
+import { GymHeader } from "@/components/navigation/gym-header";
 
 export default async function AdminLayout({
   children,
@@ -48,10 +48,10 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#080809] text-zinc-100 flex">
-      <AdminSidebar gymName={tenant.name} userEmail={session.email} />
-      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto">{children}</div>
+    <div className="min-h-screen bg-[#080809] text-zinc-100 flex flex-col">
+      <GymHeader gymName={tenant.name} userEmail={session.email} />
+      <main className="flex-1 min-w-0 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+        {children}
       </main>
     </div>
   );
