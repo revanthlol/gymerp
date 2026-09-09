@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { members, membershipPlans, attendance, payments } from "@/lib/db/schema";
@@ -24,9 +25,12 @@ interface AdminDashboardData {
 
 export default async function AdminDashboardPage() {
   const session = await getSession();
+  if (!session || !session.tenantId) {
+    redirect("/login");
+  }
 
   // Query tenant-scoped operational data via withTenantDb
-  const data: AdminDashboardData = await withTenantDb(session!, async (tx) => {
+  const data: AdminDashboardData = await withTenantDb(session, async (tx) => {
     const tenantMembers = await tx.select().from(members);
     const tenantPlans = await tx.select().from(membershipPlans);
     const tenantAttendance = await tx.select().from(attendance);

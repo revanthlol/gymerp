@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { members, attendance } from "@/lib/db/schema";
@@ -16,8 +17,11 @@ interface StaffDashboardData {
 
 export default async function StaffHomePage() {
   const session = await getSession();
+  if (!session || !session.tenantId) {
+    redirect("/login");
+  }
 
-  const data: StaffDashboardData = await withTenantDb(session!, async (tx) => {
+  const data: StaffDashboardData = await withTenantDb(session, async (tx) => {
     const tenantMembers = await tx.select().from(members);
     const recentAttendance = await tx
       .select()

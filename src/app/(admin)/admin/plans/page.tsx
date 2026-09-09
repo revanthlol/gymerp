@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { membershipPlans, memberships } from "@/lib/db/schema";
@@ -13,9 +14,12 @@ interface AdminPlansData {
 
 export default async function AdminPlansPage() {
   const session = await getSession();
+  if (!session || !session.tenantId) {
+    redirect("/login");
+  }
 
   const data: AdminPlansData = await withTenantDb(
-    session!,
+    session,
     async (tx): Promise<AdminPlansData> => {
       const plans = await tx.select().from(membershipPlans);
       const activeMemberships = await tx.select().from(memberships);

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { tenants } from "@/lib/db/schema";
@@ -9,10 +10,13 @@ export const dynamic = "force-dynamic";
 
 export default async function PlatformDashboardPage() {
   const session = await getSession();
+  if (!session || session.role !== "platform") {
+    redirect("/login");
+  }
 
   // Fetch real tenant records using withTenantDb in platform role
   const allTenants = await withTenantDb(
-    { userId: session!.uid, role: "platform", tenantId: null },
+    { userId: session.uid, role: "platform", tenantId: null },
     async (tx): Promise<Array<typeof tenants.$inferSelect>> => {
       return await tx.select().from(tenants);
     }

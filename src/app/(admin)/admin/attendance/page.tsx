@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { attendance, members } from "@/lib/db/schema";
@@ -22,9 +23,12 @@ interface AdminAttendanceData {
 
 export default async function AdminAttendancePage() {
   const session = await getSession();
+  if (!session || !session.tenantId) {
+    redirect("/login");
+  }
 
   const data: AdminAttendanceData = await withTenantDb(
-    session!,
+    session,
     async (tx): Promise<AdminAttendanceData> => {
       const rawAttendance = await tx
         .select()

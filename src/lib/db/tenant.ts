@@ -15,9 +15,13 @@ export interface SessionContext {
  * - Admin/Staff role: app.current_role = 'admin'|'staff', app.current_tenant_id = <uuid>
  */
 export async function withTenantDb<T>(
-  context: SessionContext,
+  context: SessionContext | null | undefined,
   operation: (tx: any) => Promise<T>
 ): Promise<T> {
+  if (!context || !context.role) {
+    throw new Error("Unauthorized: Active session context required for database operations");
+  }
+
   return await db.transaction(async (tx) => {
     if (context.role === "platform") {
       await tx.execute(sql`SELECT set_config('app.current_role', 'platform', true)`);
