@@ -29,16 +29,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.includes(".");
 
+  // Public routes always render directly. Never redirect away from /login in middleware
+  // to avoid infinite ping-pong loops when server-side tokens are stale/revoked.
   if (isPublicRoute) {
-    if (pathname === "/login" && sessionCookie) {
-      const payload = parseJwtPayload(sessionCookie);
-      if (payload && payload.exp && payload.exp * 1000 > Date.now()) {
-        const role = payload.role;
-        if (role === "platform") return NextResponse.redirect(new URL("/platform", request.url));
-        if (role === "admin") return NextResponse.redirect(new URL("/admin", request.url));
-        if (role === "staff") return NextResponse.redirect(new URL("/staff", request.url));
-      }
-    }
     return NextResponse.next();
   }
 

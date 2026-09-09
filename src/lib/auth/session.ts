@@ -11,7 +11,7 @@ export async function getSession(): Promise<SessionUser | null> {
   }
 
   try {
-    const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
+    const decoded = await adminAuth.verifySessionCookie(sessionCookie, false);
     return {
       uid: decoded.uid,
       email: decoded.email || "",
@@ -21,7 +21,12 @@ export async function getSession(): Promise<SessionUser | null> {
       photoURL: decoded.picture || undefined,
     };
   } catch (error) {
-    // Session cookie invalid or revoked
+    // Stale or revoked session cookie — purge it
+    try {
+      cookieStore.delete("__session");
+    } catch {
+      // Ignore if headers already sent
+    }
     return null;
   }
 }
