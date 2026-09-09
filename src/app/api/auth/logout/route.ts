@@ -15,7 +15,13 @@ export async function POST() {
     }
   }
 
-  cookieStore.delete("__session");
+  cookieStore.set("__session", "", {
+    maxAge: 0,
+    path: "/",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
 
   return NextResponse.json({ status: "success", message: "Logged out" });
 }

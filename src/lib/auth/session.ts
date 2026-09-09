@@ -23,7 +23,7 @@ export async function getSession(): Promise<SessionUser | null> {
   } catch (error) {
     // Stale or revoked session cookie — purge it
     try {
-      cookieStore.delete("__session");
+      cookieStore.set("__session", "", { path: "/", maxAge: 0 });
     } catch {
       // Ignore if headers already sent
     }
