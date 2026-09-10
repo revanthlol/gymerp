@@ -42,7 +42,6 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
     { label: "Inbox", href: "/admin/attendance", icon: Inbox },
     { label: "Scheduling", href: "/admin/plans", icon: Calendar },
     { label: "Kiosk", href: "/staff/kiosk", icon: QrCode },
-    { label: "Athlete App", href: "/admin/mobile-preview", icon: Smartphone },
   ];
 
   const displayName = userEmail.split("@")[0] || "Gym Admin";
@@ -54,7 +53,7 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
           {/* Left Brand */}
           <div className="flex items-center gap-6">
             <Link href="/admin" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center font-black text-sm tracking-tighter shadow-[0_0_16px_rgba(198,255,0,0.3)] group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center font-black text-sm tracking-tighter shadow-[0_0_16px_rgba(118,185,0,0.3)] group-hover:scale-105 transition-transform">
                 G
               </div>
               <div className="flex flex-col">
@@ -89,7 +88,7 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
                     <Icon className={`w-4 h-4 ${isActive ? "text-brand" : "text-zinc-400"}`} />
                     <span>{item.label}</span>
                     {isActive && (
-                      <span className="absolute bottom-[-13px] left-3 right-3 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(198,255,0,0.8)]" />
+                      <span className="absolute bottom-[-13px] left-3 right-3 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(118,185,0,0.8)]" />
                     )}
                   </Link>
                 );

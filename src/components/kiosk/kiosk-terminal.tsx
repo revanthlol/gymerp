@@ -141,18 +141,17 @@ export function KioskTerminal({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-12">
-      {/* Top Header */}
+      {/* Page Title & Status */}
       <div className="flex items-center justify-between">
-        <Link
-          href="/staff"
-          className="inline-flex items-center gap-2 text-xs text-zinc-400 hover:text-white px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Exit Kiosk Terminal</span>
-        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Turnstile Check-In Kiosk</h1>
+          <p className="text-xs text-zinc-400 mt-0.5">
+            Entrance terminal with anti-proxy rotating 2-hour QR code and front-desk manual check-in
+          </p>
+        </div>
         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300">
           <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-          <span>Turnstile Active · Anti-Proxy Mode</span>
+          <span>Anti-Proxy Security Active</span>
         </div>
       </div>
 

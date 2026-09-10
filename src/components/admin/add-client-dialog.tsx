@@ -66,7 +66,7 @@ export function AddClientDialog({ plans }: AddClientDialogProps) {
       <DialogTrigger asChild>
         <button
           title="Add Client"
-          className="w-9 h-9 rounded-xl bg-brand text-carbon-950 flex items-center justify-center font-bold shadow-[0_0_16px_rgba(198,255,0,0.3)] hover:bg-brand-hover active:scale-95 transition-all"
+          className="w-9 h-9 rounded-xl bg-brand text-carbon-950 flex items-center justify-center font-bold shadow-[0_0_16px_rgba(118,185,0,0.3)] hover:bg-brand-hover active:scale-95 transition-all"
         >
           <Plus className="w-5 h-5 text-carbon-950 stroke-[2.5]" />
         </button>

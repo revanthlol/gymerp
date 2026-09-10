@@ -2,8 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth/context";
-import { Terminal, QrCode, LogOut } from "lucide-react";
+import { LayoutDashboard, QrCode, LogOut, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function StaffHeader({
@@ -13,46 +14,89 @@ export function StaffHeader({
   gymName: string;
   userEmail: string;
 }) {
+  const pathname = usePathname();
   const { logout } = useAuth();
+  const displayName = userEmail.split("@")[0] || "Staff";
+
+  const navItems = [
+    { label: "Front Desk", href: "/staff", icon: LayoutDashboard },
+    { label: "Turnstile Kiosk", href: "/staff/kiosk", icon: QrCode },
+  ];
 
   return (
-    <header className="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40 glow-bar">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        {/* Brand & Gym */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
-            <Terminal className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-white text-sm">{gymName}</span>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
-                Front-Desk
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md glow-bar">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        {/* Left Brand */}
+        <div className="flex items-center gap-6">
+          <Link href="/staff" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-full bg-brand text-black flex items-center justify-center font-black text-sm tracking-tighter shadow-[0_0_12px_rgba(118,185,0,0.3)] group-hover:scale-105 transition-transform">
+              G
+            </div>
+            <div className="flex flex-col">
+              <span className="font-extrabold text-white text-base tracking-widest leading-none">
+                GRYM
+              </span>
+              <span className="text-[10px] text-zinc-400 font-mono leading-tight truncate max-w-[120px]">
+                {gymName}
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500 font-mono">Shift Active · {userEmail}</p>
-          </div>
+          </Link>
+
+          {/* Navigation Tabs */}
+          <nav className="flex items-center space-x-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`relative flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? "text-brand font-semibold"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60"
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? "text-brand" : "text-zinc-400"}`} />
+                  <span>{item.label}</span>
+                  {isActive && (
+                    <span className="absolute bottom-[-13px] left-3 right-3 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(118,185,0,0.6)]" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Button asChild size="sm" className="h-8 gap-1.5 glow-bottom">
-            <Link href="/staff/kiosk">
-              <QrCode className="w-4 h-4" />
-              <span className="hidden sm:inline">Launch Kiosk</span>
-            </Link>
-          </Button>
+        {/* Right Status & User Profile */}
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-400">
+            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
+            <span>Turnstiles Connected</span>
+          </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={logout}
-            title="Sign Out"
-            className="h-8 gap-1.5"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Logout</span>
-          </Button>
+          <div className="flex items-center gap-2.5 pl-2 border-l border-zinc-800">
+            <div className="w-8 h-8 rounded-full bg-zinc-800 text-zinc-200 border border-zinc-700 flex items-center justify-center font-bold text-xs">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+            <div className="hidden lg:block text-left">
+              <p className="text-xs font-semibold text-white capitalize leading-none">
+                {displayName}
+              </p>
+              <p className="text-[10px] text-zinc-400 font-mono leading-tight">Staff</p>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={logout}
+              title="Sign Out"
+              className="h-8 w-8 text-zinc-400 hover:text-white shrink-0 ml-1"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
       </div>
     </header>

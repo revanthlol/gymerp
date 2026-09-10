@@ -36,7 +36,7 @@ export async function generateGymRotatingQr(tenantId: string): Promise<RotatingQ
     margin: 1.5,
     color: {
       dark: "#080809",
-      light: "#c6ff00",
+      light: "#76b900",
     },
     errorCorrectionLevel: "M",
   });

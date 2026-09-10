@@ -1,13 +1,7 @@
 "use client";
 
 import React from "react";
-import dynamic from "next/dynamic";
-import { useIsDesktop } from "@/hooks/useIsDesktop";
-
-const DynamicMotionDiv = dynamic(() => import("./motion/MotionDiv"), {
-  ssr: false,
-  loading: () => null,
-});
+import { motion } from "framer-motion";
 
 interface RevealProps {
   children: React.ReactNode;
@@ -21,23 +15,17 @@ export function Reveal({
   children,
   className,
   delay = 0,
-  duration = 0.35,
-  y = 12,
+  duration = 0.25,
+  y = 8,
 }: RevealProps) {
-  const isDesktop = useIsDesktop();
-
-  if (!isDesktop) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
-    <DynamicMotionDiv
+    <motion.div
+      initial={{ opacity: 0, y }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
-      delay={delay}
-      duration={duration}
-      y={y}
     >
       {children}
-    </DynamicMotionDiv>
+    </motion.div>
   );
 }

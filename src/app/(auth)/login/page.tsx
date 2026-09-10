@@ -72,7 +72,7 @@ export default function LoginPage() {
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-[#c6ff00] text-[#080809] flex items-center justify-center font-black text-base shadow-[0_0_12px_rgba(198,255,0,0.25)]">
+            <div className="w-9 h-9 rounded-xl bg-brand text-black flex items-center justify-center font-black text-base shadow-[0_0_12px_rgba(118,185,0,0.25)]">
               G
             </div>
             <span className="font-extrabold text-white text-xl tracking-widest">GRYM</span>

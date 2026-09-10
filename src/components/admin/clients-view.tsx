@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Table,
   TableHeader,
@@ -130,7 +131,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
   };
 
   const formatActivityDate = (dateVal?: string | Date | null) => {
-    if (!dateVal) return "12th August, 2023";
+    if (!dateVal) return "No activity recorded";
     const d = new Date(dateVal);
     return d.toLocaleDateString("en-GB", {
       day: "numeric",
@@ -203,7 +204,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                       filteredMembers.length > 0 &&
                       filteredMembers.every((m) => checkedIds[m.id])
                     }
-                    className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-brand focus:ring-0 focus:ring-offset-0 cursor-pointer accent-lime-400"
+                    className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-brand focus:ring-0 focus:ring-offset-0 cursor-pointer accent-brand"
                   />
                 </TableHead>
                 <TableHead className="text-zinc-400 font-medium text-xs">Name</TableHead>
@@ -244,7 +245,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                           type="checkbox"
                           checked={isChecked}
                           onChange={(e) => handleToggleCheck(member.id, e as any)}
-                          className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-brand focus:ring-0 focus:ring-offset-0 cursor-pointer accent-lime-400"
+                          className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-brand focus:ring-0 focus:ring-offset-0 cursor-pointer accent-brand"
                         />
                       </TableCell>
 
@@ -282,49 +283,56 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
       </div>
 
       {/* Right Slide-over Inspector Panel (Exact Wireframe Match) */}
-      {selectedMember && (
-        <aside className="w-full lg:w-[360px] shrink-0 rounded-2xl border border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md p-5 space-y-6 flex flex-col justify-between self-start">
-          <div className="space-y-6">
-            {/* Drawer Tabs & Close */}
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-              <div className="flex items-center gap-5 text-xs font-semibold">
-                <button
-                  onClick={() => setActiveTab("overview")}
-                  className={`relative pb-2 transition-colors ${
-                    activeTab === "overview"
-                      ? "text-brand"
-                      : "text-zinc-400 hover:text-zinc-200"
-                  }`}
-                >
-                  Overview
-                  {activeTab === "overview" && (
-                    <span className="absolute bottom-[-13px] left-0 right-0 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(198,255,0,0.8)]" />
-                  )}
-                </button>
+      <AnimatePresence>
+        {selectedMember && (
+          <motion.aside
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="w-full lg:w-[360px] shrink-0 rounded-2xl border border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md p-5 space-y-6 flex flex-col justify-between self-start"
+          >
+            <div className="space-y-6">
+              {/* Drawer Tabs & Close */}
+              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                <div className="flex items-center gap-5 text-xs font-semibold">
+                  <button
+                    onClick={() => setActiveTab("overview")}
+                    className={`relative pb-2 transition-colors ${
+                      activeTab === "overview"
+                        ? "text-brand"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    Overview
+                    {activeTab === "overview" && (
+                      <span className="absolute bottom-[-13px] left-0 right-0 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(118,185,0,0.8)]" />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab("activities")}
+                    className={`relative pb-2 transition-colors ${
+                      activeTab === "activities"
+                        ? "text-brand"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    Activities
+                    {activeTab === "activities" && (
+                      <span className="absolute bottom-[-13px] left-0 right-0 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(118,185,0,0.8)]" />
+                    )}
+                  </button>
+                </div>
 
                 <button
-                  onClick={() => setActiveTab("activities")}
-                  className={`relative pb-2 transition-colors ${
-                    activeTab === "activities"
-                      ? "text-brand"
-                      : "text-zinc-400 hover:text-zinc-200"
-                  }`}
+                  onClick={() => setSelectedMember(null)}
+                  className="text-zinc-500 hover:text-white transition-colors"
+                  title="Close Inspector"
                 >
-                  Activities
-                  {activeTab === "activities" && (
-                    <span className="absolute bottom-[-13px] left-0 right-0 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(198,255,0,0.8)]" />
-                  )}
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-
-              <button
-                onClick={() => setSelectedMember(null)}
-                className="text-zinc-500 hover:text-white transition-colors"
-                title="Close Inspector"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
             {activeTab === "overview" ? (
               <div className="space-y-6">
@@ -367,7 +375,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                     <div className="flex items-center justify-between text-zinc-400">
                       <span className="text-zinc-500">Email:</span>
                       <span className="text-zinc-200 font-mono text-[11px] truncate max-w-[200px]">
-                        {selectedMember.email || "email_sample@gmail.com"}
+                        {selectedMember.email || "—"}
                       </span>
                     </div>
 
@@ -381,7 +389,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                     <div className="flex items-center justify-between text-zinc-400">
                       <span className="text-zinc-500">Address:</span>
                       <span className="text-zinc-200 text-[11px] truncate max-w-[200px]">
-                        {selectedMember.emergencyContact || "Korolenko Street 24, 4/51"}
+                        {selectedMember.emergencyContact || "—"}
                       </span>
                     </div>
                   </div>
@@ -395,7 +403,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                   <div className="space-y-1.5 text-xs">
                     <div className="flex items-center justify-between text-zinc-400">
                       <span className="text-zinc-500">Gender:</span>
-                      <span className="text-zinc-200">{selectedMember.gender || "Female"}</span>
+                      <span className="text-zinc-200">{selectedMember.gender || "—"}</span>
                     </div>
 
                     <div className="flex items-center justify-between text-zinc-400">
@@ -515,8 +523,9 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
               <HelpCircle className="w-3.5 h-3.5" />
             </button>
           </div>
-        </aside>
-      )}
+          </motion.aside>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

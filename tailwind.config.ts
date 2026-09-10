@@ -21,9 +21,9 @@ const config: Config = {
           600: "#2e2e3a",
         },
         brand: {
-          DEFAULT: "#c6ff00",
-          hover: "#b0e600",
-          glow: "rgba(198, 255, 0, 0.25)",
+          DEFAULT: "#76b900",
+          hover: "#6aa600",
+          glow: "rgba(118, 185, 0, 0.25)",
         },
       },
       borderRadius: {
