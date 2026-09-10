@@ -4,53 +4,97 @@ import * as path from "path";
 
 function formatPrivateKey(key: string | undefined): string {
   if (!key) return "";
-  if (!key.includes("BEGIN PRIVATE KEY") && !key.includes("\n")) {
+  let formatted = key.trim();
+  // Strip surrounding quotes if present
+  if (
+    (formatted.startsWith('"') && formatted.endsWith('"')) ||
+    (formatted.startsWith("'") && formatted.endsWith("'"))
+  ) {
+    formatted = formatted.slice(1, -1).trim();
+  }
+  // Check if base64 encoded
+  if (!formatted.includes("BEGIN PRIVATE KEY") && !formatted.includes("\n")) {
     try {
-      return Buffer.from(key, "base64").toString("utf8");
+      const decoded = Buffer.from(formatted, "base64").toString("utf8");
+      if (decoded.includes("BEGIN PRIVATE KEY")) {
+        formatted = decoded.trim();
+      }
     } catch {
-      // Fall through to normal string
+      // Fall through
     }
   }
-  return key.replace(/\\n/g, "\n");
+  return formatted.replace(/\\n/g, "\n");
 }
 
 if (!admin.apps.length) {
-  const serviceAccountPath =
-    process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
-    process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  // Strategy 1: Entire Service Account JSON string in environment variable (Ideal for Vercel)
+  const serviceAccountJsonStr =
+    process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
+    process.env.FIREBASE_SERVICE_ACCOUNT;
 
-  if (serviceAccountPath && fs.existsSync(serviceAccountPath)) {
+  if (serviceAccountJsonStr) {
     try {
-      const serviceAccount = JSON.parse(
-        fs.readFileSync(serviceAccountPath, "utf8")
-      );
+      const serviceAccount = JSON.parse(serviceAccountJsonStr.trim());
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         storageBucket:
           process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
           `${serviceAccount.project_id}.firebasestorage.app`,
       });
+      console.log("✓ Firebase Admin initialized via FIREBASE_SERVICE_ACCOUNT_KEY");
     } catch (err) {
-      console.error("Failed to initialize Firebase Admin from service account file:", err);
+      console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:", err);
     }
   }
 
-  // Fallback to explicit env variables if app not initialized
+  // Strategy 2: Service Account JSON file path (Local development)
+  if (!admin.apps.length) {
+    const serviceAccountPath =
+      process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
+      process.env.GOOGLE_APPLICATION_CREDENTIALS;
+
+    if (serviceAccountPath && fs.existsSync(serviceAccountPath)) {
+      try {
+        const serviceAccount = JSON.parse(
+          fs.readFileSync(serviceAccountPath, "utf8")
+        );
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+          storageBucket:
+            process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+            `${serviceAccount.project_id}.firebasestorage.app`,
+        });
+        console.log("✓ Firebase Admin initialized via service account file");
+      } catch (err) {
+        console.error("❌ Failed to read service account file:", err);
+      }
+    }
+  }
+
+  // Strategy 3: Explicit FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY
   if (!admin.apps.length) {
     const projectId = process.env.FIREBASE_PROJECT_ID || "gym-erp-firebase";
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
 
     if (clientEmail && privateKey) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId,
-          clientEmail,
-          privateKey,
-        }),
-        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      });
+      try {
+        admin.initializeApp({
+          credential: admin.credential.cert({
+            projectId,
+            clientEmail,
+            privateKey,
+          }),
+          storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        });
+        console.log("✓ Firebase Admin initialized via FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY");
+      } catch (err) {
+        console.error("❌ Failed to initialize Firebase Admin via individual credentials:", err);
+      }
     } else {
+      console.warn(
+        "⚠️ WARNING: No valid Firebase Admin credentials found! Set FIREBASE_PRIVATE_KEY and FIREBASE_CLIENT_EMAIL, or FIREBASE_SERVICE_ACCOUNT_KEY."
+      );
       admin.initializeApp({
         projectId,
       });
