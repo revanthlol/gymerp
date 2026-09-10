@@ -3,26 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --background: #080809;
+  --background: #06060a;
   --foreground: #f4f4f6;
-  --card: #0d0d11;
+  --card: #0c0c12;
   --card-foreground: #f4f4f6;
-  --popover: #0d0d11;
+  --popover: #0c0c12;
   --popover-foreground: #f4f4f6;
   --primary: #76b900;
   --primary-foreground: #000000;
-  --secondary: #14141a;
+  --secondary: #13131a;
   --secondary-foreground: #f4f4f6;
-  --muted: #14141a;
-  --muted-foreground: #808593;
-  --accent: #1a1a23;
+  --muted: #13131a;
+  --muted-foreground: #72778a;
+  --accent: #18181f;
   --accent-foreground: #f4f4f6;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.07);
+  --input: rgba(255, 255, 255, 0.07);
   --ring: #76b900;
   --radius: 0.75rem;
+  /* Sidebar widths */
+  --sidebar-w-open: 16rem;
+  --sidebar-w-closed: 5rem;
 }
 
 body {
@@ -43,34 +46,36 @@ body {
   overflow: hidden;
 }
 
+/* Green brand orb — top center */
 .ambient-glow-mesh::before {
   content: "";
   position: absolute;
-  top: -15%;
-  left: 15%;
-  width: 55vw;
-  height: 55vw;
-  max-width: 700px;
-  max-height: 700px;
-  background: radial-gradient(circle, rgba(118, 185, 0, 0.12) 0%, rgba(16, 185, 129, 0.05) 40%, transparent 70%);
-  filter: blur(90px);
+  top: -20%;
+  left: 20%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 750px;
+  max-height: 750px;
+  background: radial-gradient(circle, rgba(118, 185, 0, 0.13) 0%, rgba(16, 185, 129, 0.05) 40%, transparent 70%);
+  filter: blur(100px);
   border-radius: 9999px;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
+/* Indigo orb — right middle */
 .ambient-glow-mesh::after {
   content: "";
   position: absolute;
-  top: 30%;
-  right: -10%;
-  width: 50vw;
-  height: 50vw;
-  max-width: 650px;
-  max-height: 650px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.09) 0%, rgba(139, 92, 246, 0.04) 45%, transparent 70%);
-  filter: blur(100px);
+  top: 25%;
+  right: -15%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 680px;
+  max-height: 680px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 45%, transparent 70%);
+  filter: blur(110px);
   border-radius: 9999px;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 /* Glassmorphism Containers with Gaussian Blur Backdrop */
@@ -149,4 +154,27 @@ body {
   bottom: -1px;
   height: 1px;
   background: linear-gradient(90deg, transparent 5%, rgba(118, 185, 0, 0.3) 50%, transparent 95%);
+}
+
+/* Sidebar border gradient for vertical left edge */
+.sidebar-border-right {
+  position: relative;
+}
+.sidebar-border-right::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(118, 185, 0, 0.15) 40%, rgba(99, 102, 241, 0.1) 70%, transparent 100%);
+}
+
+/* Hide scrollbars but keep scroll functionality */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

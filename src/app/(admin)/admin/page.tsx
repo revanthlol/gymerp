@@ -97,7 +97,7 @@ export default async function AdminDashboardPage() {
             <span className="text-xs font-medium uppercase tracking-wider">Settled Revenue</span>
             <CreditCard className="w-4 h-4 text-emerald-400" />
           </div>
-          <p className="text-2xl font-bold text-white font-mono">${totalRevenue.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-white font-mono">₹{totalRevenue.toFixed(2)}</p>
           <p className="text-xs text-emerald-400/90 font-mono">{data.payments.length} transactions</p>
         </div>
 
@@ -125,7 +125,7 @@ export default async function AdminDashboardPage() {
               </div>
               <p className="text-xs text-zinc-400 min-h-[32px]">{p.description || "Standard gym pass"}</p>
               <div className="pt-2 border-t border-zinc-800 flex items-baseline justify-between">
-                <p className="text-2xl font-bold text-white font-mono">${parseFloat(p.price).toFixed(2)}</p>
+                <p className="text-2xl font-bold text-white font-mono">₹{parseFloat(p.price).toFixed(2)}</p>
                 <span className="text-[11px] text-zinc-500 font-mono">Managed Plan</span>
               </div>
             </div>

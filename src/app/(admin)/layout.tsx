@@ -3,7 +3,10 @@ import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { tenants } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { GymHeader } from "@/components/navigation/gym-header";
+import { AdminSidebar } from "@/components/navigation/admin-sidebar";
+import { AdminTopBar } from "@/components/navigation/admin-topbar";
+import { AdminPageWrapper } from "@/components/navigation/admin-page-wrapper";
+import { AdminContentArea } from "@/components/navigation/admin-content-area";
 
 export default async function AdminLayout({
   children,
@@ -60,11 +63,20 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#080809] text-zinc-100 flex flex-col">
-      <GymHeader gymName={tenant.name} userEmail={session.email} />
-      <main className="flex-1 min-w-0 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        {children}
-      </main>
+    <div className="min-h-screen bg-[#06060a] text-zinc-100 flex">
+      {/* Left Sidebar */}
+      <AdminSidebar gymName={tenant.name} userEmail={session.email} />
+
+      {/* Main content area — padding adapts to sidebar pin state */}
+      <AdminContentArea>
+        {/* Sticky top bar */}
+        <AdminTopBar gymName={tenant.name} />
+
+        {/* Page content */}
+        <main className="flex-1 min-w-0 max-w-[1600px] w-full mx-auto p-4 sm:p-6 lg:p-8">
+          <AdminPageWrapper>{children}</AdminPageWrapper>
+        </main>
+      </AdminContentArea>
     </div>
   );
 }
