@@ -59,12 +59,15 @@ export function AuthProvider({
   }, []);
 
   const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    await fbSignOut(auth);
+    try {
+      await fbSignOut(auth);
+    } catch {
+      // Ignore client signout error
+    }
     setSessionUser(null);
     setFirebaseUser(null);
-    router.push("/login");
-    router.refresh();
+    const { clearSessionArtifacts } = await import("@/lib/auth/cleanup");
+    await clearSessionArtifacts();
   };
 
   return (

@@ -32,7 +32,29 @@ export async function recordAttendanceScanAction(memberId: string, qrToken: stri
   }
 
   return await withTenantDb(session, async (tx) => {
-    // 2. Lookup Member
+    // 2. Single-Use Replay Protection: ensure nonce has not been consumed
+    if (verification.nonce) {
+      const [alreadyConsumed] = await tx
+        .select()
+        .from(attendance)
+        .where(
+          and(
+            eq(attendance.tenantId, session.tenantId!),
+            eq(attendance.kioskId, `qr:${verification.nonce}`)
+          )
+        )
+        .limit(1);
+
+      if (alreadyConsumed) {
+        return {
+          success: false,
+          duplicate: true,
+          message: "This single-use QR code has already been scanned. Please scan the current code on screen.",
+        };
+      }
+    }
+
+    // 3. Lookup Member
     const [member] = await tx
       .select()
       .from(members)
@@ -50,7 +72,7 @@ export async function recordAttendanceScanAction(memberId: string, qrToken: stri
       };
     }
 
-    // 3. Anti-Passback Check: Prevent double-tapping within 10 minutes
+    // 4. Anti-Passback Check: Prevent double-tapping within 10 minutes
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
     const recentCheckIns = await tx
       .select()
@@ -72,14 +94,14 @@ export async function recordAttendanceScanAction(memberId: string, qrToken: stri
       };
     }
 
-    // 4. Record real attendance entry
+    // 5. Burn single-use nonce & record attendance entry
     const [newCheckIn] = await tx
       .insert(attendance)
       .values({
         tenantId: session.tenantId!,
         memberId: member.id,
         method: "qr_scan",
-        kioskId: "front-turnstile-01",
+        kioskId: verification.nonce ? `qr:${verification.nonce}` : "front-turnstile-01",
       })
       .returning();
 

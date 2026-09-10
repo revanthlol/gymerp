@@ -40,6 +40,28 @@ export const attendanceRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     const result = await withTenantDb(session, async (tx) => {
+      // 1. Single-use replay protection
+      if (verification.nonce) {
+        const [alreadyConsumed] = await tx
+          .select()
+          .from(attendance)
+          .where(
+            and(
+              eq(attendance.tenantId, session.tenantId!),
+              eq(attendance.kioskId, `qr:${verification.nonce}`)
+            )
+          )
+          .limit(1);
+
+        if (alreadyConsumed) {
+          return {
+            success: false,
+            duplicate: true,
+            message: "Single-use QR code already consumed. Please scan the current code on screen.",
+          };
+        }
+      }
+
       // Look up member in active tenant
       const [member] = await tx
         .select()
@@ -80,14 +102,14 @@ export const attendanceRoutes: FastifyPluginAsync = async (fastify) => {
         };
       }
 
-      // Record attendance entry
+      // Record attendance entry & burn nonce
       const [newCheckIn] = await tx
         .insert(attendance)
         .values({
           tenantId: session.tenantId!,
           memberId: member.id,
           method: "qr_scan",
-          kioskId: kioskId || "kiosk-front-01",
+          kioskId: verification.nonce ? `qr:${verification.nonce}` : (kioskId || "kiosk-front-01"),
         })
         .returning();
 

@@ -67,12 +67,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#080809] text-zinc-100">
-      <Reveal className="w-full max-w-[420px] space-y-6">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#080809] text-zinc-100 relative overflow-hidden">
+      {/* Atmospheric Gaussian Blur Glow Orbs */}
+      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-tr from-brand/20 via-emerald-500/15 to-transparent rounded-full blur-[110px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/3 translate-x-1/2 translate-y-1/2 w-80 h-80 bg-gradient-to-bl from-indigo-500/15 via-purple-500/10 to-transparent rounded-full blur-[100px] pointer-events-none" />
+
+      <Reveal className="w-full max-w-[420px] space-y-6 relative z-10">
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-brand text-black flex items-center justify-center font-black text-base shadow-[0_0_12px_rgba(118,185,0,0.25)]">
+            <div className="w-9 h-9 rounded-xl bg-brand text-black flex items-center justify-center font-black text-base shadow-[0_0_16px_rgba(118,185,0,0.35)]">
               G
             </div>
             <span className="font-extrabold text-white text-xl tracking-widest">GRYM</span>
@@ -84,7 +88,7 @@ export default function LoginPage() {
         </div>
 
         {/* Portal Login Card */}
-        <Card className="glass-panel border-zinc-800/80 rounded-2xl">
+        <Card className="glass-panel border-zinc-800/80 rounded-2xl shadow-2xl">
           <CardHeader className="space-y-3 pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold text-zinc-200">Account Access</CardTitle>
