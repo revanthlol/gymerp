@@ -57,13 +57,13 @@ export default async function AdminPlansPage() {
               </div>
 
               <p className="text-xs text-zinc-400 min-h-[36px]">
-                {p.description || "Standard gym pass with turnstile barcode access."}
+                {p.description || "Standard gym pass with QR check-in access."}
               </p>
 
               <div className="pt-4 border-t border-zinc-850 flex items-baseline justify-between">
                 <div>
                   <span className="text-3xl font-bold text-white font-mono">
-                    ${parseFloat(p.price).toFixed(2)}
+                    ₹{parseFloat(p.price).toFixed(2)}
                   </span>
                   <span className="text-xs text-zinc-500 ml-1">/ term</span>
                 </div>

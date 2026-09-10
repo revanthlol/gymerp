@@ -167,7 +167,7 @@ export function KioskTerminal({
       setQrData(refreshed);
       setRemainingSecs(refreshed.remainingSeconds);
       if (!silent) {
-        toast.success("Turnstile QR rotated to new unique pass");
+        toast.success("Check-In QR pass updated to new unique code");
       }
     } catch {
       if (!silent) toast.error("Failed to rotate QR token");
@@ -287,13 +287,21 @@ export function KioskTerminal({
       {/* Page Title & Status Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Turnstile Check-In Kiosk</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Gym Check-In Kiosk</h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Entrance terminal with anti-proxy rotating 2-hour QR code and front-desk manual check-in
+            Member entrance kiosk with auto-refreshing QR pass and front-desk check-in
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Back to Dashboard button */}
+          <Link
+            href="/admin"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-zinc-800 bg-zinc-900/80 text-xs text-zinc-300 hover:text-white hover:border-zinc-700 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
+          </Link>
           {/* Network Status Indicator */}
           <div
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono ${
@@ -364,9 +372,9 @@ export function KioskTerminal({
               <Sparkles className="w-3 h-3" />
               <span>Per-Scan Dynamic Nonce</span>
             </div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Turnstile Access Pass</h2>
+            <h2 className="text-xl font-bold text-white tracking-tight">Member Check-In Pass</h2>
             <p className="text-xs text-zinc-400">
-              Unique single-use code — burns and auto-rotates immediately on each scan
+              Unique single-use code — auto-refreshes immediately after each scan
             </p>
           </div>
 
@@ -393,7 +401,7 @@ export function KioskTerminal({
               >
                 <img
                   src={qrData.qrDataUrl}
-                  alt="Single-Use Dynamic Turnstile Access QR"
+                  alt="Single-Use Dynamic Check-In QR"
                   className="w-60 h-60 sm:w-68 sm:h-68 object-contain select-none"
                 />
               </motion.div>
@@ -492,7 +500,7 @@ export function KioskTerminal({
           {/* Live Recent Check-Ins Feed with Motion */}
           <div className="glass-panel p-5 rounded-2xl space-y-3 border-zinc-800/80 flex-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-200">Live Turnstile Activity</span>
+              <span className="text-xs font-semibold text-zinc-200">Live Check-In Feed</span>
               <span className="text-[10px] text-zinc-500 font-mono">Today</span>
             </div>
 

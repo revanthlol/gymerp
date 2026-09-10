@@ -2,9 +2,9 @@ import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "GymERP — Turnstile Kiosk & Management",
+    name: "GymERP — Member Kiosk & Management",
     short_name: "GymERP",
-    description: "High-performance Gym ERP turnstile kiosk, attendance tracking, and multi-tenant management.",
+    description: "High-performance Gym ERP check-in kiosk, attendance tracking, and multi-tenant management.",
     start_url: "/staff/kiosk",
     display: "standalone",
     orientation: "landscape-primary",

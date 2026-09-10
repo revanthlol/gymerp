@@ -75,7 +75,7 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
     navigator.clipboard.writeText(qrData.tokenString);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast.success("Turnstile token copied to clipboard");
+    toast.success("Check-in pass copied to clipboard");
   };
 
   return (
@@ -88,7 +88,7 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
             className="h-9 gap-2 border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-medium"
           >
             <QrCode className="w-4 h-4 text-brand" />
-            <span>Turnstile QR Code</span>
+            <span>Check-In QR Pass</span>
           </Button>
         )}
       </DialogTrigger>
@@ -97,10 +97,10 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
             <QrCode className="w-4 h-4 text-brand" />
-            <span>Dynamic Entrance QR Generator</span>
+            <span>Kiosk Entrance QR Generator</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
-            Cryptographic 2-hour rolling token. Prevents attendance proxying and screenshots.
+            Secure auto-refreshing QR pass for gym entrance scanning.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,7 +113,7 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
             <div className="p-3 bg-white rounded-2xl shadow-xl">
               <img
                 src={qrData.qrDataUrl}
-                alt="2-Hour Rotating Turnstile QR"
+                alt="Auto-Refreshing Check-In QR"
                 className="w-60 h-60 object-contain"
               />
             </div>

@@ -35,7 +35,7 @@ export const attendanceRoutes: FastifyPluginAsync = async (fastify) => {
     if (!verification.valid) {
       return reply.status(400).send({
         success: false,
-        message: verification.reason || "Turnstile QR code expired. Please scan current code.",
+        message: verification.reason || "Check-in QR code expired. Please scan current code.",
       });
     }
 
@@ -117,7 +117,7 @@ export const attendanceRoutes: FastifyPluginAsync = async (fastify) => {
         success: true,
         memberName: member.fullName,
         checkedInAt: newCheckIn.checkedInAt,
-        message: "Access Granted · Turnstile Unlocked",
+        message: "Access Granted · Welcome!",
       };
     });
 

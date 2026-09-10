@@ -81,7 +81,7 @@ export default async function PlatformDashboardPage() {
             <Activity className="w-4 h-4 text-brand" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">99.98%</p>
-          <p className="text-xs text-zinc-500 font-mono">All turnstiles operational</p>
+          <p className="text-xs text-zinc-500 font-mono">All systems operational</p>
         </div>
       </div>
 

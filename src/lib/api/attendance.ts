@@ -27,7 +27,7 @@ export async function recordAttendanceScanAction(memberId: string, qrToken: stri
   if (!verification.valid) {
     return {
       success: false,
-      message: verification.reason || "Turnstile QR code expired. Please scan the current code.",
+      message: verification.reason || "Check-in QR code expired. Please scan the current code.",
     };
   }
 
@@ -101,7 +101,7 @@ export async function recordAttendanceScanAction(memberId: string, qrToken: stri
         tenantId: session.tenantId!,
         memberId: member.id,
         method: "qr_scan",
-        kioskId: verification.nonce ? `qr:${verification.nonce}` : "front-turnstile-01",
+        kioskId: verification.nonce ? `qr:${verification.nonce}` : "front-kiosk-01",
       })
       .returning();
 
@@ -114,7 +114,7 @@ export async function recordAttendanceScanAction(memberId: string, qrToken: stri
       success: true,
       memberName: member.fullName,
       checkedInAt: newCheckIn.checkedInAt,
-      message: "Access Granted · Turnstile Unlocked",
+      message: "Access Granted · Welcome!",
     };
   });
 }

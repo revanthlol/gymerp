@@ -95,7 +95,7 @@ export function CreateTenantDialog() {
           <span>Provision New Gym</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[88vh] overflow-y-auto pr-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">
             {result ? "Tenant Provisioned" : "Provision New Gym Account"}

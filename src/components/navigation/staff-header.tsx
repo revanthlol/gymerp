@@ -20,7 +20,7 @@ export function StaffHeader({
 
   const navItems = [
     { label: "Front Desk", href: "/staff", icon: LayoutDashboard },
-    { label: "Turnstile Kiosk", href: "/staff/kiosk", icon: QrCode },
+    { label: "Check-In Kiosk", href: "/staff/kiosk", icon: QrCode },
   ];
 
   return (
@@ -72,8 +72,8 @@ export function StaffHeader({
         {/* Right Status & User Profile */}
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-400">
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-            <span>Turnstiles Connected</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+            <span>Kiosks Connected</span>
           </div>
 
           <div className="flex items-center gap-2.5 pl-2 border-l border-zinc-800">

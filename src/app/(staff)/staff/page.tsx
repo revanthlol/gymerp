@@ -46,7 +46,7 @@ export default async function StaffHomePage() {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Front-Desk Operations</h1>
           <p className="text-sm text-zinc-400 mt-1">
-            Quick check-ins, member lookups, and turnstile terminal control.
+            Quick check-ins, member lookups, and kiosk terminal control.
           </p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default async function StaffHomePage() {
           </div>
           <h2 className="text-base font-semibold text-white">Self-Service Kiosk</h2>
           <p className="text-xs text-zinc-400 mt-1">
-            Launch 2-hour dynamic rotating turnstile check-in terminal.
+            Launch member self-service QR check-in terminal.
           </p>
         </Link>
 
@@ -92,7 +92,7 @@ export default async function StaffHomePage() {
         <div className="p-5 border-b border-zinc-800/80 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Clock className="w-4 h-4 text-brand" />
-            <h2 className="text-base font-semibold text-white">Today&apos;s Turnstile Log</h2>
+            <h2 className="text-base font-semibold text-white">Today&apos;s Check-In Log</h2>
           </div>
           <span className="text-xs font-mono text-zinc-400 bg-zinc-900 px-2.5 py-1 rounded-lg border border-zinc-800">
             {data.attendance.length} check-ins logged

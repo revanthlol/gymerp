@@ -62,7 +62,7 @@ export default async function AdminDashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Gym Admin Dashboard</h1>
           <p className="text-sm text-zinc-400 mt-1">
-            Real-time membership metrics, daily turnstile check-ins, and active plans.
+            Real-time membership metrics, daily member check-ins, and active plans.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -85,11 +85,11 @@ export default async function AdminDashboardPage() {
 
         <div className="glass-panel p-5 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-zinc-400">
-            <span className="text-xs font-medium uppercase tracking-wider">Turnstile Scans</span>
-            <QrCode className="w-4 h-4 text-blue-400" />
+            <span className="text-xs font-medium uppercase tracking-wider">Today&apos;s Check-Ins</span>
+            <QrCode className="w-4 h-4 text-brand" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">{data.attendance.length}</p>
-          <p className="text-xs text-blue-400/90 font-mono">Front-desk kiosk</p>
+          <p className="text-xs text-brand/90 font-mono">Front-desk kiosk</p>
         </div>
 
         <div className="glass-panel p-5 rounded-2xl space-y-2">

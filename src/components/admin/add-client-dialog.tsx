@@ -75,10 +75,10 @@ export function AddClientDialog({ plans }: AddClientDialogProps) {
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-brand" />
-            <span>Register New Client</span>
+            <span>Register New Member</span>
           </DialogTitle>
           <DialogDescription>
-            Add an athlete to your gym partition and generate their turnstile QR token.
+            Add a member to your gym and generate their personal digital pass.
           </DialogDescription>
         </DialogHeader>
 

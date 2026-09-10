@@ -43,13 +43,15 @@ export default async function AdminAttendancePage() {
     }
   );
 
+  const memberMap = new Map(data.members.map((m) => [m.id, m]));
+
   return (
     <Reveal className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Turnstile Inbox & Activity</h1>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Attendance & Check-Ins</h1>
           <p className="text-sm text-zinc-400 mt-1">
-            Real-time feed of hardware turnstile scans, self-service kiosk check-ins, and desk entries.
+            Real-time feed of member kiosk check-ins, QR scans, and front-desk entries.
           </p>
         </div>
         <div className="flex items-center gap-3 self-start sm:self-auto">
@@ -75,18 +77,18 @@ export default async function AdminAttendancePage() {
           <TableBody>
             {data.attendance.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-zinc-500 text-xs">
-                  No check-ins recorded today yet.
+                <TableCell colSpan={5} className="text-center py-8 text-zinc-500">
+                  No attendance records found
                 </TableCell>
               </TableRow>
             ) : (
               data.attendance.map((record) => {
-                const member = data.members.find((m) => m.id === record.memberId);
+                const member = memberMap.get(record.memberId);
                 return (
-                  <TableRow key={record.id} className="hover:bg-zinc-900/40">
+                  <TableRow key={record.id} className="border-b border-zinc-800/40 hover:bg-zinc-900/30">
                     <TableCell className="font-medium text-white">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700/60 text-zinc-300 flex items-center justify-center font-bold text-xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-xs">
                           {(member?.fullName || "M").charAt(0)}
                         </div>
                         <span>{member?.fullName || "Unknown Member"}</span>
@@ -98,7 +100,7 @@ export default async function AdminAttendancePage() {
                       </span>
                     </TableCell>
                     <TableCell className="font-mono text-xs text-zinc-400">
-                      {record.kioskId || "front-turnstile-01"}
+                      {record.kioskId || "front-kiosk-01"}
                     </TableCell>
                     <TableCell className="font-mono text-xs text-zinc-400">
                       {new Date(record.checkedInAt).toLocaleString()}

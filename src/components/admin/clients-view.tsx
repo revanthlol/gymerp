@@ -470,7 +470,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
               /* Activities Tab: Live Attendance Check-ins */
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs text-zinc-400">
-                  <span>Turnstile Check-ins</span>
+                  <span>Gym Check-Ins</span>
                   <span className="font-mono text-brand">{activities.length} total</span>
                 </div>
 

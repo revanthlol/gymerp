@@ -63,7 +63,7 @@ export function verifyGymRotatingQr(
   reason?: string;
 } {
   if (!tokenString) {
-    return { valid: false, reason: "Missing turnstile QR token" };
+    return { valid: false, reason: "Missing check-in QR token" };
   }
 
   // Support v2 (per-scan unique) tokens
@@ -86,7 +86,7 @@ export function verifyGymRotatingQr(
     if (now > expiresAt + 15 * 1000) {
       return {
         valid: false,
-        reason: "Turnstile QR code expired. Please scan the newly generated code.",
+        reason: "Check-in QR code expired. Please scan the newly generated code.",
       };
     }
 

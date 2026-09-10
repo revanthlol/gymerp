@@ -12,6 +12,8 @@ import {
   Settings,
   QrCode,
   CreditCard,
+  BarChart3,
+  Dumbbell,
   HelpCircle,
   Bell,
   LogOut,
@@ -41,8 +43,10 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
     { label: "Home", href: "/admin", icon: Home },
     { label: "Clients", href: "/admin/members", icon: Users },
     { label: "Attendance", href: "/admin/attendance", icon: Inbox },
+    { label: "Classes", href: "/admin/classes", icon: Dumbbell },
     { label: "Plans", href: "/admin/plans", icon: Calendar },
     { label: "Payments", href: "/admin/payments", icon: CreditCard },
+    { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
     { label: "Kiosk", href: "/staff/kiosk", icon: QrCode },
   ];
 
@@ -153,7 +157,7 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
               <span>GRYM Platform Support</span>
             </DialogTitle>
             <DialogDescription>
-              Direct assistance for gym owners, turnstile operations, and POS billing.
+              Direct assistance for gym owners, kiosk operations, and billing.
             </DialogDescription>
           </DialogHeader>
 

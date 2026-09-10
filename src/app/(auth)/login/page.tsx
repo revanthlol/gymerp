@@ -5,7 +5,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -83,9 +83,30 @@ export default function LoginPage() {
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">Gym Operations Portal</h1>
           <p className="text-xs text-zinc-400">
-            Sign in to manage memberships, athletes, and turnstiles
+            Sign in to manage memberships, members, and front-desk check-ins
           </p>
         </div>
+
+        {/* Member Portal Banner */}
+        <Link
+          href="/portal/login"
+          className="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-brand/15 via-emerald-500/10 to-transparent border border-brand/30 hover:border-brand/60 transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-brand/20 text-brand flex items-center justify-center">
+              <QrCode className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white group-hover:text-brand transition-colors">
+                Gym Member Portal
+              </p>
+              <p className="text-[11px] text-zinc-400">
+                View your digital athlete pass, workouts & subscription
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-brand group-hover:translate-x-0.5 transition-all" />
+        </Link>
 
         {/* Portal Login Card */}
         <Card className="glass-panel border-zinc-800/80 rounded-2xl shadow-2xl">

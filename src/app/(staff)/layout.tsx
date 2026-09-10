@@ -4,6 +4,7 @@ import { withTenantDb } from "@/lib/db/tenant";
 import { tenants } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { StaffHeader } from "@/components/navigation/staff-header";
+import { GymHeader } from "@/components/navigation/gym-header";
 
 export default async function StaffLayout({
   children,
@@ -60,7 +61,11 @@ export default async function StaffLayout({
 
   return (
     <div className="min-h-screen bg-[#080809] text-zinc-100 flex flex-col">
-      <StaffHeader gymName={tenant.name} userEmail={session.email} />
+      {session.role === "admin" ? (
+        <GymHeader gymName={tenant.name} userEmail={session.email} />
+      ) : (
+        <StaffHeader gymName={tenant.name} userEmail={session.email} />
+      )}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         {children}
       </main>

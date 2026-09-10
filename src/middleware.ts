@@ -25,6 +25,7 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute =
     pathname === "/login" ||
     pathname === "/platform/login" ||
+    pathname === "/portal/login" ||
     pathname === "/api/health" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks") ||
@@ -38,7 +39,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protected route requires session cookie
+  // Member Portal protection
+  if (pathname.startsWith("/portal")) {
+    const memberSession = request.cookies.get("__member_session")?.value;
+    if (!memberSession) {
+      return NextResponse.redirect(new URL("/portal/login", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Protected route requires staff/admin/platform session cookie
   if (!sessionCookie) {
     const target = pathname.startsWith("/platform") ? "/platform/login" : "/login";
     const loginUrl = new URL(target, request.url);
