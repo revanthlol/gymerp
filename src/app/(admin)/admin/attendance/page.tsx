@@ -5,6 +5,7 @@ import { attendance, members } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 import { Reveal } from "@/components/Reveal";
 import { Badge } from "@/components/ui/badge";
+import { TurnstileQrDialog } from "@/components/admin/turnstile-qr-dialog";
 import {
   Table,
   TableHeader,
@@ -49,9 +50,12 @@ export default async function AdminAttendancePage() {
             Real-time feed of hardware turnstile scans, self-service kiosk check-ins, and desk entries.
           </p>
         </div>
-        <div className="text-xs font-mono text-brand bg-brand/10 border border-brand/25 px-3 py-1.5 rounded-xl flex items-center gap-2 self-start sm:self-auto">
-          <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-          <span>Live Scan Stream</span>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <TurnstileQrDialog />
+          <div className="text-xs font-mono text-brand bg-brand/10 border border-brand/25 px-3 py-1.5 rounded-xl flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
+            <span>Live Scan Stream</span>
+          </div>
         </div>
       </div>
 

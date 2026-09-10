@@ -117,7 +117,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
 
   const handleSaveNote = () => {
     if (!noteText.trim()) return;
-    toast.success("Coach note recorded for athlete partition");
+    toast.success("Coach note saved for athlete");
     setNoteText("");
   };
 
@@ -407,7 +407,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                               new Date().getFullYear() -
                                 new Date(selectedMember.dateOfBirth).getFullYear()
                             )
-                          : "31"}
+                          : "N/A"}
                       </span>
                     </div>
 
@@ -420,7 +420,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                               month: "long",
                               year: "numeric",
                             })
-                          : "23th of July, 1992"}
+                          : "Not recorded"}
                       </span>
                     </div>
 

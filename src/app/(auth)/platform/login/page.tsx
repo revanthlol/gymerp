@@ -5,25 +5,19 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Shield, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Reveal } from "@/components/Reveal";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("admin@ironpulse.local");
+export default function PlatformLoginPage() {
+  const [email, setEmail] = useState("platform@gymerp.local");
   const [password, setPassword] = useState("Admin12345!");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const handlePresetSelect = (presetEmail: string, presetPass: string) => {
-    setEmail(presetEmail);
-    setPassword(presetPass);
-    setError(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +29,7 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const idToken = await userCredential.user.getIdToken();
 
-      // 2. Exchange ID token for secure HTTP-only session cookie
+      // 2. Exchange ID token for secure session cookie
       const res = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,22 +39,19 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to establish session");
+        throw new Error(data.error || "Failed to establish platform session");
       }
 
-      // 3. Route based on verified role
       const role = data.user.role;
-      if (role === "platform") {
-        router.push("/platform");
-      } else if (role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/staff");
+      if (role !== "platform") {
+        throw new Error("Access Denied: Account lacks platform administrator privileges.");
       }
+
+      router.push("/platform");
       router.refresh();
     } catch (err: any) {
-      console.error("Login error:", err);
-      setError(err.message || "Invalid credentials. Please check your email and password.");
+      console.error("Platform login error:", err);
+      setError(err.message || "Invalid platform credentials.");
     } finally {
       setLoading(false);
     }
@@ -71,48 +62,24 @@ export default function LoginPage() {
       <Reveal className="w-full max-w-[420px] space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-[#c6ff00] text-[#080809] flex items-center justify-center font-black text-base shadow-[0_0_12px_rgba(198,255,0,0.25)]">
-              G
-            </div>
-            <span className="font-extrabold text-white text-xl tracking-widest">GRYM</span>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400">
+            <Shield className="w-6 h-6" />
           </div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Gym Operations Portal</h1>
+          <h1 className="text-xl font-bold text-white tracking-tight">Platform Console</h1>
           <p className="text-xs text-zinc-400">
-            Sign in to manage memberships, athletes, and turnstiles
+            Global administrative access and tenant fleet management
           </p>
         </div>
 
-        {/* Portal Login Card */}
+        {/* Login Card */}
         <Card className="glass-panel border-zinc-800/80 rounded-2xl">
-          <CardHeader className="space-y-3 pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold text-zinc-200">Account Access</CardTitle>
-              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px]">
-                <button
-                  type="button"
-                  onClick={() => handlePresetSelect("admin@ironpulse.local", "Admin12345!")}
-                  className={`px-2 py-0.5 rounded font-medium transition-colors ${
-                    email === "admin@ironpulse.local"
-                      ? "bg-zinc-800 text-brand font-semibold"
-                      : "text-zinc-400 hover:text-zinc-200"
-                  }`}
-                >
-                  Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePresetSelect("staff@ironpulse.local", "Staff12345!")}
-                  className={`px-2 py-0.5 rounded font-medium transition-colors ${
-                    email === "staff@ironpulse.local"
-                      ? "bg-zinc-800 text-brand font-semibold"
-                      : "text-zinc-400 hover:text-zinc-200"
-                  }`}
-                >
-                  Staff
-                </button>
-              </div>
-            </div>
+          <CardHeader className="space-y-1 pb-3">
+            <CardTitle className="text-sm font-semibold text-zinc-200">
+              Superadmin Authentication
+            </CardTitle>
+            <CardDescription className="text-xs text-zinc-400">
+              Restricted infrastructure gateway
+            </CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-4">
@@ -125,28 +92,26 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Email Address</label>
+                <label className="text-xs font-medium text-zinc-300">Admin Email</label>
                 <Input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@ironpulse.local"
-                  className="bg-zinc-900/70 border-zinc-800 text-xs h-10 rounded-xl focus:border-brand"
+                  placeholder="platform@gymerp.local"
+                  className="bg-zinc-900/70 border-zinc-800 text-xs h-10 rounded-xl focus:border-purple-500"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-zinc-300">Password</label>
-                </div>
+                <label className="text-xs font-medium text-zinc-300">Master Key / Password</label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10 bg-zinc-900/70 border-zinc-800 text-xs h-10 rounded-xl focus:border-brand"
+                    className="pr-10 bg-zinc-900/70 border-zinc-800 text-xs h-10 rounded-xl focus:border-purple-500"
                     placeholder="••••••••••••"
                   />
                   <button
@@ -162,29 +127,29 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-10 bg-brand text-carbon-950 font-bold hover:bg-brand/90 rounded-xl transition-all"
+                className="w-full h-10 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl transition-all"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    <span>Signing in...</span>
+                    <span>Verifying...</span>
                   </>
                 ) : (
-                  <span>Sign In</span>
+                  <span>Access Platform Console</span>
                 )}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        {/* Discrete Platform Superadmin Link */}
+        {/* Back Link to Gym Portal */}
         <div className="text-center pt-2">
           <Link
-            href="/platform/login"
+            href="/login"
             className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
           >
-            <span>Platform Administrator? Console Login</span>
-            <ArrowRight className="w-3 h-3" />
+            <ArrowLeft className="w-3 h-3" />
+            <span>Return to Gym Portal Login</span>
           </Link>
         </div>
       </Reveal>

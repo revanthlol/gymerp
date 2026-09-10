@@ -24,6 +24,7 @@ export async function middleware(request: NextRequest) {
 
   const isPublicRoute =
     pathname === "/login" ||
+    pathname === "/platform/login" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks") ||
     pathname.startsWith("/_next") ||
@@ -37,7 +38,8 @@ export async function middleware(request: NextRequest) {
 
   // Protected route requires session cookie
   if (!sessionCookie) {
-    const loginUrl = new URL("/login", request.url);
+    const target = pathname.startsWith("/platform") ? "/platform/login" : "/login";
+    const loginUrl = new URL(target, request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -46,7 +48,8 @@ export async function middleware(request: NextRequest) {
 
   // Check token expiration
   if (!payload || !payload.exp || payload.exp * 1000 <= Date.now()) {
-    const response = NextResponse.redirect(new URL("/login", request.url));
+    const target = pathname.startsWith("/platform") ? "/platform/login" : "/login";
+    const response = NextResponse.redirect(new URL(target, request.url));
     response.cookies.delete("__session");
     return response;
   }
@@ -54,7 +57,7 @@ export async function middleware(request: NextRequest) {
   const role = payload.role;
 
   // Role-based route guards
-  if (pathname.startsWith("/platform") && role !== "platform") {
+  if (pathname.startsWith("/platform") && !pathname.startsWith("/platform/login") && role !== "platform") {
     return NextResponse.redirect(new URL(role === "admin" ? "/admin" : "/staff", request.url));
   }
 

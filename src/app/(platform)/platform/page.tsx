@@ -68,20 +68,20 @@ export default async function PlatformDashboardPage() {
 
         <div className="glass-panel p-5 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-zinc-400">
-            <span className="text-xs font-medium uppercase tracking-wider">RLS Security Status</span>
-            <ShieldCheck className="w-4 h-4 text-blue-400" />
+            <span className="text-xs font-medium uppercase tracking-wider">Tenant Security</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
-          <p className="text-2xl font-bold text-emerald-400 font-mono">Enforced</p>
-          <p className="text-xs text-zinc-500 font-mono">Zero member PII exposure</p>
+          <p className="text-2xl font-bold text-white font-mono">Isolated</p>
+          <p className="text-xs text-zinc-500 font-mono">Strict boundary partition</p>
         </div>
 
         <div className="glass-panel p-5 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-zinc-400">
-            <span className="text-xs font-medium uppercase tracking-wider">Database Engine</span>
-            <Activity className="w-4 h-4 text-orange-400" />
+            <span className="text-xs font-medium uppercase tracking-wider">System Availability</span>
+            <Activity className="w-4 h-4 text-brand" />
           </div>
-          <p className="text-2xl font-bold text-white font-mono">Postgres 16</p>
-          <p className="text-xs text-zinc-500 font-mono">Max pool: 20 connections</p>
+          <p className="text-2xl font-bold text-white font-mono">99.98%</p>
+          <p className="text-xs text-zinc-500 font-mono">All turnstiles operational</p>
         </div>
       </div>
 

@@ -134,11 +134,11 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
           <div>
             <h2 className="text-base font-semibold text-white">Registered Gym Tenants</h2>
             <p className="text-xs text-zinc-400 mt-0.5">
-              Live records queried via PostgreSQL Drizzle client · Total: {filteredTenants.length}
+              Active gym franchises and verified locations · Total: {filteredTenants.length}
             </p>
           </div>
           <div className="text-xs font-mono text-zinc-400 px-3 py-1 rounded-lg bg-zinc-900 border border-zinc-800">
-            RLS: platform_manages_tenants
+            Platform Verified
           </div>
         </div>
 

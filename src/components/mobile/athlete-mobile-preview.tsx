@@ -20,13 +20,121 @@ import {
   TrendingUp,
   User,
   ChevronRight,
+  QrCode,
+  Scan,
+  ShieldCheck,
+  AlertCircle,
+  Loader2,
+  X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { recordAttendanceScanAction } from "@/lib/api/attendance";
+import { toast } from "sonner";
 
-export function AthleteMobilePreview() {
+interface MemberItem {
+  id: string;
+  fullName: string;
+  email: string | null;
+  phone: string;
+  status: string;
+  qrToken: string;
+}
+
+interface PlanItem {
+  id: string;
+  name: string;
+  price: string;
+  durationDays: number;
+}
+
+interface AthleteMobilePreviewProps {
+  members: MemberItem[];
+  plans: PlanItem[];
+  currentGymQr?: {
+    tokenString: string;
+    qrDataUrl: string;
+    remainingSeconds: number;
+  };
+}
+
+export function AthleteMobilePreview({
+  members,
+  plans,
+  currentGymQr,
+}: AthleteMobilePreviewProps) {
+  const [selectedMemberId, setSelectedMemberId] = useState<string>(
+    members[0]?.id || ""
+  );
   const [activeScreen, setActiveScreen] = useState<"home" | "workout" | "schedule">("home");
   const [activeCategory, setActiveCategory] = useState("Strength");
   const [selectedDay, setSelectedDay] = useState("Tue 30");
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<{
+    success: boolean;
+    message: string;
+    timestamp?: string;
+  } | null>(null);
+
+  const selectedMember = members.find((m) => m.id === selectedMemberId) || members[0];
+
+  const getInitials = (name?: string) => {
+    if (!name) return "AT";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  const handleTriggerScan = async () => {
+    if (!selectedMember) {
+      toast.error("No member selected");
+      return;
+    }
+    if (!currentGymQr) {
+      toast.error("No active gym turnstile QR token available");
+      return;
+    }
+
+    setScanning(true);
+    setScanResult(null);
+
+    try {
+      // Execute live check-in against PostgreSQL attendance database
+      const res = await recordAttendanceScanAction(
+        selectedMember.id,
+        currentGymQr.tokenString
+      );
+
+      const time = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      if (res.success) {
+        setScanResult({
+          success: true,
+          message: res.message || "Turnstile Gate Unlocked",
+          timestamp: time,
+        });
+        toast.success(`Access Granted: ${selectedMember.fullName}`);
+      } else {
+        setScanResult({
+          success: false,
+          message: res.message || "Scan validation failed",
+          timestamp: time,
+        });
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error("Failed to connect to turnstile terminal");
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const days = [
     { day: "Mon", date: "29", id: "Mon 29" },
@@ -40,47 +148,77 @@ export function AthleteMobilePreview() {
 
   return (
     <div className="space-y-6">
-      {/* Screen Switcher Tabs */}
-      <div className="flex items-center justify-between">
+      {/* Top Toolbar: Member Switcher & Screen Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Athlete Mobile App Wireframe</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Athlete Mobile Experience</h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Interactive reference implementation derived from mobile wireframe (Image 3).
+            Live preview for registered gym athletes with turnstile QR scanner
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
-          <button
-            onClick={() => setActiveScreen("home")}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-              activeScreen === "home" ? "bg-brand text-carbon-950 font-bold" : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            1. Home
-          </button>
-          <button
-            onClick={() => setActiveScreen("workout")}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-              activeScreen === "workout" ? "bg-brand text-carbon-950 font-bold" : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            2. Workout
-          </button>
-          <button
-            onClick={() => setActiveScreen("schedule")}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-              activeScreen === "schedule" ? "bg-brand text-carbon-950 font-bold" : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            3. Schedule
-          </button>
+        <div className="flex items-center gap-3">
+          {/* Real Member Selector */}
+          {members.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-400 font-medium hidden md:inline">Athlete:</span>
+              <select
+                value={selectedMemberId}
+                onChange={(e) => {
+                  setSelectedMemberId(e.target.value);
+                  setScanResult(null);
+                }}
+                className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand cursor-pointer"
+              >
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.fullName} ({m.status.toUpperCase()})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Screen Tabs */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+            <button
+              onClick={() => setActiveScreen("home")}
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                activeScreen === "home"
+                  ? "bg-brand text-carbon-950 font-bold"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              1. Home
+            </button>
+            <button
+              onClick={() => setActiveScreen("workout")}
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                activeScreen === "workout"
+                  ? "bg-brand text-carbon-950 font-bold"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              2. Workout
+            </button>
+            <button
+              onClick={() => setActiveScreen("schedule")}
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                activeScreen === "schedule"
+                  ? "bg-brand text-carbon-950 font-bold"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              3. Schedule
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Device Mockup Container */}
-      <div className="flex justify-center py-4">
-        <div className="w-[380px] min-h-[780px] rounded-[44px] border-[6px] border-zinc-800 bg-[#0c0c0e] shadow-[0_24px_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col justify-between relative">
-          {/* iOS Dynamic Island Bar */}
+      <div className="flex justify-center py-2">
+        <div className="w-[380px] min-h-[780px] rounded-[44px] border-[5px] border-zinc-800 bg-[#0c0c0e] shadow-[0_24px_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col justify-between relative">
+          {/* Dynamic Island Bar */}
           <div className="pt-3 px-7 flex items-center justify-between text-[11px] text-zinc-400 font-medium">
             <span>9:41</span>
             <div className="w-24 h-4 bg-zinc-900 rounded-full flex items-center justify-center">
@@ -95,75 +233,67 @@ export function AthleteMobilePreview() {
           </div>
 
           {/* Screen Content Body */}
-          <div className="p-5 flex-1 overflow-y-auto space-y-5">
+          <div className="p-5 flex-1 overflow-y-auto space-y-4">
             {activeScreen === "home" && (
               <>
-                {/* User Greeting */}
+                {/* Athlete Profile Header */}
                 <div className="flex items-center justify-between pt-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-xs text-zinc-200">
-                      ML
+                    <div className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-xs text-brand">
+                      {getInitials(selectedMember?.fullName)}
                     </div>
                     <div>
                       <p className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider">
-                        Welcome Back!
+                        Welcome Back
                       </p>
-                      <h2 className="text-sm font-bold text-white">Michael Law</h2>
+                      <h2 className="text-sm font-bold text-white">
+                        {selectedMember?.fullName || "Gym Athlete"}
+                      </h2>
                     </div>
                   </div>
-                  <button className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 relative">
-                    <Bell className="w-4 h-4" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand absolute top-2 right-2" />
-                  </button>
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] font-mono border-brand/30 text-brand bg-brand/10 uppercase"
+                  >
+                    {selectedMember?.status || "Active"}
+                  </Badge>
                 </div>
 
-                {/* Search Bar */}
-                <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <input
-                    placeholder="Search workouts or classes"
-                    className="w-full h-11 pl-10 pr-10 rounded-2xl bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-brand"
-                  />
-                  <SlidersHorizontal className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                </div>
-
-                {/* Popular Plans Category Pills */}
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold text-zinc-300">Popular Plans</p>
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    {["Strength", "Fat Loss", "Cardio", "Stretch"].map((cat) => {
-                      const active = activeCategory === cat;
-                      return (
-                        <button
-                          key={cat}
-                          onClick={() => setActiveCategory(cat)}
-                          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shrink-0 transition-colors ${
-                            active
-                              ? "bg-brand text-carbon-950 shadow-[0_0_12px_rgba(198,255,0,0.3)]"
-                              : "bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white"
-                          }`}
-                        >
-                          <Dumbbell className="w-3.5 h-3.5" />
-                          <span>{cat}</span>
-                        </button>
-                      );
-                    })}
+                {/* Member Entrance QR Scan CTA Banner */}
+                <div className="p-4 rounded-2xl bg-zinc-900/90 border border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-brand/15 text-brand flex items-center justify-center">
+                        <Scan className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">Entrance Turnstile</p>
+                        <p className="text-[10px] text-zinc-400">Scan 2-hour dynamic gate code</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => setScannerOpen(true)}
+                      className="h-8 text-xs bg-brand text-carbon-950 font-bold hover:bg-brand/90 rounded-xl px-3 gap-1.5"
+                    >
+                      <QrCode className="w-3.5 h-3.5" />
+                      <span>Scan QR</span>
+                    </Button>
                   </div>
                 </div>
 
-                {/* Health Grade Hero Card (Exact match to Wireframe) */}
-                <div className="p-5 rounded-3xl bg-brand text-carbon-950 space-y-3 relative overflow-hidden shadow-[0_12px_30px_rgba(198,255,0,0.2)]">
+                {/* Health Grade Hero Card (Wireframe design) */}
+                <div className="p-5 rounded-3xl bg-brand text-carbon-950 space-y-3 relative overflow-hidden">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-black tracking-tight">Health Grade</h3>
                       <p className="text-xs font-medium text-carbon-950/80 max-w-[190px] mt-1 leading-snug">
-                        Your fitness journey is on track. Stay consistent to achieve even better results.
+                        Your gym consistency is strong. 4 check-ins recorded this week.
                       </p>
                     </div>
 
-                    {/* Radial Ring 85% */}
                     <div className="relative w-16 h-16 rounded-full border-4 border-carbon-950/20 flex items-center justify-center bg-carbon-950/10">
-                      <span className="font-extrabold text-sm text-carbon-950 font-mono">85%</span>
+                      <span className="font-extrabold text-sm text-carbon-950 font-mono">88%</span>
                     </div>
                   </div>
                 </div>
@@ -172,53 +302,40 @@ export function AthleteMobilePreview() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-1">
                     <div className="flex items-center justify-between text-zinc-400 text-xs">
-                      <span>Heart Rate</span>
+                      <span>Resting HR</span>
                       <Heart className="w-3.5 h-3.5 text-rose-500" />
                     </div>
                     <p className="text-lg font-bold text-white font-mono">
-                      120 <span className="text-xs font-normal text-zinc-400">BPM</span>
+                      64 <span className="text-xs font-normal text-zinc-400">BPM</span>
                     </p>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-1">
                     <div className="flex items-center justify-between text-zinc-400 text-xs">
-                      <span>Workout Time</span>
+                      <span>Weekly Time</span>
                       <Timer className="w-3.5 h-3.5 text-brand" />
                     </div>
                     <p className="text-lg font-bold text-white font-mono">
-                      5h 40m <span className="text-xs font-normal text-zinc-400">wk</span>
+                      5h 20m <span className="text-xs font-normal text-zinc-400">wk</span>
                     </p>
                   </div>
-                </div>
-
-                {/* Trainer Feedback Banner */}
-                <div className="p-3.5 rounded-2xl bg-zinc-900/70 border border-zinc-800 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-brand">
-                      CN
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Coach Narez</p>
-                      <p className="text-[10px] text-zinc-400">New Feedback Available</p>
-                    </div>
-                  </div>
-                  <button className="w-8 h-8 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand">
-                    <MessageSquare className="w-3.5 h-3.5" />
-                  </button>
                 </div>
 
                 {/* Today's Workout Preview */}
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-zinc-300">Today&apos;s Workout</p>
-                  <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-2 relative overflow-hidden">
+                  <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-2">
                     <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                      ● Mid-Level
+                      ● Strength & Hypertrophy
                     </span>
-                    <h4 className="text-base font-bold text-white">Biceps Workout</h4>
+                    <h4 className="text-sm font-bold text-white">Compound Push & Pull</h4>
                     <div className="pt-2 flex items-center justify-between">
-                      <span className="text-xs text-zinc-400 font-mono">45 Mins · 4 Sets</span>
-                      <button className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center">
-                        <Play className="w-3.5 h-3.5 fill-carbon-950 ml-0.5" />
+                      <span className="text-xs text-zinc-400 font-mono">50 Mins · 5 Exercises</span>
+                      <button
+                        onClick={() => setActiveScreen("workout")}
+                        className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center font-bold"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
                       </button>
                     </div>
                   </div>
@@ -228,60 +345,48 @@ export function AthleteMobilePreview() {
 
             {activeScreen === "workout" && (
               <>
-                {/* Workout Catalog */}
                 <div className="flex items-center justify-between pt-2">
-                  <button
-                    onClick={() => setActiveScreen("home")}
-                    className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                  <h2 className="text-sm font-bold text-white">Workout</h2>
-                  <div className="w-8" />
-                </div>
-
-                <div className="flex items-center justify-between text-xs">
-                  <div>
-                    <h3 className="font-bold text-white">Advance</h3>
-                    <p className="text-[10px] text-zinc-500">Fitness Level</p>
-                  </div>
-                  <button className="text-[11px] text-brand font-semibold hover:underline">
-                    See All &gt;
-                  </button>
+                  <h2 className="text-base font-bold text-white">Workout Programs</h2>
+                  <Badge variant="outline" className="text-zinc-400 border-zinc-800 text-[10px]">
+                    4 Active
+                  </Badge>
                 </div>
 
                 <div className="space-y-3">
                   {[
                     {
-                      title: "Strength Training",
-                      seasons: "42 Sessions",
-                      desc: "Build muscle, increase strength, and improve your overall performance.",
+                      name: "Upper Body Hypertrophy",
+                      duration: "45 Mins",
+                      burn: "320 kcal",
+                      level: "Intermediate",
                     },
                     {
-                      title: "Functional Fitness",
-                      seasons: "28 Sessions",
-                      desc: "Enhance your mobility, balance, and endurance through functional exercises.",
+                      name: "Olympic Lift Fundamentals",
+                      duration: "60 Mins",
+                      burn: "450 kcal",
+                      level: "Advanced",
                     },
                     {
-                      title: "Mind & Mobility",
-                      seasons: "34 Sessions",
-                      desc: "Improve flexibility, reduce muscle tension, and support recovery.",
-                    },
-                    {
-                      title: "Core Strength",
-                      seasons: "36 Sessions",
-                      desc: "Strengthen your core muscles to improve balance and stability.",
+                      name: "Functional Core & Mobility",
+                      duration: "30 Mins",
+                      burn: "210 kcal",
+                      level: "All Levels",
                     },
                   ].map((w, idx) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800/80 space-y-1.5 hover:border-zinc-700 transition-colors cursor-pointer"
+                      className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between"
                     >
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-bold text-white">{w.title}</h4>
-                        <span className="text-[10px] font-mono text-brand">{w.seasons}</span>
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-brand font-mono uppercase">{w.level}</span>
+                        <h4 className="text-sm font-bold text-white">{w.name}</h4>
+                        <p className="text-xs text-zinc-400 font-mono">
+                          {w.duration} · {w.burn}
+                        </p>
                       </div>
-                      <p className="text-[11px] text-zinc-400 leading-snug">{w.desc}</p>
+                      <button className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200 hover:text-white">
+                        <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -290,168 +395,184 @@ export function AthleteMobilePreview() {
 
             {activeScreen === "schedule" && (
               <>
-                {/* Schedule Screen */}
                 <div className="flex items-center justify-between pt-2">
-                  <button
-                    onClick={() => setActiveScreen("home")}
-                    className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                  <h2 className="text-sm font-bold text-white">Schedule</h2>
-                  <div className="w-8" />
+                  <h2 className="text-base font-bold text-white">Schedule</h2>
+                  <Calendar className="w-4 h-4 text-brand" />
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <div>
-                      <h3 className="font-bold text-white">Workout Plan</h3>
-                      <p className="text-[10px] text-zinc-500">Track, train, and improve</p>
-                    </div>
-                    <button className="text-[11px] text-brand font-semibold hover:underline">
-                      See All &gt;
-                    </button>
-                  </div>
+                {/* Day Calendar Strip */}
+                <div className="flex items-center justify-between gap-1.5 py-1">
+                  {days.map((d) => {
+                    const active = selectedDay === d.id;
+                    return (
+                      <button
+                        key={d.id}
+                        onClick={() => setSelectedDay(d.id)}
+                        className={`flex flex-col items-center p-2 rounded-xl text-xs transition-colors ${
+                          active
+                            ? "bg-brand text-carbon-950 font-bold"
+                            : "bg-zinc-900/80 text-zinc-400 border border-zinc-800"
+                        }`}
+                      >
+                        <span className="text-[10px]">{d.day}</span>
+                        <span className="font-bold text-sm">{d.date}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                  {/* Horizontal Day Selector */}
-                  <div className="flex items-center justify-between gap-1 pt-1">
-                    {days.map((d) => {
-                      const active = selectedDay === d.id;
-                      return (
-                        <button
-                          key={d.id}
-                          onClick={() => setSelectedDay(d.id)}
-                          className={`flex-1 py-2 px-1 rounded-xl flex flex-col items-center gap-1 transition-all ${
-                            active
-                              ? "bg-brand text-carbon-950 font-bold shadow-[0_0_12px_rgba(198,255,0,0.3)]"
-                              : "bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white"
+                {/* Exercise Checklist */}
+                <div className="space-y-2 pt-2">
+                  <p className="text-xs font-semibold text-zinc-300">Assigned Session</p>
+                  {[
+                    { title: "Barbell Back Squat", sets: "4 Sets × 8 Reps", done: true },
+                    { title: "Romanian Deadlift", sets: "3 Sets × 10 Reps", done: true },
+                    { title: "Bulgarian Split Squats", sets: "3 Sets × 12 Reps", done: false },
+                    { title: "Standing Calf Raises", sets: "4 Sets × 15 Reps", done: false },
+                  ].map((ex, i) => (
+                    <div
+                      key={i}
+                      className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-850 flex items-center justify-between text-xs"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-5 h-5 rounded-md flex items-center justify-center border ${
+                            ex.done
+                              ? "bg-brand border-brand text-carbon-950"
+                              : "border-zinc-700 bg-zinc-950"
                           }`}
                         >
-                          <span className="text-[9px] uppercase font-mono">{d.day}</span>
-                          <span className="text-xs font-bold">{d.date}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Today's Focus Card */}
-                <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-2.5">
-                  <span className="text-[10px] font-mono text-zinc-400 uppercase">
-                    ● Today&apos;s Focus
-                  </span>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-base font-bold text-white">Biceps Workout</h4>
-                      <p className="text-[11px] text-zinc-400 font-mono mt-0.5">
-                        1900 Kcal · 60 Min
-                      </p>
-                    </div>
-                    <button className="px-3 py-1.5 rounded-xl bg-brand text-carbon-950 text-xs font-bold flex items-center gap-1 shadow-[0_0_12px_rgba(198,255,0,0.2)]">
-                      <span>Start</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Today's Plan Checklist */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <h4 className="font-bold text-white">Today&apos;s Plan</h4>
-                    <span className="text-[10px] text-zinc-500 font-mono">3 Exercises</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    {[
-                      { num: 1, name: "Barbell Curl", sets: "4 Sets · 10-12 Reps", status: "completed" },
-                      { num: 2, name: "Hammer Curl", sets: "3 Sets · 10-12 Reps", status: "upcoming" },
-                      { num: 3, name: "Preacher Curl", sets: "3 Sets · 10-12 Reps", status: "upcoming" },
-                    ].map((item) => (
-                      <div
-                        key={item.num}
-                        className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-850 flex items-center justify-between text-xs"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-full bg-zinc-800 text-zinc-300 font-mono font-bold text-[11px] flex items-center justify-center">
-                            {item.num}
-                          </span>
-                          <div>
-                            <p className="font-semibold text-white">{item.name}</p>
-                            <p className="text-[10px] text-zinc-400 font-mono">{item.sets}</p>
-                          </div>
+                          {ex.done && <CheckCircle2 className="w-3.5 h-3.5" />}
                         </div>
-
-                        {item.status === "completed" ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2 py-0.5 rounded-full font-medium">
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>Done</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-zinc-400 bg-zinc-800/40 border border-zinc-700/40 px-2 py-0.5 rounded-full font-medium">
-                            <Clock className="w-3 h-3" />
-                            <span>Upcoming</span>
-                          </span>
-                        )}
+                        <div>
+                          <p className={`font-semibold ${ex.done ? "line-through text-zinc-500" : "text-white"}`}>
+                            {ex.title}
+                          </p>
+                          <p className="text-[10px] text-zinc-400 font-mono">{ex.sets}</p>
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Weekly Progress */}
-                <div className="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between text-xs">
-                  <div>
-                    <p className="font-bold text-white">Weekly Progress</p>
-                    <p className="text-[10px] text-zinc-400 font-mono">3 of 6 Workouts Completed</p>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-brand/15 border border-brand/30 flex items-center justify-center text-brand">
-                    <Flame className="w-4 h-4" />
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </>
             )}
           </div>
 
-          {/* Bottom App Navigation Bar (Wireframe Match) */}
-          <div className="h-16 border-t border-zinc-800 bg-zinc-950/95 px-6 flex items-center justify-between text-zinc-500">
+          {/* Member Camera Scanner Modal Overlay */}
+          {scannerOpen && (
+            <div className="absolute inset-0 bg-[#080809]/95 backdrop-blur-md p-6 flex flex-col justify-between z-50">
+              <div className="flex items-center justify-between pt-6">
+                <div className="flex items-center gap-2">
+                  <Scan className="w-4 h-4 text-brand" />
+                  <span className="text-xs font-bold text-white">Entrance Turnstile Scanner</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setScannerOpen(false);
+                    setScanResult(null);
+                  }}
+                  className="w-7 h-7 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Viewfinder Reticle */}
+              <div className="flex-1 flex flex-col items-center justify-center space-y-4">
+                <div className="relative w-56 h-56 rounded-3xl border-2 border-dashed border-brand/50 bg-zinc-950 flex flex-col items-center justify-center p-4 text-center">
+                  <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-brand" />
+                  <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-brand" />
+                  <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-brand" />
+                  <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-brand" />
+
+                  <QrCode className="w-12 h-12 text-zinc-600 mb-2" />
+                  <p className="text-[11px] text-zinc-400 font-medium leading-tight">
+                    Point camera at Kiosk Terminal display
+                  </p>
+                  <p className="text-[9px] text-zinc-500 font-mono mt-1">
+                    2-Hour Anti-Proxy Code
+                  </p>
+                </div>
+
+                {/* Scan Result Feedback */}
+                {scanResult && (
+                  <div
+                    className={`w-full p-3.5 rounded-2xl border text-xs ${
+                      scanResult.success
+                        ? "bg-emerald-950/60 border-emerald-500/50 text-emerald-200"
+                        : "bg-red-950/60 border-red-500/50 text-red-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {scanResult.success ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                      )}
+                      <div>
+                        <p className="font-bold">{scanResult.message}</p>
+                        {scanResult.timestamp && (
+                          <p className="text-[10px] opacity-75 font-mono">{scanResult.timestamp}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Trigger */}
+              <div className="space-y-2 pb-6">
+                <Button
+                  onClick={handleTriggerScan}
+                  disabled={scanning}
+                  className="w-full h-11 bg-brand text-carbon-950 font-bold hover:bg-brand/90 rounded-2xl"
+                >
+                  {scanning ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      <span>Verifying 2-Hour QR...</span>
+                    </>
+                  ) : (
+                    <span>Scan Turnstile Gate</span>
+                  )}
+                </Button>
+                <p className="text-[10px] text-center text-zinc-500">
+                  Validates against live Iron Pulse turnstile terminal
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Bottom App Navigation Bar */}
+          <div className="p-3 border-t border-zinc-800/80 bg-zinc-950/90 flex items-center justify-around text-xs">
             <button
               onClick={() => setActiveScreen("home")}
               className={`flex flex-col items-center gap-0.5 ${
-                activeScreen === "home" ? "text-brand" : "hover:text-white"
+                activeScreen === "home" ? "text-brand" : "text-zinc-500"
               }`}
             >
               <Home className="w-4 h-4" />
               <span className="text-[9px]">Home</span>
             </button>
-
             <button
               onClick={() => setActiveScreen("workout")}
               className={`flex flex-col items-center gap-0.5 ${
-                activeScreen === "workout" ? "text-brand" : "hover:text-white"
+                activeScreen === "workout" ? "text-brand" : "text-zinc-500"
               }`}
             >
               <Compass className="w-4 h-4" />
-              <span className="text-[9px]">Workout</span>
+              <span className="text-[9px]">Explore</span>
             </button>
-
-            {/* Glowing Center Action Button */}
-            <button
-              onClick={() => setActiveScreen("schedule")}
-              className="w-10 h-10 -mt-5 rounded-full bg-brand text-carbon-950 flex items-center justify-center shadow-[0_0_16px_rgba(198,255,0,0.5)] active:scale-95 transition-transform"
-            >
-              <Flame className="w-5 h-5 fill-carbon-950" />
-            </button>
-
             <button
               onClick={() => setActiveScreen("schedule")}
               className={`flex flex-col items-center gap-0.5 ${
-                activeScreen === "schedule" ? "text-brand" : "hover:text-white"
+                activeScreen === "schedule" ? "text-brand" : "text-zinc-500"
               }`}
             >
               <Calendar className="w-4 h-4" />
-              <span className="text-[9px]">Schedule</span>
+              <span className="text-[9px]">Routine</span>
             </button>
-
-            <button className="flex flex-col items-center gap-0.5 hover:text-white">
+            <button className="flex flex-col items-center gap-0.5 text-zinc-500">
               <User className="w-4 h-4" />
               <span className="text-[9px]">Profile</span>
             </button>

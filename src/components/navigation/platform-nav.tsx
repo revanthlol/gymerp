@@ -27,18 +27,17 @@ export function PlatformNav({ userEmail }: { userEmail: string }) {
           </div>
         </div>
 
-        {/* Global DB Status Pill */}
+        {/* Global Network Status Pill */}
         <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <Database className="w-3.5 h-3.5 text-emerald-400" />
-          <span>PostgreSQL 16: Active</span>
+          <span>Core Network: Operational</span>
         </div>
 
         {/* User & Logout */}
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
             <p className="text-xs font-medium text-zinc-200">{userEmail}</p>
-            <p className="text-[10px] text-purple-400 font-mono">platform_superadmin</p>
+            <p className="text-[10px] text-purple-400 font-mono">Platform Administrator</p>
           </div>
           <Button
             variant="outline"

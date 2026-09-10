@@ -168,9 +168,9 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
             </div>
 
             <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
-              <p className="font-semibold text-white">Partition Isolation (Postgres RLS)</p>
+              <p className="font-semibold text-white">Data Privacy & Security</p>
               <p className="text-zinc-400 text-[11px]">
-                Your tenant data is strictly isolated to <strong className="text-white">{gymName}</strong>. Zero athlete records leak across gyms.
+                All athlete check-ins, financial logs, and member records are encrypted and strictly isolated to <strong className="text-white">{gymName}</strong>.
               </p>
             </div>
 

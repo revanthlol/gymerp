@@ -32,76 +32,45 @@ body {
   min-height: 100vh;
 }
 
-/* Glassmorphism Containers - selective, understated, high-contrast */
+/* Minimalist Luxury Containers - subtle, understated, deep obsidian */
 .glass-panel {
-  background: rgba(14, 14, 18, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  background: rgba(13, 13, 16, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 .glass-input {
-  background: rgba(10, 10, 14, 0.7);
+  background: rgba(10, 10, 13, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #f4f4f6;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .glass-input:focus {
-  border-color: #c6ff00;
-  box-shadow: 0 0 0 1px #c6ff00, 0 0 16px rgba(198, 255, 0, 0.2);
+  border-color: rgba(198, 255, 0, 0.4);
+  box-shadow: 0 0 0 1px rgba(198, 255, 0, 0.3);
   outline: none;
 }
 
-/* Scanline animation for Check-in Kiosk */
-@keyframes laserScan {
-  0% {
-    top: 5%;
-    opacity: 0.2;
-  }
-  50% {
-    top: 95%;
-    opacity: 1;
-  }
-  100% {
-    top: 5%;
-    opacity: 0.2;
-  }
-}
-
-.animate-laser {
-  animation: laserScan 2.4s ease-in-out infinite;
-}
-
-/* Bottom-anchored ambient glow — sits beneath glass surfaces */
+/* Subtle, refined accent rim - zero neon blob blur */
 .glow-bottom {
   position: relative;
-  isolation: isolate;
 }
 
 .glow-bottom::after {
   content: "";
   position: absolute;
-  left: 50%;
-  bottom: -18%;
-  transform: translateX(-50%);
-  width: 70%;
-  height: 40%;
-  background: radial-gradient(ellipse at center, var(--primary) 0%, transparent 72%);
-  filter: blur(24px);
-  opacity: 0.35;
-  z-index: -1;
+  left: 10%;
+  right: 10%;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(198, 255, 0, 0.25), transparent);
   pointer-events: none;
-  transition: opacity 0.25s ease;
 }
 
-.glow-bottom:hover::after,
-.glow-bottom:focus-visible::after {
-  opacity: 0.6;
-}
-
-/* Glow bar for top headers */
+/* Hairline accent for top navigation headers */
 .glow-bar {
   position: relative;
 }
@@ -109,24 +78,9 @@ body {
 .glow-bar::after {
   content: "";
   position: absolute;
-  left: 5%;
-  right: 5%;
+  left: 0;
+  right: 0;
   bottom: -1px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  opacity: 0.5;
-  filter: blur(1px);
-}
-
-.glow-bar::before {
-  content: "";
-  position: absolute;
-  left: 20%;
-  right: 20%;
-  bottom: -12px;
-  height: 24px;
-  background: radial-gradient(ellipse at center, var(--primary) 0%, transparent 75%);
-  filter: blur(16px);
-  opacity: 0.18;
-  pointer-events: none;
+  background: linear-gradient(90deg, transparent 5%, rgba(198, 255, 0, 0.2) 50%, transparent 95%);
 }

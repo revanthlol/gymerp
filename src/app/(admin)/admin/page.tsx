@@ -13,6 +13,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { TurnstileQrDialog } from "@/components/admin/turnstile-qr-dialog";
 
 export const dynamic = "force-dynamic";
 
@@ -61,11 +62,8 @@ export default async function AdminDashboardPage() {
             Real-time membership metrics, daily turnstile check-ins, and active plans.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
-          <div className="text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1.5 rounded-xl flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Partition: {session!.tenantId?.slice(0, 8)}...</span>
-          </div>
+        <div className="flex items-center gap-3">
+          <TurnstileQrDialog />
         </div>
       </div>
 
@@ -137,7 +135,7 @@ export default async function AdminDashboardPage() {
         <div className="p-5 border-b border-zinc-800/80 flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-white">Registered Athletes & Members</h2>
-            <p className="text-xs text-zinc-400 mt-0.5">Isolated within this gym&apos;s database partition</p>
+            <p className="text-xs text-zinc-400 mt-0.5">Roster of registered athletes and active pass holders</p>
           </div>
         </div>
 
@@ -147,7 +145,7 @@ export default async function AdminDashboardPage() {
               <TableHead>Member Name</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>QR Token (Kiosk Pass)</TableHead>
+              <TableHead>Kiosk Pass Code</TableHead>
               <TableHead>Joined Date</TableHead>
             </TableRow>
           </TableHeader>
@@ -163,7 +161,7 @@ export default async function AdminDashboardPage() {
                 <TableRow key={m.id} className="hover:bg-zinc-800/30">
                   <TableCell className="font-medium text-white">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center text-xs font-bold">
+                      <div className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 text-brand flex items-center justify-center text-xs font-bold">
                         {m.fullName.charAt(0).toUpperCase()}
                       </div>
                       <span>{m.fullName}</span>
