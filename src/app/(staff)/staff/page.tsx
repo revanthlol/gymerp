@@ -22,12 +22,14 @@ export default async function StaffHomePage() {
   }
 
   const data: StaffDashboardData = await withTenantDb(session, async (tx) => {
-    const tenantMembers = await tx.select().from(members);
-    const recentAttendance = await tx
-      .select()
-      .from(attendance)
-      .orderBy(desc(attendance.checkedInAt))
-      .limit(10);
+    const [tenantMembers, recentAttendance] = await Promise.all([
+      tx.select().from(members),
+      tx
+        .select()
+        .from(attendance)
+        .orderBy(desc(attendance.checkedInAt))
+        .limit(10),
+    ]);
 
     return {
       members: tenantMembers,

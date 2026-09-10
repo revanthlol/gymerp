@@ -79,7 +79,7 @@ export async function recordAttendanceScanAction(memberId: string, qrToken: stri
         tenantId: session.tenantId!,
         memberId: member.id,
         method: "qr_scan",
-        verifiedBy: session.email || "Turnstile Kiosk",
+        kioskId: "front-turnstile-01",
       })
       .returning();
 
@@ -127,7 +127,7 @@ export async function staffManualCheckInAction(memberId: string) {
         tenantId: session.tenantId!,
         memberId: member.id,
         method: "manual",
-        verifiedBy: session.email || "Front-Desk Staff",
+        kioskId: "front-desk-manual",
       })
       .returning();
 

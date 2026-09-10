@@ -24,14 +24,16 @@ export async function withTenantDb<T>(
 
   return await db.transaction(async (tx) => {
     if (context.role === "platform") {
-      await tx.execute(sql`SELECT set_config('app.current_role', 'platform', true)`);
-      await tx.execute(sql`SELECT set_config('app.current_tenant_id', '', true)`);
+      await tx.execute(
+        sql`SELECT set_config('app.current_role', 'platform', true), set_config('app.current_tenant_id', '', true)`
+      );
     } else {
       if (!context.tenantId) {
         throw new Error("Tenant ID required for non-platform operations");
       }
-      await tx.execute(sql`SELECT set_config('app.current_role', ${context.role}, true)`);
-      await tx.execute(sql`SELECT set_config('app.current_tenant_id', ${context.tenantId}, true)`);
+      await tx.execute(
+        sql`SELECT set_config('app.current_role', ${context.role}, true), set_config('app.current_tenant_id', ${context.tenantId}, true)`
+      );
     }
     return await operation(tx);
   });

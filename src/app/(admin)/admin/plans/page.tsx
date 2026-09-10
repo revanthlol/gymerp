@@ -21,8 +21,10 @@ export default async function AdminPlansPage() {
   const data: AdminPlansData = await withTenantDb(
     session,
     async (tx): Promise<AdminPlansData> => {
-      const plans = await tx.select().from(membershipPlans);
-      const activeMemberships = await tx.select().from(memberships);
+      const [plans, activeMemberships] = await Promise.all([
+        tx.select().from(membershipPlans),
+        tx.select().from(memberships),
+      ]);
       return { plans, memberships: activeMemberships };
     }
   );

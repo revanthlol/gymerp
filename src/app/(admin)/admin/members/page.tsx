@@ -14,8 +14,10 @@ export default async function AdminMembersPage() {
   }
 
   const data = await withTenantDb(session, async (tx) => {
-    const tenantMembers = await tx.select().from(members);
-    const tenantPlans = await tx.select().from(membershipPlans);
+    const [tenantMembers, tenantPlans] = await Promise.all([
+      tx.select().from(members),
+      tx.select().from(membershipPlans),
+    ]);
 
     return {
       members: tenantMembers,

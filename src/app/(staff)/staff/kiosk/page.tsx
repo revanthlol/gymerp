@@ -19,12 +19,14 @@ export default async function KioskPage() {
 
   // 2. Fetch live tenant members & recent turnstile check-ins
   const data = await withTenantDb(session, async (tx) => {
-    const tenantMembers = await tx.select().from(members);
-    const recentCheckIns = await tx
-      .select()
-      .from(attendance)
-      .orderBy(desc(attendance.checkedInAt))
-      .limit(8);
+    const [tenantMembers, recentCheckIns] = await Promise.all([
+      tx.select().from(members),
+      tx
+        .select()
+        .from(attendance)
+        .orderBy(desc(attendance.checkedInAt))
+        .limit(8),
+    ]);
 
     return {
       members: tenantMembers,

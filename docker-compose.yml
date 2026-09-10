@@ -1,22 +1,31 @@
-services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: gymerp-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-gymerp}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gymerp_secret_dev_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-gymerp}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gymerp} -d ${POSTGRES_DB:-gymerp}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+version: "3.8"
 
-volumes:
-  postgres_data:
-    driver: local
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gymerp-app
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gymerp-api
+    restart: always
+    ports:
+      - "4000:4000"
+    command: ["npx", "tsx", "src/server/index.ts"]
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+      - PORT=4000

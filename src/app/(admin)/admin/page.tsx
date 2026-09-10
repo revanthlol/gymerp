@@ -30,12 +30,15 @@ export default async function AdminDashboardPage() {
     redirect("/login");
   }
 
-  // Query tenant-scoped operational data via withTenantDb
+  // Query tenant-scoped operational data via withTenantDb in parallel
   const data: AdminDashboardData = await withTenantDb(session, async (tx) => {
-    const tenantMembers = await tx.select().from(members);
-    const tenantPlans = await tx.select().from(membershipPlans);
-    const tenantAttendance = await tx.select().from(attendance);
-    const tenantPayments = await tx.select().from(payments);
+    const [tenantMembers, tenantPlans, tenantAttendance, tenantPayments] =
+      await Promise.all([
+        tx.select().from(members),
+        tx.select().from(membershipPlans),
+        tx.select().from(attendance),
+        tx.select().from(payments),
+      ]);
 
     return {
       members: tenantMembers,

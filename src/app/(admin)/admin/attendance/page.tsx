@@ -31,12 +31,14 @@ export default async function AdminAttendancePage() {
   const data: AdminAttendanceData = await withTenantDb(
     session,
     async (tx): Promise<AdminAttendanceData> => {
-      const rawAttendance = await tx
-        .select()
-        .from(attendance)
-        .orderBy(desc(attendance.checkedInAt))
-        .limit(50);
-      const rawMembers = await tx.select().from(members);
+      const [rawAttendance, rawMembers] = await Promise.all([
+        tx
+          .select()
+          .from(attendance)
+          .orderBy(desc(attendance.checkedInAt))
+          .limit(50),
+        tx.select().from(members),
+      ]);
       return { attendance: rawAttendance, members: rawMembers };
     }
   );

@@ -6,6 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "server:dev": "tsx watch src/server/index.ts",
+    "server:start": "tsx src/server/index.ts",
+    "start:standalone": "node .next/standalone/server.js",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
@@ -16,6 +19,8 @@
     "test:rls": "tsx src/lib/db/test-rls.ts"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/cors": "^11.3.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-avatar": "^1.2.6",
     "@radix-ui/react-dialog": "^1.1.23",
@@ -27,6 +32,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.38.4",
+    "fastify": "^5.12.3",
     "firebase": "^11.4.0",
     "firebase-admin": "^13.1.0",
     "framer-motion": "^13.2.0",

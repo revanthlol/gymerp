@@ -21,11 +21,10 @@ export const pool =
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
+    keepAlive: true,
   });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.pool = pool;
-}
+globalForDb.pool = pool;
 
 export const db = drizzle(pool, { schema });
 export type Database = typeof db;
