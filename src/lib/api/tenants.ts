@@ -77,7 +77,11 @@ export async function provisionTenantAction(rawInput: CreateTenantInput) {
       try {
         inviteLink = await adminAuth.generatePasswordResetLink(input.contactEmail);
       } catch {
-        inviteLink = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/login`;
+        const baseUrl =
+          process.env.APP_URL ||
+          process.env.NEXT_PUBLIC_APP_URL ||
+          (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+        inviteLink = `${baseUrl}/login`;
       }
 
       revalidatePath("/platform");
