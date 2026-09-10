@@ -11,7 +11,8 @@ export const metadata: Metadata = {
   title: "GymERP — Modern Multi-Tenant Fitness ERP",
   description: "Multi-tenant ERP platform for independent gyms, dojos, and fitness studios.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.svg",
+    shortcut: "/favicon.ico",
   },
 };
 
