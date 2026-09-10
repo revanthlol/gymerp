@@ -7,6 +7,7 @@ import { attendanceRoutes } from "./routes/attendance";
 import { memberRoutes } from "./routes/members";
 import { tenantRoutes } from "./routes/tenants";
 import { dashboardRoutes } from "./routes/dashboard";
+import { paymentRoutes } from "./routes/payments";
 
 const app = fastify({
   logger: {
@@ -73,6 +74,7 @@ async function startServer() {
     await app.register(memberRoutes, { prefix: "/api/members" });
     await app.register(tenantRoutes, { prefix: "/api/tenants" });
     await app.register(dashboardRoutes, { prefix: "/api/dashboard" });
+    await app.register(paymentRoutes, { prefix: "/api/payments" });
 
     // 4. Pre-warm Database Connection Pool
     app.log.info("🔥 Pre-warming PostgreSQL connection pool...");

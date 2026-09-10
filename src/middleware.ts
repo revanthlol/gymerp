@@ -25,9 +25,11 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute =
     pathname === "/login" ||
     pathname === "/platform/login" ||
+    pathname === "/api/health" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks") ||
     pathname.startsWith("/_next") ||
+    pathname.startsWith("/manifest") ||
     pathname.includes(".");
 
   // Public routes always render directly. Never redirect away from /login in middleware

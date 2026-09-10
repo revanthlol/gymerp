@@ -11,6 +11,7 @@ import {
   Calendar,
   Settings,
   QrCode,
+  CreditCard,
   HelpCircle,
   Bell,
   LogOut,
@@ -39,8 +40,9 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
   const navItems = [
     { label: "Home", href: "/admin", icon: Home },
     { label: "Clients", href: "/admin/members", icon: Users },
-    { label: "Inbox", href: "/admin/attendance", icon: Inbox },
-    { label: "Scheduling", href: "/admin/plans", icon: Calendar },
+    { label: "Attendance", href: "/admin/attendance", icon: Inbox },
+    { label: "Plans", href: "/admin/plans", icon: Calendar },
+    { label: "Payments", href: "/admin/payments", icon: CreditCard },
     { label: "Kiosk", href: "/staff/kiosk", icon: QrCode },
   ];
 
