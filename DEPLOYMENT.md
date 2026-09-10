@@ -84,7 +84,7 @@ pnpm db:seed
 | Variable | Description / Sample Value |
 | :--- | :--- |
 | `NODE_ENV` | `production` |
-| `NEXT_PUBLIC_APP_URL` | `https://your-domain.vercel.app` |
+| `APP_URL` | `https://your-domain.vercel.app` |
 | `DATABASE_URL` | `postgresql://user:pass@ep-pooler.neon.tech/neondb?sslmode=require` |
 | `NEXT_PUBLIC_FIREBASE_API_KEY` | `AIzaSy...` (from Firebase Web Config) |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | `gym-erp-firebase.firebaseapp.com` |
