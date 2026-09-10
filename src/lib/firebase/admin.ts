@@ -27,21 +27,34 @@ function formatPrivateKey(key: string | undefined): string {
 }
 
 if (!admin.apps.length) {
-  // Strategy 1: Entire Service Account JSON string in environment variable (Ideal for Vercel)
-  const serviceAccountJsonStr =
+  // Strategy 1: Entire Service Account JSON string or Base64 in environment variable
+  let serviceAccountJsonStr =
     process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
+    process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 ||
     process.env.FIREBASE_SERVICE_ACCOUNT;
 
   if (serviceAccountJsonStr) {
     try {
-      const serviceAccount = JSON.parse(serviceAccountJsonStr.trim());
+      let rawJson = serviceAccountJsonStr.trim();
+      // If base64 encoded (does not start with {), decode it
+      if (!rawJson.startsWith("{")) {
+        try {
+          const decoded = Buffer.from(rawJson, "base64").toString("utf8");
+          if (decoded.trim().startsWith("{")) {
+            rawJson = decoded.trim();
+          }
+        } catch {
+          // Keep rawJson
+        }
+      }
+      const serviceAccount = JSON.parse(rawJson);
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         storageBucket:
           process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
           `${serviceAccount.project_id}.firebasestorage.app`,
       });
-      console.log("✓ Firebase Admin initialized via FIREBASE_SERVICE_ACCOUNT_KEY");
+      console.log("✓ Firebase Admin initialized via FIREBASE_SERVICE_ACCOUNT_KEY (JSON/Base64)");
     } catch (err) {
       console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:", err);
     }

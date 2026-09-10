@@ -10,6 +10,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "ID token is required" }, { status: 400 });
     }
 
+    console.log("Auth session env debug:", {
+      hasServiceAccountKey: !!process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
+      serviceAccountKeyLen: process.env.FIREBASE_SERVICE_ACCOUNT_KEY?.length,
+      hasClientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
+      hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+      privateKeyLen: process.env.FIREBASE_PRIVATE_KEY?.length,
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV,
+    });
+
     // 5 days session duration
     const expiresIn = 60 * 60 * 24 * 5 * 1000;
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });

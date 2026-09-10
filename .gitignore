@@ -24,3 +24,5 @@ next-env.d.ts
 # Drizzle Studio local cache
 .drizzle/
 .neon
+.vercel
+.env*
