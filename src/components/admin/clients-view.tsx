@@ -159,7 +159,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                 placeholder="Quick search..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-zinc-900/70 border-zinc-800/90 text-xs h-10 rounded-xl focus:border-brand"
+                className="pl-9 bg-[#1c1c1c] border-white/[0.08] text-xs h-9 rounded-sm focus:border-primary"
               />
             </div>
 
@@ -168,7 +168,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
               <select
                 value={filterScope}
                 onChange={(e) => setFilterScope(e.target.value as any)}
-                className="appearance-none bg-zinc-900/70 border border-zinc-800/90 rounded-xl px-3.5 py-2.5 pr-8 text-xs font-medium text-zinc-300 focus:outline-none focus:border-brand cursor-pointer"
+                className="appearance-none bg-[#1c1c1c] border border-white/[0.08] rounded-sm px-3.5 py-2 pr-8 text-xs font-medium text-zinc-300 focus:outline-none focus:border-primary cursor-pointer"
               >
                 <option value="all">All clients</option>
                 <option value="active">My clients (Active)</option>
@@ -184,7 +184,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
 
             <button
               title="Toggle View Mode"
-              className="w-9 h-9 rounded-xl bg-zinc-900/70 border border-zinc-800/90 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+              className="w-9 h-9 rounded-sm bg-[#1c1c1c] border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
             >
               <List className="w-4 h-4" />
             </button>
@@ -192,10 +192,10 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
         </div>
 
         {/* Clients Table */}
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 overflow-hidden">
+        <div className="rounded-lg border border-white/[0.08] bg-[#1c1c1c]/90 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-zinc-800/80 hover:bg-transparent">
+              <TableRow className="border-b border-white/[0.08] hover:bg-transparent">
                 <TableHead className="w-12 px-4">
                   <input
                     type="checkbox"
@@ -204,7 +204,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                       filteredMembers.length > 0 &&
                       filteredMembers.every((m) => checkedIds[m.id])
                     }
-                    className="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-brand focus:ring-0 focus:ring-offset-0 cursor-pointer accent-brand"
+                    className="w-4 h-4 rounded-sm bg-[#171717] border-zinc-700 text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-primary"
                   />
                 </TableHead>
                 <TableHead className="text-zinc-400 font-medium text-xs">Name</TableHead>
@@ -290,23 +290,23 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="w-full lg:w-[360px] shrink-0 rounded-2xl border border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md p-5 space-y-6 flex flex-col justify-between self-start"
+            className="w-full lg:w-[360px] shrink-0 rounded-lg border border-white/[0.08] bg-[#1c1c1c]/95 backdrop-blur-xl p-5 space-y-6 flex flex-col justify-between self-start shadow-xl"
           >
             <div className="space-y-6">
               {/* Drawer Tabs & Close */}
-              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
                 <div className="flex items-center gap-5 text-xs font-semibold">
                   <button
                     onClick={() => setActiveTab("overview")}
                     className={`relative pb-2 transition-colors ${
                       activeTab === "overview"
-                        ? "text-brand"
+                        ? "text-primary"
                         : "text-zinc-400 hover:text-zinc-200"
                     }`}
                   >
                     Overview
                     {activeTab === "overview" && (
-                      <span className="absolute bottom-[-13px] left-0 right-0 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(118,185,0,0.8)]" />
+                      <span className="absolute bottom-[-13px] left-0 right-0 h-[2px] bg-primary rounded-full shadow-[0_0_8px_rgba(62,207,142,0.8)]" />
                     )}
                   </button>
 
@@ -314,13 +314,13 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                     onClick={() => setActiveTab("activities")}
                     className={`relative pb-2 transition-colors ${
                       activeTab === "activities"
-                        ? "text-brand"
+                        ? "text-primary"
                         : "text-zinc-400 hover:text-zinc-200"
                     }`}
                   >
                     Activities
                     {activeTab === "activities" && (
-                      <span className="absolute bottom-[-13px] left-0 right-0 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(118,185,0,0.8)]" />
+                      <span className="absolute bottom-[-13px] left-0 right-0 h-[2px] bg-primary rounded-full shadow-[0_0_8px_rgba(62,207,142,0.8)]" />
                     )}
                   </button>
                 </div>
@@ -338,8 +338,8 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
               <div className="space-y-6">
                 {/* Profile Header Box */}
                 <div className="flex items-start gap-4">
-                  {/* Large Square Avatar Placeholder */}
-                  <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center font-bold text-xl text-zinc-300 shrink-0">
+                  {/* Square Avatar */}
+                  <div className="w-14 h-14 rounded-md bg-[#242424] border border-white/[0.08] flex items-center justify-center font-bold text-lg text-zinc-200 shrink-0 font-mono">
                     {getInitials(selectedMember.fullName)}
                   </div>
 
@@ -434,7 +434,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
 
                     <div className="flex items-center justify-between text-zinc-400">
                       <span className="text-zinc-500">Kiosk Token:</span>
-                      <span className="text-brand font-mono text-[10px] bg-brand/10 px-1.5 py-0.5 rounded border border-brand/20 select-all">
+                      <span className="text-primary font-mono text-[10px] bg-primary/10 px-1.5 py-0.5 rounded-sm border border-primary/25 select-all">
                         {selectedMember.qrToken.slice(0, 8)}...
                       </span>
                     </div>
@@ -452,7 +452,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
                       placeholder="Write a message..."
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/40 resize-none transition-all"
+                      className="w-full rounded-sm border border-white/[0.08] bg-[#171717] p-3 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 resize-none transition-all"
                     />
                     <Button
                       size="sm"
@@ -471,7 +471,7 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs text-zinc-400">
                   <span>Gym Check-Ins</span>
-                  <span className="font-mono text-brand">{activities.length} total</span>
+                  <span className="font-mono text-primary">{activities.length} total</span>
                 </div>
 
                 {loadingActivities ? (

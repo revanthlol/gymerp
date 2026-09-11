@@ -12,24 +12,52 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        carbon: {
-          950: "#080809",
-          900: "#0d0d0f",
-          850: "#121216",
-          800: "#18181f",
-          700: "#22222b",
-          600: "#2e2e3a",
+        // Supabase Design MD Palette
+        primary: {
+          DEFAULT: "#3ecf8e",
+          deep: "#24b47e",
+          soft: "#4ade80",
+          foreground: "#171717", // On-primary is near-black, not white
         },
         brand: {
-          DEFAULT: "#76b900",
-          hover: "#6aa600",
-          glow: "rgba(118, 185, 0, 0.25)",
+          DEFAULT: "#3ecf8e",
+          hover: "#24b47e",
+          soft: "#4ade80",
+          glow: "rgba(62, 207, 142, 0.25)",
+        },
+        canvas: {
+          DEFAULT: "#171717",
+          soft: "#202020",
+          night: "#1c1c1c",
+          "night-soft": "#242424",
+        },
+        ink: {
+          DEFAULT: "#171717",
+          secondary: "#212121",
+          mute: "#707070",
+          "mute-2": "#9a9a9a",
+          faint: "#b2b2b2",
+        },
+        hairline: {
+          DEFAULT: "rgba(255, 255, 255, 0.08)",
+          strong: "rgba(255, 255, 255, 0.15)",
+          cool: "rgba(255, 255, 255, 0.05)",
+        },
+        carbon: {
+          950: "#121212",
+          900: "#171717",
+          850: "#1c1c1c",
+          800: "#202020",
+          700: "#2a2a2a",
+          600: "#333333",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xs: "4px",
+        sm: "6px", // Supabase signature button radius
+        md: "8px",
+        lg: "12px", // Supabase signature card radius
+        xl: "16px",
       },
     },
   },

@@ -200,9 +200,9 @@ export function PaymentLedger({
         <div className="flex items-center gap-3">
           <Button
             onClick={() => setIsModalOpen(true)}
-            className="bg-brand hover:bg-brand/90 text-carbon-950 font-bold px-4 py-2.5 rounded-xl shadow-[0_0_20px_rgba(118,185,0,0.3)] hover:shadow-[0_0_28px_rgba(118,185,0,0.5)] transition-all flex items-center gap-2"
+            className="bg-primary hover:bg-primary-deep text-[#171717] font-medium px-4 py-2 rounded-sm shadow-[0_1px_2px_rgba(0,0,0,0.3)] transition-all flex items-center gap-2 border border-primary/30"
           >
-            <Plus className="w-4 h-4 text-carbon-950 stroke-[3]" />
+            <Plus className="w-4 h-4 text-[#171717] stroke-[3]" />
             <span>Record Payment</span>
           </Button>
         </div>
@@ -211,36 +211,36 @@ export function PaymentLedger({
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Revenue */}
-        <div className="glass-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-950/40 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-28 h-28 bg-brand/10 rounded-full blur-2xl group-hover:bg-brand/20 transition-all" />
+        <div className="glass-card p-5 rounded-lg border border-white/[0.08] bg-[#1c1c1c]/90 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all" />
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
               Total Revenue
             </span>
-            <div className="w-8 h-8 rounded-xl bg-brand/10 border border-brand/30 flex items-center justify-center text-brand">
-              <Wallet className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-sm bg-primary/10 border border-primary/25 flex items-center justify-center text-primary font-mono">
+              <Wallet className="w-3.5 h-3.5" />
             </div>
           </div>
           <p className="text-2xl sm:text-3xl font-mono font-extrabold text-white mt-3">
             {formatCurrency(metrics.totalRevenue)}
           </p>
           <div className="flex items-center gap-1.5 mt-2 text-[11px] text-zinc-400">
-            <span className="text-brand font-semibold">{metrics.totalTransactions}</span> settled transactions
+            <span className="text-primary font-semibold">{metrics.totalTransactions}</span> settled transactions
           </div>
         </div>
 
         {/* This Month */}
-        <div className="glass-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-950/40 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all" />
+        <div className="glass-card p-5 rounded-lg border border-white/[0.08] bg-[#1c1c1c]/90 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all" />
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
               This Month
             </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <Calendar className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-sm bg-primary/10 border border-primary/25 flex items-center justify-center text-primary font-mono">
+              <Calendar className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-mono font-extrabold text-emerald-400 mt-3">
+          <p className="text-2xl sm:text-3xl font-mono font-extrabold text-primary mt-3">
             {formatCurrency(metrics.thisMonthRevenue)}
           </p>
           <div className="flex items-center gap-1.5 mt-2 text-[11px] text-zinc-400">
@@ -249,17 +249,17 @@ export function PaymentLedger({
         </div>
 
         {/* Front-Desk / Cash */}
-        <div className="glass-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-950/40 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all" />
+        <div className="glass-card p-5 rounded-lg border border-white/[0.08] bg-[#1c1c1c]/90 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-white/[0.04] rounded-full blur-2xl transition-all" />
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
               Manual / POS Cash
             </span>
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <Banknote className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-sm bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-zinc-300 font-mono">
+              <Banknote className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-mono font-extrabold text-amber-300 mt-3">
+          <p className="text-2xl sm:text-3xl font-mono font-extrabold text-zinc-200 mt-3">
             {formatCurrency(metrics.manualRevenue)}
           </p>
           <div className="flex items-center gap-1.5 mt-2 text-[11px] text-zinc-400">
@@ -268,17 +268,17 @@ export function PaymentLedger({
         </div>
 
         {/* Razorpay Online */}
-        <div className="glass-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-950/40 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20 transition-all" />
+        <div className="glass-card p-5 rounded-lg border border-white/[0.08] bg-[#1c1c1c]/90 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-white/[0.04] rounded-full blur-2xl transition-all" />
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
               Razorpay Online
             </span>
-            <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
-              <Globe className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-sm bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-zinc-300 font-mono">
+              <Globe className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-mono font-extrabold text-sky-400 mt-3">
+          <p className="text-2xl sm:text-3xl font-mono font-extrabold text-zinc-200 mt-3">
             {formatCurrency(metrics.onlineRevenue)}
           </p>
           <div className="flex items-center gap-1.5 mt-2 text-[11px] text-zinc-400">
@@ -288,7 +288,7 @@ export function PaymentLedger({
       </div>
 
       {/* Search & Filter Controls */}
-      <div className="glass-panel p-4 rounded-2xl border border-zinc-800/80 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      <div className="glass-panel p-4 rounded-lg border border-white/[0.08] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -297,21 +297,21 @@ export function PaymentLedger({
             placeholder="Search member, phone, or transaction ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-zinc-900/80 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-brand/60 focus:ring-1 focus:ring-brand/40 transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-[#171717] border border-white/[0.08] rounded-sm text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
           />
         </div>
 
         {/* Filter Pills */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Method Filter */}
-          <div className="flex bg-zinc-900/90 p-1 rounded-xl border border-zinc-800">
+          <div className="flex bg-[#171717] p-1 rounded-sm border border-white/[0.08]">
             {(["all", "manual", "razorpay"] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => setMethodFilter(m)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1 rounded-sm text-xs font-medium transition-all ${
                   methodFilter === m
-                    ? "bg-zinc-800 text-brand shadow-sm font-semibold"
+                    ? "bg-white/[0.08] text-primary shadow-sm font-semibold border border-white/[0.08]"
                     : "text-zinc-400 hover:text-zinc-200"
                 }`}
               >
@@ -321,14 +321,14 @@ export function PaymentLedger({
           </div>
 
           {/* Status Filter */}
-          <div className="flex bg-zinc-900/90 p-1 rounded-xl border border-zinc-800">
+          <div className="flex bg-[#171717] p-1 rounded-sm border border-white/[0.08]">
             {(["all", "paid", "pending", "failed"] as const).map((s) => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium capitalize transition-all ${
+                className={`px-2.5 py-1 rounded-sm text-xs font-medium capitalize transition-all ${
                   statusFilter === s
-                    ? "bg-zinc-800 text-white shadow-sm font-semibold"
+                    ? "bg-white/[0.08] text-white shadow-sm font-semibold border border-white/[0.08]"
                     : "text-zinc-400 hover:text-zinc-200"
                 }`}
               >
@@ -340,10 +340,10 @@ export function PaymentLedger({
       </div>
 
       {/* Payments Ledger Table */}
-      <div className="glass-panel rounded-2xl border border-zinc-800/80 overflow-hidden">
+      <div className="glass-panel rounded-lg border border-white/[0.08] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-zinc-300">
-            <thead className="bg-zinc-950/60 text-zinc-400 text-xs uppercase tracking-wider font-mono border-b border-zinc-800/80">
+            <thead className="bg-white/[0.02] text-zinc-400 text-xs uppercase tracking-wider font-mono border-b border-white/[0.08]">
               <tr>
                 <th className="px-5 py-3.5">Member</th>
                 <th className="px-5 py-3.5">Method</th>
@@ -353,7 +353,7 @@ export function PaymentLedger({
                 <th className="px-5 py-3.5">Notes / Reference</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/50">
+            <tbody className="divide-y divide-white/[0.05]">
               {filteredPayments.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-5 py-12 text-center text-zinc-500">

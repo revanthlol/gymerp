@@ -49,29 +49,31 @@ export default async function AdminAttendancePage() {
     <Reveal className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Attendance & Check-Ins</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight supa-heading-lg">
+            Attendance & Check-Ins
+          </h1>
           <p className="text-sm text-zinc-400 mt-1">
             Real-time feed of member kiosk check-ins, QR scans, and front-desk entries.
           </p>
         </div>
         <div className="flex items-center gap-3 self-start sm:self-auto">
           <TurnstileQrDialog />
-          <div className="text-xs font-mono text-brand bg-brand/10 border border-brand/25 px-3 py-1.5 rounded-xl flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
+          <div className="text-xs font-mono text-primary bg-primary/10 border border-primary/25 px-2.5 py-1.5 rounded-sm flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             <span>Live Scan Stream</span>
           </div>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/70 overflow-hidden">
+      <div className="rounded-lg border border-white/[0.08] bg-[#1c1c1c]/90 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="border-b border-zinc-800 bg-zinc-900/40">
-              <TableHead>Athlete</TableHead>
-              <TableHead>Scan Method</TableHead>
-              <TableHead>Terminal / Kiosk ID</TableHead>
-              <TableHead>Timestamp</TableHead>
-              <TableHead className="text-right">Status</TableHead>
+            <TableRow className="border-b border-white/[0.08] bg-white/[0.02]">
+              <TableHead className="text-zinc-400 font-medium text-xs">Athlete</TableHead>
+              <TableHead className="text-zinc-400 font-medium text-xs">Scan Method</TableHead>
+              <TableHead className="text-zinc-400 font-medium text-xs">Terminal / Kiosk ID</TableHead>
+              <TableHead className="text-zinc-400 font-medium text-xs">Timestamp</TableHead>
+              <TableHead className="text-right text-zinc-400 font-medium text-xs">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -85,17 +87,17 @@ export default async function AdminAttendancePage() {
               data.attendance.map((record) => {
                 const member = memberMap.get(record.memberId);
                 return (
-                  <TableRow key={record.id} className="border-b border-zinc-800/40 hover:bg-zinc-900/30">
+                  <TableRow key={record.id} className="border-b border-white/[0.04] hover:bg-white/[0.03]">
                     <TableCell className="font-medium text-white">
                       <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full bg-brand/20 text-brand flex items-center justify-center font-bold text-xs">
+                        <div className="w-7 h-7 rounded-sm bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-xs font-mono">
                           {(member?.fullName || "M").charAt(0)}
                         </div>
-                        <span>{member?.fullName || "Unknown Member"}</span>
+                        <span className="text-sm">{member?.fullName || "Unknown Member"}</span>
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-xs text-zinc-300">
-                      <span className="bg-zinc-900 px-2 py-1 rounded border border-zinc-800 uppercase text-[10px]">
+                      <span className="bg-[#171717] px-2 py-0.5 rounded-sm border border-white/[0.08] uppercase text-[10px]">
                         {record.method}
                       </span>
                     </TableCell>

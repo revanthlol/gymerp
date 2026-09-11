@@ -49,20 +49,22 @@ export default async function AdminPlansPage() {
           return (
             <div
               key={p.id}
-              className="rounded-2xl border border-zinc-800/80 bg-zinc-950/70 p-6 space-y-4 relative overflow-hidden"
+              className="rounded-lg border border-white/[0.08] bg-[#1c1c1c]/90 p-6 space-y-4 relative overflow-hidden shadow-sm hover:border-primary/40 transition-colors"
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-white text-lg">{p.name}</h3>
-                <Badge variant="vip">{p.durationDays} Days</Badge>
+                <h3 className="font-bold text-white text-base tracking-tight">{p.name}</h3>
+                <span className="text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                  {p.durationDays} Days
+                </span>
               </div>
 
               <p className="text-xs text-zinc-400 min-h-[36px]">
                 {p.description || "Standard gym pass with QR check-in access."}
               </p>
 
-              <div className="pt-4 border-t border-zinc-850 flex items-baseline justify-between">
+              <div className="pt-4 border-t border-white/[0.08] flex items-baseline justify-between">
                 <div>
-                  <span className="text-3xl font-bold text-white font-mono">
+                  <span className="text-2xl font-bold text-white font-mono">
                     ₹{parseFloat(p.price).toFixed(2)}
                   </span>
                   <span className="text-xs text-zinc-500 ml-1">/ term</span>

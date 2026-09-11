@@ -72,10 +72,10 @@ export default async function AdminDashboardPage() {
 
       {/* KPI Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass-panel p-5 rounded-2xl space-y-2">
+        <div className="glass-panel p-5 rounded-lg space-y-2 border border-white/[0.08]">
           <div className="flex items-center justify-between text-zinc-400">
             <span className="text-xs font-medium uppercase tracking-wider">Active Members</span>
-            <Users className="w-4 h-4 text-orange-400" />
+            <Users className="w-4 h-4 text-primary" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">{activeMembers}</p>
           <p className="text-xs text-zinc-500 font-mono">
@@ -83,28 +83,28 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="glass-panel p-5 rounded-2xl space-y-2">
+        <div className="glass-panel p-5 rounded-lg space-y-2 border border-white/[0.08]">
           <div className="flex items-center justify-between text-zinc-400">
             <span className="text-xs font-medium uppercase tracking-wider">Today&apos;s Check-Ins</span>
-            <QrCode className="w-4 h-4 text-brand" />
+            <QrCode className="w-4 h-4 text-primary" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">{data.attendance.length}</p>
-          <p className="text-xs text-brand/90 font-mono">Front-desk kiosk</p>
+          <p className="text-xs text-primary/90 font-mono">Front-desk kiosk</p>
         </div>
 
-        <div className="glass-panel p-5 rounded-2xl space-y-2">
+        <div className="glass-panel p-5 rounded-lg space-y-2 border border-white/[0.08]">
           <div className="flex items-center justify-between text-zinc-400">
             <span className="text-xs font-medium uppercase tracking-wider">Settled Revenue</span>
-            <CreditCard className="w-4 h-4 text-emerald-400" />
+            <CreditCard className="w-4 h-4 text-primary" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">₹{totalRevenue.toFixed(2)}</p>
-          <p className="text-xs text-emerald-400/90 font-mono">{data.payments.length} transactions</p>
+          <p className="text-xs text-primary/90 font-mono">{data.payments.length} transactions</p>
         </div>
 
-        <div className="glass-panel p-5 rounded-2xl space-y-2">
+        <div className="glass-panel p-5 rounded-lg space-y-2 border border-white/[0.08]">
           <div className="flex items-center justify-between text-zinc-400">
             <span className="text-xs font-medium uppercase tracking-wider">Active Plans</span>
-            <Sliders className="w-4 h-4 text-purple-400" />
+            <Sliders className="w-4 h-4 text-zinc-400" />
           </div>
           <p className="text-2xl font-bold text-white font-mono">{data.plans.length}</p>
           <p className="text-xs text-zinc-500 font-mono">Configured tiers</p>
@@ -113,18 +113,18 @@ export default async function AdminDashboardPage() {
 
       {/* Membership Plans Grid */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-white">Configured Membership Plans</h2>
+        <h2 className="text-lg font-semibold text-white tracking-tight">Configured Membership Plans</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {data.plans.map((p) => (
-            <div key={p.id} className="glass-panel p-5 rounded-2xl space-y-3 relative overflow-hidden border border-zinc-800/80">
+            <div key={p.id} className="glass-panel p-5 rounded-lg space-y-3 relative overflow-hidden border border-white/[0.08]">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-white text-base">{p.name}</h3>
-                <span className="text-xs font-mono text-orange-400 bg-orange-950/40 px-2 py-0.5 rounded-full border border-orange-800/40">
+                <span className="text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
                   {p.durationDays} days
                 </span>
               </div>
               <p className="text-xs text-zinc-400 min-h-[32px]">{p.description || "Standard gym pass"}</p>
-              <div className="pt-2 border-t border-zinc-800 flex items-baseline justify-between">
+              <div className="pt-2 border-t border-white/[0.08] flex items-baseline justify-between">
                 <p className="text-2xl font-bold text-white font-mono">₹{parseFloat(p.price).toFixed(2)}</p>
                 <span className="text-[11px] text-zinc-500 font-mono">Managed Plan</span>
               </div>
@@ -134,8 +134,8 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Members Overview Table */}
-      <div className="glass-panel rounded-2xl overflow-hidden border border-zinc-800/80">
-        <div className="p-5 border-b border-zinc-800/80 flex items-center justify-between">
+      <div className="glass-panel rounded-lg overflow-hidden border border-white/[0.08]">
+        <div className="p-5 border-b border-white/[0.08] flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-white">Registered Athletes & Members</h2>
             <p className="text-xs text-zinc-400 mt-0.5">Roster of registered athletes and active pass holders</p>
@@ -164,10 +164,10 @@ export default async function AdminDashboardPage() {
                 <TableRow key={m.id} className="hover:bg-zinc-800/30">
                   <TableCell className="font-medium text-white">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 text-brand flex items-center justify-center text-xs font-bold">
+                      <div className="w-7 h-7 rounded-sm bg-primary/10 border border-primary/25 text-primary flex items-center justify-center text-xs font-bold font-mono">
                         {m.fullName.charAt(0).toUpperCase()}
                       </div>
-                      <span>{m.fullName}</span>
+                      <span className="text-sm">{m.fullName}</span>
                     </div>
                   </TableCell>
                   <TableCell className="font-mono text-xs text-zinc-300">{m.phone}</TableCell>
@@ -177,7 +177,7 @@ export default async function AdminDashboardPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="font-mono text-xs text-zinc-400">
-                    <span className="bg-zinc-900 px-2 py-1 rounded border border-zinc-800 select-all">
+                    <span className="bg-[#171717] px-2 py-0.5 rounded-sm border border-white/[0.08] select-all">
                       {m.qrToken.slice(0, 10)}...
                     </span>
                   </TableCell>

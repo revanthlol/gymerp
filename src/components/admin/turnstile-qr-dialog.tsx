@@ -85,18 +85,18 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
           <Button
             variant="outline"
             size="sm"
-            className="h-9 gap-2 border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-medium"
+            className="h-9 gap-2 border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-xs font-medium rounded-sm"
           >
-            <QrCode className="w-4 h-4 text-brand" />
+            <QrCode className="w-4 h-4 text-primary" />
             <span>Check-In QR Pass</span>
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md bg-[#0e0e12] border-zinc-800 text-zinc-100">
+      <DialogContent className="sm:max-w-md bg-[#1c1c1c] border-white/[0.08] text-zinc-100 rounded-lg">
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
-            <QrCode className="w-4 h-4 text-brand" />
+            <QrCode className="w-4 h-4 text-primary" />
             <span>Kiosk Entrance QR Generator</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
@@ -106,11 +106,11 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
 
         <div className="flex flex-col items-center py-4 space-y-4">
           {loading || !qrData ? (
-            <div className="w-64 h-64 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xs text-zinc-500">
+            <div className="w-64 h-64 rounded-md bg-[#171717] border border-white/[0.08] flex items-center justify-center text-xs text-zinc-500">
               <RefreshCw className="w-5 h-5 animate-spin text-zinc-400" />
             </div>
           ) : (
-            <div className="p-3 bg-white rounded-2xl shadow-xl">
+            <div className="p-3 bg-white rounded-md shadow-xl">
               <img
                 src={qrData.qrDataUrl}
                 alt="Auto-Refreshing Check-In QR"
@@ -121,12 +121,12 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
 
           {/* Countdown & Refresh */}
           <div className="w-full space-y-2">
-            <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-zinc-900/80 border border-zinc-800 text-xs font-mono">
+            <div className="flex items-center justify-between px-3.5 py-2 rounded-sm bg-[#171717] border border-white/[0.08] text-xs font-mono">
               <div className="flex items-center gap-2 text-zinc-400">
-                <Clock className="w-3.5 h-3.5 text-brand" />
+                <Clock className="w-3.5 h-3.5 text-primary" />
                 <span>Next Rotation:</span>
               </div>
-              <span className="text-brand font-bold text-xs">{formatTimer(remainingSecs)}</span>
+              <span className="text-primary font-bold text-xs">{formatTimer(remainingSecs)}</span>
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-zinc-400 px-1 pt-1">

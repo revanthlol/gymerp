@@ -297,7 +297,7 @@ export function KioskTerminal({
           {/* Back to Dashboard button */}
           <Link
             href="/admin"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-zinc-800 bg-zinc-900/80 text-xs text-zinc-300 hover:text-white hover:border-zinc-700 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-sm border border-white/[0.08] bg-white/[0.04] text-xs text-zinc-300 hover:text-white hover:border-white/[0.15] transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Dashboard</span>
@@ -306,13 +306,13 @@ export function KioskTerminal({
           <div
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono ${
               isOnline
-                ? "bg-emerald-950/40 border-emerald-800/50 text-emerald-400"
+                ? "bg-primary/10 border-primary/25 text-primary"
                 : "bg-amber-950/40 border-amber-800/50 text-amber-400 animate-pulse"
             }`}
           >
             {isOnline ? (
               <>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 <Wifi className="w-3 h-3" />
                 <span>Online</span>
               </>
@@ -346,7 +346,7 @@ export function KioskTerminal({
             variant="outline"
             size="sm"
             onClick={handleToggleFullscreen}
-            className="h-7 px-2.5 text-xs bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white rounded-lg flex items-center gap-1.5"
+            className="h-7 px-2.5 text-xs bg-white/[0.04] border-white/[0.08] text-zinc-300 hover:text-white rounded-sm flex items-center gap-1.5"
             title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen Kiosk Mode"}
           >
             {isFullscreen ? (
@@ -366,26 +366,26 @@ export function KioskTerminal({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Dynamic Single-Use QR Terminal (Takes 7 cols) */}
-        <div className="lg:col-span-7 glass-panel p-8 rounded-3xl text-center space-y-6 flex flex-col items-center justify-between border-zinc-800/80 relative overflow-hidden">
+        <div className="lg:col-span-7 glass-panel p-8 rounded-lg text-center space-y-6 flex flex-col items-center justify-between border-white/[0.08] relative overflow-hidden">
           <div className="space-y-1 text-center">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 border border-brand/20 text-brand text-[11px] font-mono mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-mono mb-1">
               <Sparkles className="w-3 h-3" />
               <span>Per-Scan Dynamic Nonce</span>
             </div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Member Check-In Pass</h2>
+            <h2 className="text-xl font-bold text-white tracking-tight supa-heading-lg">Member Check-In Pass</h2>
             <p className="text-xs text-zinc-400">
               Unique single-use code — auto-refreshes immediately after each scan
             </p>
           </div>
 
           {/* Ambient Gaussian Blur Glow Behind QR Terminal */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-tr from-brand/20 via-emerald-500/15 to-indigo-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-tr from-primary/15 via-primary-deep/10 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
 
           {/* High-Resolution QR Display with Framer Motion Transitions & Scanner Beam */}
-          <div className="relative p-6 rounded-3xl bg-gradient-to-b from-zinc-900/95 to-zinc-950/95 border border-zinc-800/90 shadow-2xl flex items-center justify-center overflow-hidden glass-glow-brand">
+          <div className="relative p-5 rounded-lg bg-[#141414] border border-white/[0.09] shadow-2xl flex items-center justify-center overflow-hidden glass-glow-brand">
             {/* Green Laser Scan Sweep Line */}
             <motion.div
-              className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-brand to-transparent shadow-[0_0_12px_#76b900] pointer-events-none z-20"
+              className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_12px_#3ecf8e] pointer-events-none z-20"
               animate={{ top: ["5%", "95%", "5%"] }}
               transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
             />
@@ -397,7 +397,7 @@ export function KioskTerminal({
                 animate={{ scale: 1, opacity: 1, rotateY: 0 }}
                 exit={{ scale: 0.85, opacity: 0, rotateY: -90 }}
                 transition={{ type: "spring", stiffness: 320, damping: 24 }}
-                className="p-3 bg-white rounded-2xl shadow-2xl flex items-center justify-center"
+                className="p-3 bg-white rounded-md shadow-2xl flex items-center justify-center"
               >
                 <img
                   src={qrData.qrDataUrl}
@@ -410,12 +410,12 @@ export function KioskTerminal({
 
           {/* Rotation Timer & Single-Use Security Notice */}
           <div className="w-full space-y-3 pt-2">
-            <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-xs font-mono">
+            <div className="flex items-center justify-between px-4 py-2.5 rounded-md bg-[#171717] border border-white/[0.08] text-xs font-mono">
               <div className="flex items-center gap-2 text-zinc-400">
-                <Clock className="w-4 h-4 text-brand" />
+                <Clock className="w-4 h-4 text-primary" />
                 <span>Auto-Refresh In:</span>
               </div>
-              <span className="text-brand font-bold text-sm tracking-wider">
+              <span className="text-primary font-bold text-sm tracking-wider font-mono">
                 {formatTimer(remainingSecs)}
               </span>
             </div>
@@ -442,10 +442,10 @@ export function KioskTerminal({
         {/* Right: Manual Staff Check-In & Live Feed (Takes 5 cols) */}
         <div className="lg:col-span-5 space-y-6 flex flex-col justify-between">
           {/* Manual Member Lookup Section */}
-          <div className="glass-panel p-5 rounded-2xl space-y-4 border-zinc-800/80">
+          <div className="glass-panel p-5 rounded-lg space-y-4 border-white/[0.08]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-semibold text-zinc-200">
-                <UserCheck className="w-4 h-4 text-brand" />
+                <UserCheck className="w-4 h-4 text-primary" />
                 <span>Manual Staff Check-In</span>
               </div>
               <span className="text-[10px] text-zinc-500 font-mono">Phone / Name</span>
@@ -457,7 +457,7 @@ export function KioskTerminal({
                 placeholder="Search athlete by name or phone..."
                 value={searchMember}
                 onChange={(e) => setSearchMember(e.target.value)}
-                className="pl-9 bg-zinc-900/80 border-zinc-800 text-xs h-9 rounded-xl focus:border-brand"
+                className="pl-9 bg-[#1c1c1c] border-white/[0.08] text-xs h-9 rounded-sm focus:border-primary"
               />
             </div>
 
@@ -476,7 +476,7 @@ export function KioskTerminal({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
-                      className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between text-xs"
+                      className="p-2.5 rounded-md bg-[#1c1c1c] border border-white/[0.08] flex items-center justify-between text-xs"
                     >
                       <div>
                         <p className="font-medium text-white">{m.fullName}</p>
@@ -486,7 +486,7 @@ export function KioskTerminal({
                         size="sm"
                         onClick={() => handleManualCheckIn(m)}
                         disabled={checkingInId === m.id || m.status !== "active"}
-                        className="h-7 text-[11px] px-2.5 bg-brand text-carbon-950 font-bold hover:bg-brand/90 rounded-lg"
+                        className="h-7 text-[11px] px-2.5 bg-primary text-[#171717] font-medium hover:bg-primary-deep rounded-sm"
                       >
                         {checkingInId === m.id ? "Checking In..." : "Check In"}
                       </Button>
@@ -498,7 +498,7 @@ export function KioskTerminal({
           </div>
 
           {/* Live Recent Check-Ins Feed with Motion */}
-          <div className="glass-panel p-5 rounded-2xl space-y-3 border-zinc-800/80 flex-1">
+          <div className="glass-panel p-5 rounded-lg space-y-3 border-white/[0.08] flex-1">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-zinc-200">Live Check-In Feed</span>
               <span className="text-[10px] text-zinc-500 font-mono">Today</span>
@@ -518,10 +518,10 @@ export function KioskTerminal({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="p-2.5 rounded-xl bg-zinc-900/50 border border-zinc-800/60 flex items-center justify-between text-xs hover:border-zinc-700/60 transition-colors"
+                      className="p-2.5 rounded-md bg-[#1c1c1c]/60 border border-white/[0.06] flex items-center justify-between text-xs hover:border-white/[0.12] transition-colors"
                     >
                       <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                         <div>
                           <p className="font-medium text-zinc-200">{getMemberName(att.memberId)}</p>
                           <p className="text-[10px] text-zinc-500 font-mono">

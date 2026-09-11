@@ -3,8 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { tenants } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { StaffHeader } from "@/components/navigation/staff-header";
-import { GymHeader } from "@/components/navigation/gym-header";
+import { DashboardShell } from "@/components/navigation/dashboard-shell";
 
 export default async function StaffLayout({
   children,
@@ -23,6 +22,11 @@ export default async function StaffLayout({
 
   if (!session.tenantId) {
     redirect("/login");
+  }
+
+  // If admin visits /staff/*, redirect them to /admin/kiosk to keep them in the admin shell
+  if (session.role === "admin") {
+    redirect("/admin/kiosk");
   }
 
   let tenant: { name: string; status: string } | undefined;
@@ -45,9 +49,9 @@ export default async function StaffLayout({
 
   if (tenant.status === "suspended") {
     return (
-      <div className="min-h-screen bg-[#080809] flex items-center justify-center p-4">
-        <div className="glass-panel max-w-md p-8 rounded-2xl text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-red-950/50 border border-red-800/50 text-red-400 mx-auto flex items-center justify-center font-bold text-lg">
+      <div className="min-h-screen bg-[#171717] flex items-center justify-center p-4">
+        <div className="glass-panel max-w-md p-8 rounded-lg text-center space-y-4">
+          <div className="w-12 h-12 rounded bg-red-950/50 border border-red-800/50 text-red-400 mx-auto flex items-center justify-center font-bold text-lg">
             !
           </div>
           <h1 className="text-xl font-bold text-white">Tenant Suspended</h1>
@@ -60,15 +64,8 @@ export default async function StaffLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#080809] text-zinc-100 flex flex-col">
-      {session.role === "admin" ? (
-        <GymHeader gymName={tenant.name} userEmail={session.email} />
-      ) : (
-        <StaffHeader gymName={tenant.name} userEmail={session.email} />
-      )}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        {children}
-      </main>
-    </div>
+    <DashboardShell gymName={tenant.name} userEmail={session.email}>
+      {children}
+    </DashboardShell>
   );
 }

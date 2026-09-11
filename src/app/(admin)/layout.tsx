@@ -3,10 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { tenants } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { AdminSidebar } from "@/components/navigation/admin-sidebar";
-import { AdminTopBar } from "@/components/navigation/admin-topbar";
-import { AdminPageWrapper } from "@/components/navigation/admin-page-wrapper";
-import { AdminContentArea } from "@/components/navigation/admin-content-area";
+import { DashboardShell } from "@/components/navigation/dashboard-shell";
 
 export default async function AdminLayout({
   children,
@@ -48,9 +45,9 @@ export default async function AdminLayout({
 
   if (tenant.status === "suspended") {
     return (
-      <div className="min-h-screen bg-[#080809] flex items-center justify-center p-4">
-        <div className="glass-panel max-w-md p-8 rounded-2xl text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-red-950/50 border border-red-800/50 text-red-400 mx-auto flex items-center justify-center font-bold text-lg">
+      <div className="min-h-screen bg-[#171717] flex items-center justify-center p-4">
+        <div className="glass-panel max-w-md p-8 rounded-lg text-center space-y-4">
+          <div className="w-12 h-12 rounded bg-red-950/50 border border-red-800/50 text-red-400 mx-auto flex items-center justify-center font-bold text-lg">
             !
           </div>
           <h1 className="text-xl font-bold text-white">Tenant Suspended</h1>
@@ -63,20 +60,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#06060a] text-zinc-100 flex">
-      {/* Left Sidebar */}
-      <AdminSidebar gymName={tenant.name} userEmail={session.email} />
-
-      {/* Main content area — padding adapts to sidebar pin state */}
-      <AdminContentArea>
-        {/* Sticky top bar */}
-        <AdminTopBar gymName={tenant.name} />
-
-        {/* Page content */}
-        <main className="flex-1 min-w-0 max-w-[1600px] w-full mx-auto p-4 sm:p-6 lg:p-8">
-          <AdminPageWrapper>{children}</AdminPageWrapper>
-        </main>
-      </AdminContentArea>
-    </div>
+    <DashboardShell gymName={tenant.name} userEmail={session.email}>
+      {children}
+    </DashboardShell>
   );
 }
