@@ -1,23 +1,36 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Reveal } from "@/components/Reveal";
 
-export default function LoginPage() {
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [email, setEmail] = useState("admin@ironpulse.local");
   const [password, setPassword] = useState("Admin12345!");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+
+  useEffect(() => {
+    const preset = searchParams.get("preset") || searchParams.get("role");
+    if (preset === "staff") {
+      setEmail("staff@ironpulse.local");
+      setPassword("Staff12345!");
+    } else if (preset === "admin") {
+      setEmail("admin@ironpulse.local");
+      setPassword("Admin12345!");
+    }
+  }, [searchParams]);
 
   const handlePresetSelect = (presetEmail: string, presetPass: string) => {
     setEmail(presetEmail);
@@ -67,7 +80,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#080809] text-zinc-100 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#08090a] text-zinc-100 relative overflow-hidden">
       {/* Atmospheric Gaussian Blur Glow Orbs */}
       <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-tr from-brand/20 via-emerald-500/15 to-transparent rounded-full blur-[110px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/3 translate-x-1/2 translate-y-1/2 w-80 h-80 bg-gradient-to-bl from-indigo-500/15 via-purple-500/10 to-transparent rounded-full blur-[100px] pointer-events-none" />
@@ -75,12 +88,12 @@ export default function LoginPage() {
       <Reveal className="w-full max-w-[420px] space-y-6 relative z-10">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-brand text-black flex items-center justify-center font-black text-base shadow-[0_0_16px_rgba(118,185,0,0.35)]">
+          <Link href="/" className="inline-flex items-center justify-center gap-2 group">
+            <div className="w-9 h-9 rounded-xl bg-primary text-[#08090a] flex items-center justify-center font-black text-base shadow-[0_0_16px_rgba(62,207,142,0.3)] group-hover:scale-105 transition-transform">
               G
             </div>
-            <span className="font-extrabold text-white text-xl tracking-widest">GRYM</span>
-          </div>
+            <span className="font-extrabold text-white text-xl tracking-tight">GYMERP</span>
+          </Link>
           <h1 className="text-xl font-bold text-white tracking-tight">Gym Operations Portal</h1>
           <p className="text-xs text-zinc-400">
             Sign in to manage memberships, members, and front-desk check-ins
@@ -109,17 +122,17 @@ export default function LoginPage() {
         </Link>
 
         {/* Portal Login Card */}
-        <Card className="glass-panel border-zinc-800/80 rounded-2xl shadow-2xl">
+        <Card className="glass-panel border-white/[0.08] bg-[#0c0d10] rounded-2xl shadow-2xl">
           <CardHeader className="space-y-3 pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold text-zinc-200">Account Access</CardTitle>
-              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px]">
+              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#08090a] border border-white/[0.08] text-[11px]">
                 <button
                   type="button"
                   onClick={() => handlePresetSelect("admin@ironpulse.local", "Admin12345!")}
                   className={`px-2 py-0.5 rounded font-medium transition-colors ${
                     email === "admin@ironpulse.local"
-                      ? "bg-zinc-800 text-brand font-semibold"
+                      ? "bg-white/[0.08] text-brand font-semibold"
                       : "text-zinc-400 hover:text-zinc-200"
                   }`}
                 >
@@ -130,7 +143,7 @@ export default function LoginPage() {
                   onClick={() => handlePresetSelect("staff@ironpulse.local", "Staff12345!")}
                   className={`px-2 py-0.5 rounded font-medium transition-colors ${
                     email === "staff@ironpulse.local"
-                      ? "bg-zinc-800 text-brand font-semibold"
+                      ? "bg-white/[0.08] text-brand font-semibold"
                       : "text-zinc-400 hover:text-zinc-200"
                   }`}
                 >
@@ -157,7 +170,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@ironpulse.local"
-                  className="bg-zinc-900/70 border-zinc-800 text-xs h-10 rounded-xl focus:border-brand"
+                  className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-brand"
                 />
               </div>
 
@@ -171,7 +184,7 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10 bg-zinc-900/70 border-zinc-800 text-xs h-10 rounded-xl focus:border-brand"
+                    className="pr-10 bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-brand"
                     placeholder="••••••••••••"
                   />
                   <button
@@ -214,5 +227,13 @@ export default function LoginPage() {
         </div>
       </Reveal>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#08090a]" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

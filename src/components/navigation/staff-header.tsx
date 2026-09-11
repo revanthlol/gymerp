@@ -24,17 +24,17 @@ export function StaffHeader({
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md glow-bar">
+    <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#08090a]/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Left Brand */}
         <div className="flex items-center gap-6">
           <Link href="/staff" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-full bg-brand text-black flex items-center justify-center font-black text-sm tracking-tighter shadow-[0_0_12px_rgba(118,185,0,0.3)] group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center font-black text-sm tracking-tighter shadow-[0_0_12px_rgba(62,207,142,0.25)] group-hover:scale-105 transition-transform">
               G
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-white text-base tracking-widest leading-none">
-                GRYM
+                GYMERP
               </span>
               <span className="text-[10px] text-zinc-400 font-mono leading-tight truncate max-w-[120px]">
                 {gymName}
@@ -55,13 +55,13 @@ export function StaffHeader({
                   className={`relative flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors ${
                     isActive
                       ? "text-brand font-semibold"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
                   }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? "text-brand" : "text-zinc-400"}`} />
                   <span>{item.label}</span>
                   {isActive && (
-                    <span className="absolute bottom-[-13px] left-3 right-3 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(118,185,0,0.6)]" />
+                    <span className="absolute bottom-[-13px] left-3 right-3 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(62,207,142,0.5)]" />
                   )}
                 </Link>
               );
@@ -71,13 +71,13 @@ export function StaffHeader({
 
         {/* Right Status & User Profile */}
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-mono text-zinc-400">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#0c0d10] border border-white/[0.06] text-xs font-mono text-zinc-400">
             <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
             <span>Kiosks Connected</span>
           </div>
 
-          <div className="flex items-center gap-2.5 pl-2 border-l border-zinc-800">
-            <div className="w-8 h-8 rounded-full bg-zinc-800 text-zinc-200 border border-zinc-700 flex items-center justify-center font-bold text-xs">
+          <div className="flex items-center gap-2.5 pl-2 border-l border-white/[0.06]">
+            <div className="w-8 h-8 rounded-full bg-[#0f1013] text-zinc-200 border border-white/[0.08] flex items-center justify-center font-bold text-xs">
               {displayName.charAt(0).toUpperCase()}
             </div>
             <div className="hidden lg:block text-left">

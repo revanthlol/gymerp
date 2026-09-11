@@ -50,7 +50,7 @@ export default function MemberLoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#080809] text-zinc-100 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#08090a] text-zinc-100 relative overflow-hidden">
       {/* Ambient Multi-Layer Gaussian Blur Glow */}
       <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-tr from-brand/20 via-emerald-500/15 to-transparent rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/3 translate-x-1/2 translate-y-1/2 w-80 h-80 bg-gradient-to-bl from-indigo-500/15 via-purple-500/10 to-transparent rounded-full blur-[100px] pointer-events-none" />
@@ -63,12 +63,12 @@ export default function MemberLoginPage() {
       >
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center gap-2">
-            <div className="w-10 h-10 rounded-2xl bg-brand text-carbon-950 flex items-center justify-center font-black text-lg shadow-[0_0_20px_rgba(118,185,0,0.35)]">
+          <Link href="/" className="inline-flex items-center justify-center gap-2 group">
+            <div className="w-10 h-10 rounded-xl bg-primary text-[#08090a] flex items-center justify-center font-black text-lg shadow-[0_0_16px_rgba(62,207,142,0.3)] group-hover:scale-105 transition-transform">
               G
             </div>
-            <span className="font-black text-white text-xl tracking-widest">GRYM</span>
-          </div>
+            <span className="font-bold text-white text-xl tracking-tight">GYMERP</span>
+          </Link>
           <h1 className="text-2xl font-extrabold text-white tracking-tight">Member Portal</h1>
           <p className="text-xs text-zinc-400">
             Access your digital gym pass, active subscription, and workout streaks.
@@ -76,8 +76,8 @@ export default function MemberLoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="glass-panel p-6 rounded-3xl border border-zinc-800/80 shadow-2xl space-y-5">
-          <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+        <div className="glass-panel p-6 rounded-3xl border border-white/[0.08] bg-[#0c0d10] shadow-2xl space-y-5">
+          <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-zinc-200">
               <QrCode className="w-4 h-4 text-brand" />
               <span>Digital Pass Verification</span>
@@ -107,7 +107,7 @@ export default function MemberLoginPage() {
                   placeholder="+1 (555) 234-5678 or email..."
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="pl-10 bg-zinc-900/90 border-zinc-800 rounded-xl text-sm text-white focus:border-brand/60 focus:ring-brand/30"
+                  className="pl-10 bg-[#08090a] border-white/[0.08] rounded-xl text-sm text-white focus:border-brand/60 focus:ring-brand/30"
                 />
               </div>
               <p className="text-[11px] text-zinc-500">
@@ -130,7 +130,7 @@ export default function MemberLoginPage() {
                     key={item.val}
                     type="button"
                     onClick={() => handlePreset(item.val)}
-                    className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-300 hover:text-brand hover:border-brand/40 transition-colors flex items-center gap-1"
+                    className="px-2.5 py-1 rounded-lg bg-[#08090a] border border-white/[0.08] text-[11px] font-medium text-zinc-300 hover:text-brand hover:border-brand/40 transition-colors flex items-center gap-1"
                   >
                     <span>{item.name}</span>
                     <span className="text-[9px] text-zinc-500 font-mono">({item.plan})</span>
@@ -142,7 +142,7 @@ export default function MemberLoginPage() {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full bg-brand hover:bg-brand/90 text-carbon-950 font-bold py-2.5 rounded-xl shadow-[0_0_18px_rgba(118,185,0,0.3)] transition-all flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-primary hover:bg-primary-deep text-[#08090a] font-bold py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 mt-2"
             >
               {isPending ? (
                 <span>Verifying Member...</span>

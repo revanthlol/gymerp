@@ -58,13 +58,13 @@ export default function PlatformLoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#080809] text-zinc-100">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#08090a] text-zinc-100">
       <Reveal className="w-full max-w-[420px] space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400">
+          <Link href="/" className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 group-hover:scale-105 transition-transform mx-auto">
             <Shield className="w-6 h-6" />
-          </div>
+          </Link>
           <h1 className="text-xl font-bold text-white tracking-tight">Platform Console</h1>
           <p className="text-xs text-zinc-400">
             Global administrative access and tenant fleet management
@@ -72,7 +72,7 @@ export default function PlatformLoginPage() {
         </div>
 
         {/* Login Card */}
-        <Card className="glass-panel border-zinc-800/80 rounded-2xl">
+        <Card className="glass-panel border-white/[0.08] bg-[#0c0d10] rounded-2xl">
           <CardHeader className="space-y-1 pb-3">
             <CardTitle className="text-sm font-semibold text-zinc-200">
               Superadmin Authentication
@@ -99,7 +99,7 @@ export default function PlatformLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="platform@gymerp.local"
-                  className="bg-zinc-900/70 border-zinc-800 text-xs h-10 rounded-xl focus:border-purple-500"
+                  className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-purple-500"
                 />
               </div>
 
@@ -111,7 +111,7 @@ export default function PlatformLoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10 bg-zinc-900/70 border-zinc-800 text-xs h-10 rounded-xl focus:border-purple-500"
+                    className="pr-10 bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-purple-500"
                     placeholder="••••••••••••"
                   />
                   <button

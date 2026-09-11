@@ -12,44 +12,44 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        // Supabase Design MD Palette
+        // Refined Supabase/Linear Dark Obsidian Palette
         primary: {
           DEFAULT: "#3ecf8e",
           deep: "#24b47e",
           soft: "#4ade80",
-          foreground: "#171717", // On-primary is near-black, not white
+          foreground: "#08090a",
         },
         brand: {
           DEFAULT: "#3ecf8e",
           hover: "#24b47e",
           soft: "#4ade80",
-          glow: "rgba(62, 207, 142, 0.25)",
+          glow: "rgba(62, 207, 142, 0.2)",
         },
         canvas: {
-          DEFAULT: "#171717",
-          soft: "#202020",
-          night: "#1c1c1c",
-          "night-soft": "#242424",
+          DEFAULT: "#08090a",
+          soft: "#0f1013",
+          night: "#121418",
+          "night-soft": "#181b20",
         },
         ink: {
-          DEFAULT: "#171717",
-          secondary: "#212121",
-          mute: "#707070",
-          "mute-2": "#9a9a9a",
-          faint: "#b2b2b2",
+          DEFAULT: "#f4f4f5",
+          secondary: "#a1a1aa",
+          mute: "#71717a",
+          "mute-2": "#52525b",
+          faint: "#3f3f46",
         },
         hairline: {
           DEFAULT: "rgba(255, 255, 255, 0.08)",
-          strong: "rgba(255, 255, 255, 0.15)",
+          strong: "rgba(255, 255, 255, 0.14)",
           cool: "rgba(255, 255, 255, 0.05)",
         },
         carbon: {
-          950: "#121212",
-          900: "#171717",
-          850: "#1c1c1c",
-          800: "#202020",
-          700: "#2a2a2a",
-          600: "#333333",
+          950: "#050506",
+          900: "#08090a",
+          850: "#0f1013",
+          800: "#14161b",
+          700: "#1b1e24",
+          600: "#272a32",
         },
       },
       borderRadius: {

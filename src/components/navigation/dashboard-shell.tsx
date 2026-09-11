@@ -16,8 +16,8 @@ import {
   QrCode,
   LogOut,
   Menu,
-  Pin,
-  PinOff,
+  PanelLeftClose,
+  PanelLeft,
   Bell,
   ChevronRight,
   Maximize2,
@@ -43,32 +43,28 @@ const navItems = [
 ];
 
 const PAGE_LABELS: Record<string, string> = {
-  "/admin":            "Dashboard",
-  "/admin/members":    "Members & Athletes",
-  "/admin/attendance": "Live Attendance",
-  "/admin/classes":    "Group Classes",
-  "/admin/plans":      "Membership Plans",
-  "/admin/payments":   "Financial Ledger",
-  "/admin/analytics":  "Performance Reports",
-  "/admin/kiosk":      "Check-In Terminal",
-  "/staff/kiosk":      "Check-In Terminal",
+  "/admin": "Dashboard",
+  "/admin/members": "Members & Athletes",
+  "/admin/attendance": "Turnstile & Check-ins",
+  "/admin/classes": "Classes & Group Scheduling",
+  "/admin/plans": "Membership Plans",
+  "/admin/payments": "Transactions & Invoices",
+  "/admin/analytics": "Facility Analytics",
+  "/admin/kiosk": "Self-Serve Entrance Kiosk",
 };
 
 export function DashboardShell({ gymName, userEmail, children }: DashboardShellProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
 
-  const [isPinned, setIsPinned] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const saved = localStorage.getItem("gymerp_sidebar_pinned");
-    return saved === null ? true : saved === "true";
-  });
+  // Sidebar expanded / collapsed
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isPinned, setIsPinned] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const pillTouchStartX = useRef<number>(0);
 
-  const pillTouchStartX = useRef(0);
-
+  // Auto-detect mobile screen
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024);
     check();
@@ -76,12 +72,20 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // Sync pinned preference from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("gymerp:sidebar_pinned");
+      if (stored !== null) setIsPinned(stored === "true");
+    } catch {}
+  }, []);
+
   const togglePin = () => {
-    setIsPinned((prev) => {
-      const next = !prev;
-      localStorage.setItem("gymerp_sidebar_pinned", String(next));
-      return next;
-    });
+    const next = !isPinned;
+    setIsPinned(next);
+    try {
+      localStorage.setItem("gymerp:sidebar_pinned", String(next));
+    } catch {}
   };
 
   // Close mobile sidebar on route change
@@ -89,11 +93,9 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
     setIsMobileOpen(false);
   }, [pathname]);
 
-  const displayName = userEmail.split("@")[0] || "admin";
+  const isExpanded = isPinned || isSidebarHovered;
+  const displayName = userEmail.split("@")[0] || "Admin";
   const initials = displayName.slice(0, 2).toUpperCase();
-
-  // Desktop width state
-  const isExpanded = isMobile ? true : (isPinned || isSidebarHovered);
 
   const currentPageLabel =
     PAGE_LABELS[pathname] ||
@@ -101,7 +103,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
     "Dashboard";
 
   return (
-    <div className="min-h-screen bg-[#171717] text-zinc-100 flex relative overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+    <div className="min-h-screen bg-[#08090a] text-zinc-100 flex relative overflow-x-hidden selection:bg-primary/20 selection:text-primary">
       {/* 1. Desktop Sidebar */}
       {!isMobile && (
         <aside
@@ -112,27 +114,22 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             if (!isPinned) setIsSidebarHovered(false);
           }}
           className={cn(
-            "fixed left-0 top-0 z-40 h-full shrink-0 border-r border-white/[0.08] bg-[#1c1c1c]/95 backdrop-blur-xl transition-[width] duration-250 ease-out flex flex-col justify-between select-none shadow-[4px_0_24px_rgba(0,0,0,0.35)]",
+            "fixed left-0 top-0 z-40 h-full shrink-0 border-r border-white/[0.07] bg-[#0a0b0e]/95 backdrop-blur-xl transition-[width] duration-250 ease-out flex flex-col justify-between select-none shadow-[4px_0_30px_rgba(0,0,0,0.5)]",
             isExpanded ? "w-64" : "w-16"
           )}
         >
           {/* Header */}
-          <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] px-3.5">
+          <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.07] px-3.5">
             <Link href="/admin" className="flex items-center gap-3 overflow-hidden group">
-              <div className="w-8 h-8 rounded-sm bg-primary text-[#171717] flex items-center justify-center font-bold text-sm tracking-tight shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+              <div className="w-8 h-8 rounded-lg bg-primary text-[#08090a] flex items-center justify-center font-bold text-sm tracking-tight shrink-0 shadow-[0_0_12px_rgba(62,207,142,0.3)]">
                 G
               </div>
               {isExpanded && (
                 <div className="flex flex-col overflow-hidden animate-in fade-in duration-150">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-semibold text-white text-sm tracking-tight leading-none">
-                      GYMERP
-                    </span>
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-medium bg-primary/10 text-primary border border-primary/20">
-                      Studio
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-zinc-400 font-mono truncate max-w-[130px] mt-0.5">
+                  <span className="font-bold text-white text-sm tracking-tight leading-none">
+                    GYMERP
+                  </span>
+                  <span className="text-[11px] text-zinc-400 font-medium truncate max-w-[130px] mt-1">
                     {gymName}
                   </span>
                 </div>
@@ -142,10 +139,14 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             {isExpanded && (
               <button
                 onClick={togglePin}
-                title={isPinned ? "Unpin sidebar (collapse to icons)" : "Pin sidebar"}
-                className="p-1 rounded-sm text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition-colors"
+                title={isPinned ? "Collapse sidebar" : "Pin sidebar"}
+                className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition-colors"
               >
-                {isPinned ? <Pin className="w-3.5 h-3.5 text-primary" /> : <PinOff className="w-3.5 h-3.5" />}
+                {isPinned ? (
+                  <PanelLeftClose className="w-4 h-4 text-zinc-400 hover:text-white" />
+                ) : (
+                  <PanelLeft className="w-4 h-4 text-primary" />
+                )}
               </button>
             )}
           </div>
@@ -164,8 +165,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                   href={item.href}
                   title={!isExpanded ? item.title : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-sm transition-all duration-150 relative text-xs font-medium",
-                    isExpanded ? "px-3 py-2 h-9" : "justify-center h-10 w-10 mx-auto",
+                    "flex items-center gap-3 rounded-sm transition-all duration-150 relative text-xs font-medium h-9",
+                    isExpanded ? "px-3 py-2" : "justify-center px-0",
                     isActive
                       ? "bg-white/[0.08] text-white font-semibold border border-white/[0.08]"
                       : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
@@ -177,8 +178,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
 
                   <item.icon
                     className={cn(
-                      "shrink-0 transition-colors",
-                      isExpanded ? "w-4 h-4" : "w-5 h-5",
+                      "shrink-0 transition-colors w-4 h-4",
                       isActive ? "text-primary" : "text-zinc-400"
                     )}
                   />
@@ -199,13 +199,13 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
           </div>
 
           {/* Footer */}
-          <div className="border-t border-white/[0.08] p-2 space-y-1 bg-[#1c1c1c]">
-            {isExpanded ? (
-              <div className="flex items-center justify-between px-2 py-1.5 rounded-sm bg-white/[0.03] border border-white/[0.05]">
-                <div className="flex items-center gap-2.5 overflow-hidden">
-                  <div className="w-7 h-7 rounded-sm bg-[#242424] border border-white/[0.1] text-zinc-200 flex items-center justify-center font-bold text-xs shrink-0 font-mono">
-                    {initials}
-                  </div>
+          <div className="border-t border-white/[0.07] p-2 bg-[#0a0b0e]">
+            <div className="flex items-center justify-between px-2 py-1.5 h-11 rounded-md bg-white/[0.02] border border-white/[0.05]">
+              <div className={cn("flex items-center min-w-0", isExpanded ? "gap-2.5" : "gap-0 justify-center flex-1")}>
+                <div className="w-7 h-7 rounded-md bg-[#16181d] border border-white/[0.08] text-zinc-200 flex items-center justify-center font-bold text-xs shrink-0 font-mono">
+                  {initials}
+                </div>
+                {isExpanded && (
                   <div className="flex flex-col overflow-hidden">
                     <span className="truncate text-xs font-medium text-zinc-200 leading-tight">
                       {displayName}
@@ -214,21 +214,24 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                       Administrator
                     </span>
                   </div>
-                </div>
+                )}
+              </div>
 
+              {isExpanded && (
                 <button
                   onClick={logout}
                   title="Sign out"
-                  className="p-1.5 rounded-sm text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
-              </div>
-            ) : (
+              )}
+            </div>
+            {!isExpanded && (
               <button
                 onClick={logout}
                 title="Sign out"
-                className="w-10 h-10 mx-auto flex items-center justify-center rounded-sm text-zinc-400 hover:text-red-400 hover:bg-white/[0.04] transition-colors"
+                className="w-full mt-1 h-9 rounded-md flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -242,21 +245,21 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
         <>
           {isMobileOpen && (
             <div
-              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+              className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
               onClick={() => setIsMobileOpen(false)}
             />
           )}
 
           <div
             className={cn(
-              "fixed left-0 top-0 z-50 h-full w-64 bg-[#1c1c1c] border-r border-white/[0.08] flex flex-col justify-between transition-transform duration-250 ease-out",
+              "fixed left-0 top-0 z-50 h-full w-64 bg-[#0a0b0e] border-r border-white/[0.08] flex flex-col justify-between transition-transform duration-250 ease-out",
               isMobileOpen ? "translate-x-0" : "-translate-x-full"
             )}
           >
             {/* Mobile Header */}
             <div className="flex h-14 items-center justify-between border-b border-white/[0.08] px-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-sm bg-primary text-[#171717] flex items-center justify-center font-bold text-xs">
+                <div className="w-7 h-7 rounded-md bg-primary text-[#08090a] flex items-center justify-center font-bold text-xs">
                   G
                 </div>
                 <span className="font-semibold text-sm text-white">GYMERP</span>
@@ -278,7 +281,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-sm text-xs font-medium transition-colors",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-medium transition-colors",
                       isActive
                         ? "bg-primary/10 text-primary border border-primary/20"
                         : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
@@ -332,12 +335,12 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
         )}
       >
         {/* Sticky Top Bar */}
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#171717]/90 backdrop-blur-xl px-4 lg:px-6">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-white/[0.07] bg-[#08090a]/90 backdrop-blur-xl px-4 lg:px-6">
           <div className="flex items-center gap-3">
             {isMobile && (
               <button
                 onClick={() => setIsMobileOpen(true)}
-                className="p-1.5 rounded-sm bg-white/[0.05] border border-white/[0.08] text-zinc-300"
+                className="p-1.5 rounded-md bg-white/[0.05] border border-white/[0.08] text-zinc-300"
               >
                 <Menu className="w-4 h-4" />
               </button>
@@ -353,7 +356,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
 
           {/* Right Header Utilities */}
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-xs text-zinc-500 font-mono font-medium">
+            <span className="hidden sm:inline text-xs text-zinc-500 font-medium">
               {gymName}
             </span>
 
@@ -361,7 +364,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
 
             <Link
               href="/admin/kiosk"
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-mono font-medium text-zinc-300 bg-white/[0.04] border border-white/[0.08] hover:border-primary/40 hover:text-primary transition-all"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-zinc-300 bg-white/[0.04] border border-white/[0.08] hover:border-primary/40 hover:text-primary transition-all"
             >
               <QrCode className="w-3.5 h-3.5 text-primary" />
               <span>Kiosk</span>
@@ -369,10 +372,10 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
 
             <button
               title="Notifications"
-              className="relative p-1.5 rounded-sm text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.06] transition-colors"
+              className="relative p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.06] transition-colors"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-primary ring-1 ring-[#171717]" />
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-primary ring-1 ring-[#08090a]" />
             </button>
           </div>
         </header>

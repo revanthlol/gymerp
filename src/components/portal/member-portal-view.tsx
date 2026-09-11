@@ -121,17 +121,17 @@ export function MemberPortalView({ data }: MemberPortalProps) {
   const isMemberActive = member.status === "active";
 
   return (
-    <div className="min-h-screen bg-[#080809] text-zinc-100 pb-16">
+    <div className="min-h-screen bg-[#08090a] text-zinc-100 pb-16">
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md glow-bar">
+      <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#08090a]/90 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center font-black text-sm shadow-[0_0_14px_rgba(118,185,0,0.3)]">
+            <div className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center font-black text-sm shadow-[0_0_14px_rgba(62,207,142,0.25)]">
               G
             </div>
             <div>
               <span className="font-extrabold text-white text-base tracking-wider leading-none">
-                GRYM
+                GYMERP
               </span>
               <span className="text-[10px] text-zinc-400 font-mono block leading-tight truncate">
                 {gym.name}
@@ -196,10 +196,10 @@ export function MemberPortalView({ data }: MemberPortalProps) {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="glass-panel p-6 rounded-3xl border border-brand/30 bg-gradient-to-b from-zinc-900/90 via-zinc-950/90 to-zinc-950/90 shadow-2xl relative overflow-hidden flex flex-col items-center text-center space-y-5"
+              className="glass-panel p-6 rounded-3xl border border-white/[0.08] bg-gradient-to-b from-[#0f1013] via-[#0c0d10] to-[#08090a] shadow-2xl relative overflow-hidden flex flex-col items-center text-center space-y-5"
             >
               {/* Card Ambient Glow */}
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-brand/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
               {/* Pass Header */}
               <div className="w-full flex items-center justify-between border-b border-zinc-800/80 pb-3">

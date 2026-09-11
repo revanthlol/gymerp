@@ -54,19 +54,19 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md glow-bar">
+      <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#08090a]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Left Brand */}
           <div className="flex items-center gap-6">
             <Link href="/admin" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center font-black text-sm tracking-tighter shadow-[0_0_16px_rgba(118,185,0,0.3)] group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-lg bg-primary text-[#08090a] flex items-center justify-center font-bold text-sm tracking-tight shadow-[0_0_12px_rgba(62,207,142,0.3)] group-hover:scale-105 transition-transform">
                 G
               </div>
               <div className="flex flex-col">
-                <span className="font-extrabold text-white text-base tracking-widest leading-none">
-                  GRYM
+                <span className="font-bold text-white text-base tracking-tight leading-none">
+                  GYMERP
                 </span>
-                <span className="text-[10px] text-zinc-400 font-mono leading-tight truncate max-w-[120px]">
+                <span className="text-[11px] text-zinc-400 font-medium leading-tight truncate max-w-[120px] mt-1">
                   {gymName}
                 </span>
               </div>
@@ -87,14 +87,14 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
                     href={item.href}
                     className={`relative flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors ${
                       isActive
-                        ? "text-brand font-semibold"
-                        : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60"
+                        ? "text-primary font-semibold"
+                        : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? "text-brand" : "text-zinc-400"}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-zinc-400"}`} />
                     <span>{item.label}</span>
                     {isActive && (
-                      <span className="absolute bottom-[-13px] left-3 right-3 h-[2px] bg-brand rounded-full shadow-[0_0_8px_rgba(118,185,0,0.8)]" />
+                      <span className="absolute bottom-[-13px] left-3 right-3 h-[2px] bg-primary rounded-full shadow-[0_0_8px_rgba(62,207,142,0.8)]" />
                     )}
                   </Link>
                 );
@@ -153,8 +153,8 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-brand" />
-              <span>GRYM Platform Support</span>
+              <HelpCircle className="w-5 h-5 text-primary" />
+              <span>GYMERP Platform Support</span>
             </DialogTitle>
             <DialogDescription>
               Direct assistance for gym owners, kiosk operations, and billing.

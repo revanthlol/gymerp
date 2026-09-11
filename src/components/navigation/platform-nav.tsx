@@ -9,7 +9,7 @@ export function PlatformNav({ userEmail }: { userEmail: string }) {
   const { logout } = useAuth();
 
   return (
-    <header className="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40 glow-bar">
+    <header className="border-b border-white/[0.06] bg-[#08090a]/90 backdrop-blur-md sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
@@ -28,7 +28,7 @@ export function PlatformNav({ userEmail }: { userEmail: string }) {
         </div>
 
         {/* Global Network Status Pill */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-[#0c0d10] border border-white/[0.06] text-xs font-mono text-zinc-400">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>Core Network: Operational</span>
         </div>
