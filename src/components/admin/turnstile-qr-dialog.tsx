@@ -93,27 +93,27 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
         )}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md bg-[#1c1c1c] border-white/[0.08] text-zinc-100 rounded-lg">
+      <DialogContent className="sm:max-w-md bg-[#0c0d10] border-white/[0.08] text-zinc-100 rounded-xl">
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
             <QrCode className="w-4 h-4 text-primary" />
-            <span>Kiosk Entrance QR Generator</span>
+            <span>Entrance QR Pass Generator</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
-            Secure auto-refreshing QR pass for gym entrance scanning.
+            Secure auto-refreshing pass for gym turnstile and kiosk camera scanning.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center py-4 space-y-4">
           {loading || !qrData ? (
-            <div className="w-64 h-64 rounded-md bg-[#171717] border border-white/[0.08] flex items-center justify-center text-xs text-zinc-500">
+            <div className="w-64 h-64 rounded-xl bg-[#08090a] border border-white/[0.08] flex items-center justify-center text-xs text-zinc-500">
               <RefreshCw className="w-5 h-5 animate-spin text-zinc-400" />
             </div>
           ) : (
-            <div className="p-3 bg-white rounded-md shadow-xl">
+            <div className="p-4 bg-white rounded-xl shadow-2xl border border-white/20">
               <img
                 src={qrData.qrDataUrl}
-                alt="Auto-Refreshing Check-In QR"
+                alt="Entrance QR Code"
                 className="w-60 h-60 object-contain"
               />
             </div>
@@ -121,7 +121,7 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
 
           {/* Countdown & Refresh */}
           <div className="w-full space-y-2">
-            <div className="flex items-center justify-between px-3.5 py-2 rounded-sm bg-[#171717] border border-white/[0.08] text-xs font-mono">
+            <div className="flex items-center justify-between px-3.5 py-2 rounded-lg bg-[#08090a] border border-white/[0.07] text-xs font-mono">
               <div className="flex items-center gap-2 text-zinc-400">
                 <Clock className="w-3.5 h-3.5 text-primary" />
                 <span>Next Rotation:</span>
@@ -129,23 +129,23 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
               <span className="text-primary font-bold text-xs">{formatTimer(remainingSecs)}</span>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-zinc-400 px-1 pt-1">
-              <div className="flex items-center gap-1.5 text-emerald-400">
+            <div className="flex items-center justify-between text-xs text-zinc-400 px-1 pt-1">
+              <div className="flex items-center gap-1.5 text-primary">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>2-Hour Anti-Proxy Active</span>
+                <span>Dynamic pass protection active</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopy}
-                  className="hover:text-white flex items-center gap-1 transition-colors"
+                  className="hover:text-white flex items-center gap-1 transition-colors text-xs"
                 >
-                  {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                  <span>{copied ? "Copied" : "Copy Token"}</span>
+                  {copied ? <Check className="w-3 h-3 text-primary" /> : <Copy className="w-3 h-3" />}
+                  <span>{copied ? "Copied" : "Copy"}</span>
                 </button>
                 <button
                   onClick={fetchQr}
                   disabled={loading}
-                  className="hover:text-white flex items-center gap-1 transition-colors"
+                  className="hover:text-white flex items-center gap-1 transition-colors text-xs"
                 >
                   <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
                   <span>Refresh</span>

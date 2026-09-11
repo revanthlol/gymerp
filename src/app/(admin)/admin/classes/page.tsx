@@ -2,6 +2,7 @@ import React from "react";
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { ClassesView } from "@/components/admin/classes-view";
+import { getClassesAction } from "@/lib/api/classes";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,11 +10,27 @@ export const metadata: Metadata = {
   description: "Schedule group classes, track athlete registrations, and assign instructors",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminClassesPage() {
   const session = await getSession();
   if (!session || !session.tenantId || session.role !== "admin") {
     redirect("/login");
   }
 
-  return <ClassesView />;
+  const rawClasses = await getClassesAction();
+  const classes = rawClasses.map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    trainer: c.trainer,
+    time: c.time,
+    durationMinutes: c.durationMinutes,
+    dayOfWeek: c.dayOfWeek,
+    location: c.location,
+    capacity: c.capacity,
+    bookedCount: c.bookedCount,
+    category: (c.category as "Strength" | "Cardio" | "Combat" | "Mind & Body") || "Strength",
+  }));
+
+  return <ClassesView initialClasses={classes} />;
 }

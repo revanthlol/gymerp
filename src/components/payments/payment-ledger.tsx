@@ -574,7 +574,7 @@ export function PaymentLedger({
                       onClick={() => setMethodSubtype(item.id as any)}
                       className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all ${
                         isSelected
-                          ? "bg-brand/10 border-brand/60 text-brand shadow-[0_0_12px_rgba(118,185,0,0.2)]"
+                          ? "bg-primary/10 border-primary/40 text-primary"
                           : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60"
                       }`}
                     >
@@ -615,7 +615,7 @@ export function PaymentLedger({
               <Button
                 type="submit"
                 disabled={isPending}
-                className="bg-brand hover:bg-brand/90 text-carbon-950 font-bold px-5 rounded-xl shadow-[0_0_16px_rgba(118,185,0,0.3)] flex items-center gap-2"
+                className="bg-primary hover:bg-primary-deep text-[#08090a] font-bold px-5 rounded-xl shadow-sm flex items-center gap-2"
               >
                 {isPending ? (
                   <>

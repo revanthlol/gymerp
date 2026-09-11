@@ -365,75 +365,65 @@ export function KioskTerminal({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: Dynamic Single-Use QR Terminal (Takes 7 cols) */}
-        <div className="lg:col-span-7 glass-panel p-8 rounded-lg text-center space-y-6 flex flex-col items-center justify-between border-white/[0.08] relative overflow-hidden">
+        {/* Left: Dynamic Member Check-In Pass Terminal (Takes 7 cols) */}
+        <div className="lg:col-span-7 glass-panel p-8 rounded-xl text-center space-y-6 flex flex-col items-center justify-between border-white/[0.08] relative overflow-hidden bg-[#0c0d10]/95">
           <div className="space-y-1 text-center">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-mono mb-1">
-              <Sparkles className="w-3 h-3" />
-              <span>Per-Scan Dynamic Nonce</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-1.5">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Live Entrance Pass</span>
             </div>
-            <h2 className="text-xl font-bold text-white tracking-tight supa-heading-lg">Member Check-In Pass</h2>
+            <h2 className="text-2xl font-bold text-white tracking-tight">Member Check-In</h2>
             <p className="text-xs text-zinc-400">
-              Unique single-use code — auto-refreshes immediately after each scan
+              Hold your pass up to the scanner or scan from your phone
             </p>
           </div>
 
-          {/* Ambient Gaussian Blur Glow Behind QR Terminal */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-tr from-primary/15 via-primary-deep/10 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
-
-          {/* High-Resolution QR Display with Framer Motion Transitions & Scanner Beam */}
-          <div className="relative p-5 rounded-lg bg-[#141414] border border-white/[0.09] shadow-2xl flex items-center justify-center overflow-hidden glass-glow-brand">
-            {/* Green Laser Scan Sweep Line */}
-            <motion.div
-              className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_12px_#3ecf8e] pointer-events-none z-20"
-              animate={{ top: ["5%", "95%", "5%"] }}
-              transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-            />
-
+          {/* High-Resolution Clean QR Display */}
+          <div className="relative p-6 rounded-2xl bg-[#08090a] border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex items-center justify-center overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={qrData.tokenString}
-                initial={{ scale: 0.85, opacity: 0, rotateY: 90 }}
-                animate={{ scale: 1, opacity: 1, rotateY: 0 }}
-                exit={{ scale: 0.85, opacity: 0, rotateY: -90 }}
-                transition={{ type: "spring", stiffness: 320, damping: 24 }}
-                className="p-3 bg-white rounded-md shadow-2xl flex items-center justify-center"
+                initial={{ scale: 0.94, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.94, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="p-4 bg-white rounded-xl shadow-2xl flex items-center justify-center"
               >
                 <img
                   src={qrData.qrDataUrl}
-                  alt="Single-Use Dynamic Check-In QR"
+                  alt="Dynamic Entrance QR Code"
                   className="w-60 h-60 sm:w-68 sm:h-68 object-contain select-none"
                 />
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Rotation Timer & Single-Use Security Notice */}
+          {/* Rotation Timer & Status Notice */}
           <div className="w-full space-y-3 pt-2">
-            <div className="flex items-center justify-between px-4 py-2.5 rounded-md bg-[#171717] border border-white/[0.08] text-xs font-mono">
+            <div className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-[#090a0c] border border-white/[0.08] text-xs font-mono">
               <div className="flex items-center gap-2 text-zinc-400">
                 <Clock className="w-4 h-4 text-primary" />
-                <span>Auto-Refresh In:</span>
+                <span>Auto-refreshes in:</span>
               </div>
               <span className="text-primary font-bold text-sm tracking-wider font-mono">
                 {formatTimer(remainingSecs)}
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-zinc-500 px-1">
+            <div className="flex items-center justify-between text-xs text-zinc-500 px-1">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Single-Use OTP Token (Rotates Per Scan)</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                <span>Anti-proxy dynamic token</span>
               </div>
               <button
                 type="button"
                 onClick={() => handleRefreshQr(false)}
                 disabled={refreshing}
-                className="hover:text-zinc-300 flex items-center gap-1 transition-colors"
-                title="Generate new unique QR code"
+                className="hover:text-zinc-200 text-zinc-400 flex items-center gap-1.5 transition-colors text-xs font-medium"
+                title="Generate fresh QR code"
               >
-                <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
-                <span>New Pass</span>
+                <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                <span>Refresh Code</span>
               </button>
             </div>
           </div>

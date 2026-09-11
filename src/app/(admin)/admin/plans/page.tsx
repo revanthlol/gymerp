@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
 import { membershipPlans, memberships } from "@/lib/db/schema";
 import { Reveal } from "@/components/Reveal";
-import { Badge } from "@/components/ui/badge";
+import { AddPlanDialog } from "@/components/admin/add-plan-dialog";
 
 export const dynamic = "force-dynamic";
 
@@ -30,17 +30,19 @@ export default async function AdminPlansPage() {
   );
 
   return (
-    <Reveal className="space-y-8">
+    <Reveal className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Scheduling & Plans</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Membership Plans</h1>
           <p className="text-sm text-zinc-400 mt-1">
-            Configure tiered membership passes, duration schedules, and billing cycles.
+            Configure tiered membership passes, duration schedules, and billing rates.
           </p>
         </div>
+
+        <AddPlanDialog />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {data.plans.map((p) => {
           const subscriberCount = data.memberships.filter(
             (m) => m.planId === p.id && m.status === "active"
@@ -49,20 +51,20 @@ export default async function AdminPlansPage() {
           return (
             <div
               key={p.id}
-              className="rounded-lg border border-white/[0.08] bg-[#1c1c1c]/90 p-6 space-y-4 relative overflow-hidden shadow-sm hover:border-primary/40 transition-colors"
+              className="rounded-xl border border-white/[0.07] bg-[#0c0d10] p-6 space-y-4 relative overflow-hidden shadow-sm hover:border-primary/40 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-white text-base tracking-tight">{p.name}</h3>
-                <span className="text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                <span className="text-xs font-mono text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
                   {p.durationDays} Days
                 </span>
               </div>
 
               <p className="text-xs text-zinc-400 min-h-[36px]">
-                {p.description || "Standard gym pass with QR check-in access."}
+                {p.description || "Full gym facility access with dynamic QR check-in pass."}
               </p>
 
-              <div className="pt-4 border-t border-white/[0.08] flex items-baseline justify-between">
+              <div className="pt-4 border-t border-white/[0.07] flex items-baseline justify-between">
                 <div>
                   <span className="text-2xl font-bold text-white font-mono">
                     ₹{parseFloat(p.price).toFixed(2)}
