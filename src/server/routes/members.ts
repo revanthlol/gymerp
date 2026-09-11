@@ -104,4 +104,79 @@ export const memberRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.send({ activities });
     }
   );
+
+  // 4. Update member coach note
+  fastify.patch<{ Params: { id: string }; Body: { notes: string } }>(
+    "/:id/notes",
+    { preHandler: [requireRole("admin", "staff")] },
+    async (request, reply) => {
+      const session = request.sessionUser!;
+      const { id } = request.params;
+      const { notes } = request.body || { notes: "" };
+
+      const updated = await withTenantDb(session, async (tx) => {
+        const [res] = await tx
+          .update(members)
+          .set({ notes: notes.trim(), updatedAt: new Date() })
+          .where(and(eq(members.id, id), eq(members.tenantId, session.tenantId!)))
+          .returning();
+        return res;
+      });
+
+      if (!updated) {
+        return reply.status(404).send({ error: "Member not found" });
+      }
+
+      return reply.send({ success: true, member: updated });
+    }
+  );
+
+  // 5. Update member status (active / frozen / expired)
+  fastify.patch<{ Params: { id: string }; Body: { status: "active" | "expired" | "frozen" } }>(
+    "/:id/status",
+    { preHandler: [requireRole("admin", "staff")] },
+    async (request, reply) => {
+      const session = request.sessionUser!;
+      const { id } = request.params;
+      const { status } = request.body;
+
+      if (!["active", "expired", "frozen"].includes(status)) {
+        return reply.status(400).send({ error: "Invalid status" });
+      }
+
+      const updated = await withTenantDb(session, async (tx) => {
+        const [res] = await tx
+          .update(members)
+          .set({ status, updatedAt: new Date() })
+          .where(and(eq(members.id, id), eq(members.tenantId, session.tenantId!)))
+          .returning();
+        return res;
+      });
+
+      if (!updated) {
+        return reply.status(404).send({ error: "Member not found" });
+      }
+
+      return reply.send({ success: true, member: updated });
+    }
+  );
+
+  // 6. Delete member
+  fastify.delete<{ Params: { id: string } }>(
+    "/:id",
+    { preHandler: [requireRole("admin")] },
+    async (request, reply) => {
+      const session = request.sessionUser!;
+      const { id } = request.params;
+
+      await withTenantDb(session, async (tx) => {
+        await tx
+          .delete(members)
+          .where(and(eq(members.id, id), eq(members.tenantId, session.tenantId!)));
+      });
+
+      return reply.send({ success: true, message: "Member account deleted" });
+    }
+  );
 };
+

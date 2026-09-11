@@ -92,6 +92,7 @@ export const members = pgTable(
     emergencyContact: text("emergency_contact"),
     avatarUrl: text("avatar_url"),
     status: memberStatusEnum("status").default("active").notNull(),
+    notes: text("notes"),
     qrToken: uuid("qr_token").defaultRandom().notNull().unique(),
     joinDate: date("join_date").defaultNow().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -239,3 +240,35 @@ export const attendanceRelations = relations(attendance, ({ one }) => ({
     references: [members.id],
   }),
 }));
+
+// 8. Classes (Group Fitness Sessions)
+export const gymClasses = pgTable(
+  "gym_classes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
+    name: text("name").notNull(),
+    trainer: text("trainer").notNull(),
+    time: text("time").notNull(),
+    durationMinutes: integer("duration_minutes").default(60).notNull(),
+    dayOfWeek: text("day_of_week").default("Daily").notNull(),
+    location: text("location").default("Main Studio").notNull(),
+    capacity: integer("capacity").default(20).notNull(),
+    bookedCount: integer("booked_count").default(0).notNull(),
+    category: text("category").default("Strength").notNull(),
+    isActive: text("is_active").default("true").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("gym_classes_tenant_idx").on(table.tenantId),
+  ]
+);
+
+export const gymClassesRelations = relations(gymClasses, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [gymClasses.tenantId],
+    references: [tenants.id],
+  }),
+}));
+

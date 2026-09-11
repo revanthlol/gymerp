@@ -32,11 +32,11 @@ export async function generateGymRotatingQr(tenantId: string): Promise<UniqueQrD
 
   // High-contrast clean QR for instant camera & scanner detection
   const qrDataUrl = await QRCode.toDataURL(tokenString, {
-    width: 380,
-    margin: 1.5,
+    width: 400,
+    margin: 2,
     color: {
-      dark: "#080809",
-      light: "#76b900",
+      dark: "#090a0c",
+      light: "#ffffff",
     },
     errorCorrectionLevel: "M",
   });

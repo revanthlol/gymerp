@@ -27,6 +27,23 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    const apiServerUrl = process.env.API_SERVER_URL || "http://localhost:4000";
+    return [
+      {
+        source: "/api/node/:path*",
+        destination: `${apiServerUrl}/api/:path*`,
+      },
+      {
+        source: "/api/v1/:path*",
+        destination: `${apiServerUrl}/api/:path*`,
+      },
+      {
+        source: "/node-health",
+        destination: `${apiServerUrl}/health`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

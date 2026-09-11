@@ -4,7 +4,7 @@ import { withTenantDb } from "@/lib/db/tenant";
 import { members, memberships, membershipPlans, attendance } from "@/lib/db/schema";
 import { createMemberSchema, CreateMemberInput } from "@/lib/validations/member";
 import { getSession } from "@/lib/auth/session";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function createMemberAction(rawInput: CreateMemberInput) {
@@ -86,3 +86,61 @@ export async function getMemberActivitiesAction(memberId: string) {
     return activities;
   });
 }
+
+export async function updateMemberNotesAction(memberId: string, notes: string) {
+  const session = await getSession();
+  if (!session || !session.tenantId || (session.role !== "admin" && session.role !== "staff")) {
+    throw new Error("Unauthorized");
+  }
+
+  return await withTenantDb(session, async (tx) => {
+    const [updated] = await tx
+      .update(members)
+      .set({ notes: notes.trim(), updatedAt: new Date() })
+      .where(and(eq(members.id, memberId), eq(members.tenantId, session.tenantId!)))
+      .returning();
+
+    revalidatePath("/admin/members");
+    return { success: true, member: updated };
+  });
+}
+
+export async function updateMemberStatusAction(
+  memberId: string,
+  status: "active" | "expired" | "frozen"
+) {
+  const session = await getSession();
+  if (!session || !session.tenantId || (session.role !== "admin" && session.role !== "staff")) {
+    throw new Error("Unauthorized");
+  }
+
+  return await withTenantDb(session, async (tx) => {
+    const [updated] = await tx
+      .update(members)
+      .set({ status, updatedAt: new Date() })
+      .where(and(eq(members.id, memberId), eq(members.tenantId, session.tenantId!)))
+      .returning();
+
+    revalidatePath("/admin/members");
+    revalidatePath("/admin");
+    return { success: true, member: updated };
+  });
+}
+
+export async function deleteMemberAction(memberId: string) {
+  const session = await getSession();
+  if (!session || !session.tenantId || session.role !== "admin") {
+    throw new Error("Unauthorized: Only gym admin can remove athlete accounts");
+  }
+
+  return await withTenantDb(session, async (tx) => {
+    await tx
+      .delete(members)
+      .where(and(eq(members.id, memberId), eq(members.tenantId, session.tenantId!)));
+
+    revalidatePath("/admin/members");
+    revalidatePath("/admin");
+    return { success: true };
+  });
+}
+
