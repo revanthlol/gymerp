@@ -31,7 +31,7 @@ interface DashboardShellProps {
   children: React.ReactNode;
 }
 
-const navItems = [
+const adminNavItems = [
   { title: "Dashboard",   href: "/admin",            icon: LayoutDashboard },
   { title: "Members",     href: "/admin/members",     icon: Users },
   { title: "Attendance",  href: "/admin/attendance",  icon: Inbox },
@@ -40,6 +40,14 @@ const navItems = [
   { title: "Payments",    href: "/admin/payments",    icon: CreditCard },
   { title: "Analytics",   href: "/admin/analytics",   icon: BarChart3 },
   { title: "Check-in Kiosk", href: "/admin/kiosk",    icon: QrCode, badge: "Live" },
+];
+
+const staffNavItems = [
+  { title: "Front Desk",       href: "/staff",            icon: LayoutDashboard },
+  { title: "Member Directory", href: "/staff/members",    icon: Users },
+  { title: "Floor & Turnstile", href: "/staff/attendance", icon: Inbox },
+  { title: "Class Rosters",    href: "/staff/classes",    icon: Dumbbell },
+  { title: "Physical Kiosk",   href: "/staff/kiosk",      icon: QrCode, badge: "Live" },
 ];
 
 const PAGE_LABELS: Record<string, string> = {
@@ -51,11 +59,25 @@ const PAGE_LABELS: Record<string, string> = {
   "/admin/payments": "Transactions & Invoices",
   "/admin/analytics": "Facility Analytics",
   "/admin/kiosk": "Self-Serve Entrance Kiosk",
+  "/admin/onboarding": "Facility Onboarding Setup",
+  "/staff": "Front Desk Operations",
+  "/staff/members": "Member Directory & Check-In",
+  "/staff/attendance": "Live Turnstile & Floor Roster",
+  "/staff/classes": "Class Rosters & Sessions",
+  "/staff/kiosk": "Self-Serve Kiosk Terminal",
 };
 
 export function DashboardShell({ gymName, userEmail, children }: DashboardShellProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
+
+  // Full-screen Onboarding Wizard bypass
+  if (pathname === "/admin/onboarding") {
+    return <>{children}</>;
+  }
+
+  const isStaff = pathname.startsWith("/staff");
+  const navItems = isStaff ? staffNavItems : adminNavItems;
 
   // Sidebar expanded / collapsed
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
@@ -120,7 +142,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
         >
           {/* Header */}
           <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.07] px-3.5">
-            <Link href="/admin" className="flex items-center gap-3 overflow-hidden group">
+            <Link href={isStaff ? "/staff" : "/admin"} className="flex items-center gap-3 overflow-hidden group">
               <div className="w-8 h-8 rounded-lg bg-primary text-[#08090a] flex items-center justify-center font-bold text-sm tracking-tight shrink-0 shadow-[0_0_12px_rgba(62,207,142,0.3)]">
                 G
               </div>

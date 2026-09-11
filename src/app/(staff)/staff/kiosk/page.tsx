@@ -8,14 +8,20 @@ import { KioskTerminal } from "@/components/kiosk/kiosk-terminal";
 
 export const dynamic = "force-dynamic";
 
-export default async function KioskPage() {
+interface StaffKioskPageProps {
+  searchParams: { mode?: "entry" | "exit" | "auto" };
+}
+
+export default async function KioskPage({ searchParams }: StaffKioskPageProps) {
   const session = await getSession();
   if (!session || !session.tenantId) {
     redirect("/login");
   }
 
-  // 1. Generate live dynamic 2-hour rotating QR code
-  const initialQr = await generateGymRotatingQr(session.tenantId);
+  const mode = searchParams.mode || "entry";
+
+  // 1. Generate live dynamic rotating QR code with mode
+  const initialQr = await generateGymRotatingQr(session.tenantId, mode);
 
   // 2. Fetch live tenant members & recent turnstile check-ins
   const data = await withTenantDb(session, async (tx) => {
@@ -39,6 +45,7 @@ export default async function KioskPage() {
       initialQr={initialQr}
       members={data.members}
       recentAttendance={data.attendance}
+      defaultMode={mode}
     />
   );
 }

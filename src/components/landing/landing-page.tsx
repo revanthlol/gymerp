@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Smartphone,
   QrCode,
@@ -10,22 +10,24 @@ import {
   ShieldCheck,
   ArrowRight,
   CheckCircle2,
-  Check,
+  AlertCircle,
   Dumbbell,
   CreditCard,
   Server,
   Lock,
   ChevronRight,
-  ChevronDown,
+  Clock,
+  Sparkles,
+  Zap,
+  LogIn,
+  LogOut,
+  RefreshCw,
+  Phone,
+  ShieldAlert,
+  Database,
+  Terminal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { SessionUser } from "@/types/auth";
 
 interface LandingPageProps {
@@ -33,148 +35,174 @@ interface LandingPageProps {
 }
 
 export function LandingPage({ session }: LandingPageProps) {
-  const [activeStory, setActiveStory] = useState(0);
-  const [isPortalModalOpen, setIsPortalModalOpen] = useState(false);
-  const [simulatedGateState, setSimulatedGateState] = useState<"idle" | "scanning" | "unlocked">("idle");
-  const [demoClassBooked, setDemoClassBooked] = useState(false);
+  // Simulator states for interactive turnstile preview
+  const [simMode, setSimMode] = useState<"entry" | "exit" | "auto">("entry");
+  const [simState, setSimState] = useState<"idle" | "scanning" | "granted" | "expired">("idle");
+  const [simToken, setSimToken] = useState("tk_9a8f7c");
+  const [simCountdown, setSimCountdown] = useState(20);
+  const [activeStoryChapter, setActiveStoryChapter] = useState(0);
 
-  const handleSimulateScan = () => {
-    if (simulatedGateState !== "idle") return;
-    setSimulatedGateState("scanning");
+  // Simulate anti-proxy countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSimCountdown((prev) => {
+        if (prev <= 1) {
+          setSimToken("tk_" + Math.random().toString(36).substring(2, 8));
+          return 20;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleTriggerSimScan = (status: "granted" | "expired") => {
+    if (simState !== "idle") return;
+    setSimState("scanning");
     setTimeout(() => {
-      setSimulatedGateState("unlocked");
+      setSimState(status);
       setTimeout(() => {
-        setSimulatedGateState("idle");
-      }, 2500);
-    }, 600);
+        // Rotate token immediately upon scan (burned nonce)
+        setSimToken("tk_" + Math.random().toString(36).substring(2, 8));
+        setSimCountdown(20);
+        setSimState("idle");
+      }, 3500);
+    }, 650);
   };
 
-  const portalOptions = [
+  const loginGateways = [
     {
       id: "member",
       title: "Athlete & Member Portal",
-      role: "Gym Members",
-      description: "Digital entrance QR pass, real-time group class bookings, workout streak tracker, and active subscription.",
+      audience: "Gym Members & Athletes",
+      description:
+        "Instant smartphone entry pass, real-time class reservations, training streak metrics, and digital payment receipts.",
       icon: Smartphone,
-      accent: "from-emerald-500/20 via-emerald-500/5 to-transparent",
-      badge: "Athletes",
+      accent: "from-primary/20 via-primary/5 to-transparent",
+      badge: "Primary Portal",
+      badgeColor: "bg-primary/10 text-primary border-primary/20",
       href: "/portal/login",
-      demoInfo: "Preset: +1 (555) 234-5678 (Marcus Vance)",
-      actionLabel: "Open Member Pass",
+      actionLabel: "Access Member Pass",
+      featured: true,
     },
     {
       id: "staff",
-      title: "Front Desk & Kiosk Access",
-      role: "Desk Staff & Coaches",
-      description: "Sub-50ms optical turnstile camera scanner, live attendance stream, walk-in admissions, and manual overrides.",
+      title: "Front Desk & Staff Terminal",
+      audience: "Desk Staff & Fitness Coaches",
+      description:
+        "Sub-50ms turnstile overrides, live active gym floor roster, walk-in athlete registrations, and kiosk screen management.",
       icon: QrCode,
       accent: "from-cyan-500/20 via-cyan-500/5 to-transparent",
-      badge: "Front Desk",
-      href: "/login?preset=staff",
-      demoInfo: "staff@ironpulse.local • Staff12345!",
-      actionLabel: "Launch Kiosk Desk",
+      badge: "Staff Terminal",
+      badgeColor: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+      href: "/login",
+      actionLabel: "Staff Desk Sign In",
+      featured: false,
     },
     {
       id: "admin",
-      title: "Gym Owner & Admin ERP",
-      role: "Owners & General Managers",
-      description: "Complete operational control: athlete CRM, coach notes, automated revenue ledger, and class schedule management.",
+      title: "Gym Owner & Site Manager",
+      audience: "Facility Owners & Managers",
+      description:
+        "Complete business intelligence: subscription plan configuration, member CRM, automated billing reconciliation, and capacity scheduling.",
       icon: LayoutDashboard,
       accent: "from-emerald-500/20 via-teal-500/5 to-transparent",
-      badge: "Management",
-      href: "/login?preset=admin",
-      demoInfo: "admin@ironpulse.local • Admin12345!",
-      actionLabel: "Enter Admin Console",
+      badge: "Facility ERP",
+      badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+      href: "/login",
+      actionLabel: "Manager Sign In",
+      featured: false,
     },
     {
       id: "platform",
-      title: "Global Platform Console",
-      role: "Enterprise & Franchise Admins",
-      description: "Multi-tenant gym provisioning, PostgreSQL connection pool health, strict Row-Level Security isolation, and system telemetry.",
+      title: "Platform Superadmin Console",
+      audience: "Franchise Operators & Devs",
+      description:
+        "Fleet provisioning, database connection pool telemetry, Row-Level Security partition health, and global infrastructure orchestration.",
       icon: ShieldCheck,
       accent: "from-purple-500/20 via-indigo-500/5 to-transparent",
       badge: "Superadmin",
+      badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/20",
       href: "/platform/login",
-      demoInfo: "platform@gymerp.local • Admin12345!",
-      actionLabel: "Platform Superadmin",
+      actionLabel: "Platform Gateway",
+      featured: false,
     },
   ];
 
   const storyChapters = [
     {
+      id: "kiosk",
       step: "01",
       tag: "OPTICAL INGRESS",
-      title: "Sub-40ms Entrance Turnstiles",
-      description: "High-contrast dynamic tokens scanned instantly by front-desk kiosks. Anti-proxy rotation prevents pass sharing while maintaining near-instantaneous magnetic door unlocks.",
-      stat: "38ms",
-      statLabel: "Average Gate Authorization",
+      title: "Physical Kiosk Screen & Native Camera Scan",
+      subtitle: "Dedicated tablets mounted at gym entrance and exit lanes.",
+      description:
+        "A secure web terminal runs full-screen on wall-mounted displays. When athletes or coaches walk up, they point their smartphone camera at the dynamic high-contrast QR code. In less than 50 milliseconds, the magnetic turnstile unlocks without downloading third-party apps.",
+      highlight: "<50ms Ingress",
+      badge: "Zero App Download",
     },
     {
+      id: "crypto",
       step: "02",
-      tag: "CLASS ENGINE",
-      title: "Real-Time Capacity Orchestration",
-      description: "Athletes reserve HIIT, Strength, and Combat spots from their mobile pass. Dynamic capacity locking prevents overbooking and auto-notifies coaches in real-time.",
-      stat: "100%",
-      statLabel: "Zero Double-Booking Guarantee",
+      tag: "ANTI-PROXY PROTOCOL",
+      title: "Single-Use Cryptographic HMAC Nonce",
+      subtitle: "Every scan immediately burns the code and cycles to the next one.",
+      description:
+        "Traditional barcodes are easily screenshotted or sent via WhatsApp to friends. GymERP generates rotating HMAC-SHA256 nonces with a 20-second lifespan. As soon as a turnstile accepts a scan, the nonce is burned in PostgreSQL and the kiosk immediately rotates to a fresh code for the next member in line.",
+      highlight: "20s Live Window",
+      badge: "Single-Use Nonce",
     },
     {
+      id: "dead-battery",
       step: "03",
-      tag: "FINANCIAL LEDGER",
-      title: "Autonomous Revenue Reconciliation",
-      description: "Every membership renewal, personal training package, and drop-in is written to an immutable financial ledger with direct payment gateway webhook sync.",
-      stat: "₹0",
-      statLabel: "Unreconciled Cash Slippage",
+      tag: "FAIL-SAFE ACCESS",
+      title: "Dead Phone Keypad & Live Membership Card",
+      subtitle: "Never lock out an athlete whose battery drained during their day.",
+      description:
+        "If a member's phone dies, they tap the kiosk keypad and enter their mobile number or Pass ID. The system instantly displays their dark aesthetic digital pass: ID, Name, Joining Date, and Expiration Date. If their subscription has expired, it highlights in bold glowing red with immediate desk instructions.",
+      highlight: "100% Reliable",
+      badge: "Keypad Fallback",
     },
     {
+      id: "daemon",
       step: "04",
-      tag: "DEDICATED DAEMON",
-      title: "Dedicated Node Fastify Engine",
-      description: "Heavy multi-tenant queries and high-frequency hardware scanner pings are handled by a dedicated Fastify daemon with PostgreSQL connection pooling and strict RLS.",
-      stat: "<5ms",
-      statLabel: "Pooled Database Latency",
+      tag: "HIGH PERFORMANCE",
+      title: "Dedicated Node Daemon vs Serverless Cold Starts",
+      subtitle: "Engineered for physical hardware that cannot tolerate 2-second delays.",
+      description:
+        "Serverless functions suffer from cold starts and connection pool exhaustion when multiple kiosks ping simultaneously. GymERP runs a persistent Node.js Fastify daemon on dedicated compute with pooled PostgreSQL connections, sub-5ms database latency, and strict Row-Level Security tenant isolation.",
+      highlight: "Zero Cold Starts",
+      badge: "Fastify Daemon",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#08090a] text-zinc-100 selection:bg-brand selection:text-black font-sans relative overflow-x-hidden">
-      {/* Background Ambience & Fine Grid */}
+    <div className="min-h-screen bg-[#08090a] text-zinc-100 selection:bg-primary/30 selection:text-primary font-sans relative overflow-x-hidden">
+      {/* Subtle Background Ambience */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-brand/10 blur-[130px] rounded-full pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-primary/10 blur-[140px] rounded-full pointer-events-none" />
       </div>
 
-      {/* Top Sticky Minimalist Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#08090a]/85 backdrop-blur-md">
+      {/* Clean Minimal Navbar (No Cluttered Links) */}
+      <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#08090a]/90 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          {/* Brand */}
+          {/* Brand Mark */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-brand text-carbon-950 flex items-center justify-center font-black text-sm tracking-tighter shadow-[0_0_16px_rgba(62,207,142,0.25)] transition-transform group-hover:scale-105">
+            <div className="w-8 h-8 rounded-lg bg-primary text-[#08090a] flex items-center justify-center font-black text-sm tracking-tighter shadow-[0_0_16px_rgba(62,207,142,0.3)] transition-transform group-hover:scale-105">
               G
             </div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-white text-base tracking-widest leading-none">
                 GYMERP
               </span>
-              <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-zinc-400">
-                v2.4 Core
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-zinc-400 hidden sm:inline-block">
+                Core OS
               </span>
             </div>
           </Link>
 
-          {/* Nav Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs text-zinc-400 font-medium">
-            <a href="#portals" className="hover:text-white transition-colors">
-              Access Portals
-            </a>
-            <a href="#storytelling" className="hover:text-white transition-colors">
-              How It Works
-            </a>
-            <a href="#architecture" className="hover:text-white transition-colors">
-              High-Speed Architecture
-            </a>
-          </nav>
-
-          {/* Right Action */}
+          {/* Right Action Gateways */}
           <div className="flex items-center gap-3">
             {session ? (
               <Link
@@ -188,29 +216,42 @@ export function LandingPage({ session }: LandingPageProps) {
               >
                 <Button
                   size="sm"
-                  className="h-8 px-3.5 bg-brand text-carbon-950 hover:bg-brand/90 font-semibold text-xs rounded-lg shadow-sm"
+                  className="h-9 px-4 bg-primary text-[#08090a] hover:bg-primary-deep font-semibold text-xs rounded-lg shadow-sm"
                 >
                   Go to Dashboard →
                 </Button>
               </Link>
             ) : (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsPortalModalOpen(true)}
-                  className="h-8 px-3 text-xs border-white/[0.08] bg-[#0c0d10] text-zinc-300 hover:text-white hover:bg-[#16181d] rounded-lg gap-1.5"
-                >
-                  <Lock className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Choose Portal</span>
-                </Button>
+                {/* Secondary Staff/Admin Login Link */}
                 <Link href="/login">
                   <Button
+                    variant="ghost"
                     size="sm"
-                    className="h-8 px-3.5 bg-brand text-carbon-950 hover:bg-brand/90 font-semibold text-xs rounded-lg shadow-[0_0_12px_rgba(62,207,142,0.25)]"
+                    className="text-xs h-9 px-3 text-zinc-400 hover:text-white hover:bg-white/[0.04] rounded-lg"
                   >
-                    Sign In
+                    <span>Staff & Admin</span>
                   </Button>
+                </Link>
+
+                {/* Primary Member Login Button - Front & Center */}
+                <Link href="/portal/login">
+                  <Button
+                    size="sm"
+                    className="h-9 px-4 bg-primary text-[#08090a] hover:bg-primary-deep font-bold text-xs rounded-lg shadow-[0_0_15px_rgba(62,207,142,0.25)] flex items-center gap-1.5"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Member Login</span>
+                  </Button>
+                </Link>
+
+                {/* Discreet Superadmin Link */}
+                <Link
+                  href="/platform/login"
+                  title="Platform Superadmin Console"
+                  className="hidden md:flex w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] text-zinc-500 hover:text-zinc-200 hover:border-white/[0.12] items-center justify-center transition-colors"
+                >
+                  <Terminal className="w-3.5 h-3.5" />
                 </Link>
               </>
             )}
@@ -218,38 +259,39 @@ export function LandingPage({ session }: LandingPageProps) {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Storytelling Experience */}
       <main className="relative z-10">
         {/* HERO SECTION */}
-        <section className="pt-20 sm:pt-28 pb-16 sm:pb-24 px-4 sm:px-6 max-w-5xl mx-auto text-center space-y-8">
-          {/* Status Badge */}
+        <section className="pt-20 sm:pt-28 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center space-y-8">
+          {/* Status Capsule */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0c0d10] border border-white/[0.08] text-xs text-zinc-300 font-mono shadow-sm"
+            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0c0d10] border border-white/[0.08] text-xs font-mono shadow-sm"
           >
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             <span className="text-zinc-400">Gym Operating System</span>
             <span className="text-zinc-600">•</span>
-            <span className="text-brand font-semibold">Sub-Millisecond Engine</span>
+            <span className="text-primary font-semibold">Sub-50ms Optical Ingress</span>
           </motion.div>
 
-          {/* Main Headline */}
+          {/* Editorial Headline */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
+            transition={{ delay: 0.1 }}
             className="space-y-4"
           >
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1]">
-              Physical operations. <br />
-              <span className="bg-gradient-to-r from-zinc-100 via-zinc-200 to-zinc-500 bg-clip-text text-transparent">
-                Zero friction.
+              Physical ingress. <br />
+              <span className="bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
+                Cryptographic speed.
               </span>
             </h1>
             <p className="max-w-2xl mx-auto text-sm sm:text-base text-zinc-400 leading-relaxed font-normal">
-              An obsidian-crafted gym management ERP built for speed. Instant turnstile QR validation, automated revenue ledgers, real-time group class scheduling, and tenant-isolated PostgreSQL security.
+              An obsidian-crafted gym ERP engineered for live physical facilities. Wall-mounted
+              kiosks with rotating cryptographic QR tokens, instant smartphone camera check-ins, and
+              immutable attendance ledgers.
             </p>
           </motion.div>
 
@@ -257,141 +299,371 @@ export function LandingPage({ session }: LandingPageProps) {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
+            transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2"
           >
-            <a href="#portals">
+            <Link href="/portal/login" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto h-11 px-6 bg-brand text-carbon-950 font-bold hover:bg-brand/90 rounded-xl shadow-[0_0_20px_rgba(62,207,142,0.25)] text-sm gap-2"
+                className="w-full sm:w-auto h-11 px-6 bg-primary text-[#08090a] font-bold hover:bg-primary-deep rounded-xl shadow-[0_0_20px_rgba(62,207,142,0.25)] text-sm flex items-center justify-center gap-2"
               >
-                <span>Select Login Portal</span>
-                <ChevronDown className="w-4 h-4" />
+                <Smartphone className="w-4 h-4" />
+                <span>Athlete Pass & Member Login</span>
               </Button>
-            </a>
-            <Link href="/portal/login">
+            </Link>
+            <a href="#interactive-kiosk" className="w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full sm:w-auto h-11 px-5 border-white/[0.08] bg-[#0c0d10] text-zinc-200 hover:text-white hover:bg-[#16181d] rounded-xl text-sm gap-2"
+                className="w-full sm:w-auto h-11 px-5 border-white/[0.08] bg-[#0c0d10] text-zinc-200 hover:text-white hover:bg-[#14161b] rounded-xl text-sm flex items-center justify-center gap-2"
               >
-                <Smartphone className="w-4 h-4 text-brand" />
-                <span>Member Pass Demo</span>
+                <QrCode className="w-4 h-4 text-primary" />
+                <span>See How Physical Kiosks Work</span>
               </Button>
-            </Link>
-          </motion.div>
-
-          {/* Interactive Hardware Telemetry Strip */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="pt-8"
-          >
-            <div className="p-4 rounded-2xl border border-white/[0.06] bg-[#0c0d10]/80 backdrop-blur-md max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-mono uppercase text-zinc-500 block">
-                  Turnstile Auth
-                </span>
-                <div className="flex items-center gap-1.5 font-mono text-base font-bold text-white">
-                  <span className="text-brand">38ms</span>
-                  <span className="text-[10px] text-zinc-500 font-sans font-normal">ingress</span>
-                </div>
-              </div>
-
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-mono uppercase text-zinc-500 block">
-                  Tenant Isolation
-                </span>
-                <div className="flex items-center gap-1.5 font-mono text-base font-bold text-emerald-400">
-                  <span>Strict RLS</span>
-                  <ShieldCheck className="w-3.5 h-3.5 text-brand" />
-                </div>
-              </div>
-
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-mono uppercase text-zinc-500 block">
-                  Dedicated Daemon
-                </span>
-                <div className="flex items-center gap-1.5 font-mono text-base font-bold text-white">
-                  <span>Fastify Node</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-                </div>
-              </div>
-
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-mono uppercase text-zinc-500 block">
-                  Reconciliation
-                </span>
-                <div className="flex items-center gap-1.5 font-mono text-base font-bold text-white">
-                  <span>100% Auto</span>
-                  <Check className="w-3.5 h-3.5 text-brand" />
-                </div>
-              </div>
-            </div>
+            </a>
           </motion.div>
         </section>
 
-        {/* SECTION: ACCESS PORTALS SELECTOR */}
-        <section id="portals" className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-white/[0.06]">
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-brand block font-semibold">
-              ROLE-BASED DIRECT ACCESS
+        {/* SECTION: INTERACTIVE PHYSICAL KIOSK & SCANNER SIMULATOR */}
+        <section id="interactive-kiosk" className="py-16 px-4 sm:px-6 max-w-5xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-primary font-semibold block">
+              HARDWARE ARCHITECTURE PREVIEW
             </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Choose Your Access Portal
+            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Interactive Kiosk & Smartphone Scan Flow
             </h2>
             <p className="text-xs sm:text-sm text-zinc-400">
-              Each stakeholder has a dedicated, secure entry point designed specifically for their operational workflow.
+              Test how a wall-mounted tablet displays dynamic QR tokens, burns them on scan, and
+              validates member status in real-time.
+            </p>
+          </div>
+
+          {/* Dual Simulator Canvas */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Left: Physical Tablet Kiosk Display (7 cols) */}
+            <div className="lg:col-span-7">
+              <div
+                className={`p-6 sm:p-8 rounded-3xl border transition-all duration-300 relative overflow-hidden bg-[#0a0b0e] shadow-2xl ${
+                  simState === "granted"
+                    ? "border-primary shadow-[0_0_40px_rgba(62,207,142,0.25)]"
+                    : simState === "expired"
+                    ? "border-red-500 shadow-[0_0_40px_rgba(239,68,68,0.25)]"
+                    : "border-white/[0.08]"
+                }`}
+              >
+                {/* Kiosk Status Bar */}
+                <div className="flex items-center justify-between border-b border-white/[0.08] pb-4 mb-6 text-xs font-mono">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <span className="text-white font-semibold">TURNSTILE KIOSK #01</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>Live Gate Controller</span>
+                  </div>
+                </div>
+
+                {/* Mode Selector */}
+                <div className="flex items-center justify-center gap-2 mb-6">
+                  {(["entry", "exit", "auto"] as const).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setSimMode(m)}
+                      className={`px-3 py-1 rounded-lg text-xs font-mono uppercase transition-colors ${
+                        simMode === m
+                          ? "bg-white/[0.1] text-primary border border-primary/30 font-bold"
+                          : "text-zinc-400 hover:text-white bg-white/[0.02]"
+                      }`}
+                    >
+                      {m === "entry" ? "Entry Gate" : m === "exit" ? "Exit Gate" : "Smart Auto"}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Main QR Display */}
+                <div className="flex flex-col items-center justify-center py-4 space-y-4">
+                  <div className="relative p-4 rounded-2xl bg-white text-[#08090a] shadow-xl">
+                    <div className="w-44 h-44 flex flex-col items-center justify-center border-4 border-dashed border-zinc-300 rounded-xl relative overflow-hidden bg-white">
+                      <QrCode className="w-36 h-36 text-zinc-950" />
+                      {/* Scanning laser beam overlay */}
+                      {simState === "scanning" && (
+                        <motion.div
+                          initial={{ top: 0 }}
+                          animate={{ top: "100%" }}
+                          transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+                          className="absolute left-0 right-0 h-1 bg-primary shadow-[0_0_10px_#3ecf8e]"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 20-Second Progress Timer */}
+                  <div className="w-56 space-y-1.5 text-center">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+                      <span>Nonce: {simToken}</span>
+                      <span className="text-primary font-bold">{simCountdown}s TTL</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary transition-all duration-300"
+                        style={{ width: `${(simCountdown / 20) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live Feedback Toast Notification */}
+                <AnimatePresence>
+                  {simState === "granted" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="mt-4 p-3.5 rounded-xl bg-primary/15 border border-primary/40 text-center flex items-center justify-center gap-2 text-xs font-semibold text-primary"
+                    >
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>ACCESS GRANTED • ALEX VANCE (Gate Unlocked)</span>
+                    </motion.div>
+                  )}
+                  {simState === "expired" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="mt-4 p-3.5 rounded-xl bg-red-950/40 border border-red-500/50 text-center flex items-center justify-center gap-2 text-xs font-semibold text-red-400"
+                    >
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>MEMBERSHIP EXPIRED • PLEASE SEE FRONT DESK</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Right: Interactive Test Triggers (5 cols) */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="p-6 rounded-2xl bg-[#0c0d10] border border-white/[0.08] space-y-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-primary font-bold">
+                    SIMULATION CONTROLS
+                  </span>
+                  <h3 className="text-lg font-bold text-white">Test Real Scenarios</h3>
+                  <p className="text-xs text-zinc-400">
+                    See how GymERP responds to active athletes, expired members, and instant single-use nonce burn.
+                  </p>
+                </div>
+
+                <div className="space-y-2.5 pt-2">
+                  <Button
+                    onClick={() => handleTriggerSimScan("granted")}
+                    disabled={simState !== "idle"}
+                    className="w-full h-11 bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-xs rounded-xl flex items-center justify-between px-4"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Smartphone className="w-4 h-4" />
+                      <span>Simulate Active Athlete Scan</span>
+                    </span>
+                    <span className="font-mono text-[10px] bg-black/20 px-2 py-0.5 rounded">
+                      Pass Approved
+                    </span>
+                  </Button>
+
+                  <Button
+                    onClick={() => handleTriggerSimScan("expired")}
+                    disabled={simState !== "idle"}
+                    variant="outline"
+                    className="w-full h-11 border-red-500/40 bg-red-950/20 text-red-400 hover:bg-red-900/30 hover:text-red-300 font-semibold text-xs rounded-xl flex items-center justify-between px-4"
+                  >
+                    <span className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Simulate Expired Membership</span>
+                    </span>
+                    <span className="font-mono text-[10px] bg-red-500/20 px-2 py-0.5 rounded">
+                      Red Alert
+                    </span>
+                  </Button>
+                </div>
+
+                <div className="pt-2 border-t border-white/[0.06] text-[11px] text-zinc-400 space-y-1 font-mono">
+                  <div className="flex items-center justify-between">
+                    <span>Nonce Status:</span>
+                    <span className="text-primary font-bold">Auto-Burning on Ingress</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Pass Verification:</span>
+                    <span className="text-zinc-200">Sub-50ms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION: SEAMLESS SCROLL STORYTELLING CHAPTERS */}
+        <section id="how-it-works" className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-white/[0.06]">
+          <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-primary block font-semibold">
+              SEAMLESS SCROLL ARCHITECTURE
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Engineered For Physical Gyms
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-400">
+              Explore the four core engineering breakthroughs powering the GymERP ecosystem.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Story Navigation Rail (5 cols) */}
+            <div className="lg:col-span-5 space-y-3">
+              {storyChapters.map((ch, idx) => {
+                const isActive = activeStoryChapter === idx;
+                return (
+                  <button
+                    key={ch.id}
+                    type="button"
+                    onClick={() => setActiveStoryChapter(idx)}
+                    className={`w-full text-left p-5 rounded-2xl border transition-all duration-200 flex flex-col gap-2 ${
+                      isActive
+                        ? "bg-[#0c0d10] border-primary/40 shadow-[0_4px_24px_rgba(62,207,142,0.1)]"
+                        : "bg-[#08090a] border-white/[0.04] hover:border-white/[0.08] hover:bg-[#0c0d10]/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span
+                        className={`text-xs font-mono font-bold ${
+                          isActive ? "text-primary" : "text-zinc-500"
+                        }`}
+                      >
+                        {ch.step} // {ch.tag}
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/[0.06]">
+                        {ch.badge}
+                      </span>
+                    </div>
+
+                    <h3 className="text-sm sm:text-base font-bold text-white">{ch.title}</h3>
+                    <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
+                      {ch.subtitle}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Story Dynamic Content Display (7 cols) */}
+            <div className="lg:col-span-7">
+              <div className="p-7 sm:p-9 rounded-3xl border border-white/[0.08] bg-[#0c0d10] relative overflow-hidden space-y-6 shadow-2xl min-h-[380px] flex flex-col justify-between">
+                <div className="space-y-4 relative z-10">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono text-primary font-bold uppercase tracking-wider">
+                      Chapter {storyChapters[activeStoryChapter].step} • {storyChapters[activeStoryChapter].tag}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-zinc-300 bg-white/[0.05] px-3 py-1 rounded-full border border-white/[0.08]">
+                      {storyChapters[activeStoryChapter].highlight}
+                    </span>
+                  </div>
+
+                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                    {storyChapters[activeStoryChapter].title}
+                  </h3>
+
+                  <p className="text-sm text-zinc-300 leading-relaxed font-normal">
+                    {storyChapters[activeStoryChapter].description}
+                  </p>
+                </div>
+
+                {/* Interactive Technical Spec Visualizer */}
+                <div className="p-4 rounded-2xl bg-[#08090a] border border-white/[0.06] grid grid-cols-2 gap-4 text-xs font-mono text-zinc-400 relative z-10">
+                  <div>
+                    <span className="text-[10px] text-zinc-500 block uppercase">Protocol</span>
+                    <span className="text-white font-bold">HMAC-SHA256 Nonce</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 block uppercase">Replay Guard</span>
+                    <span className="text-primary font-bold">Single-Use Burn</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 block uppercase">Database Layer</span>
+                    <span className="text-white font-bold">Neon RLS PostgreSQL</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 block uppercase">Hardware Target</span>
+                    <span className="text-emerald-400 font-bold">Wall Kiosk / iOS / Android</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION: THE FOUR SECURE GATEWAYS (LOGINS) */}
+        <section id="portals" className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-white/[0.06]">
+          <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-primary block font-semibold">
+              ROLE-BASED AUTHENTICATION
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Four Dedicated Portals
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-400">
+              Each stakeholder enters through a specialized interface built exclusively for their role.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {portalOptions.map((opt) => {
+            {loginGateways.map((opt) => {
               const Icon = opt.icon;
               return (
                 <div
                   key={opt.id}
-                  className="group relative rounded-2xl border border-white/[0.06] bg-[#0c0d10] hover:border-brand/40 p-6 transition-all duration-300 flex flex-col justify-between overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]"
+                  className={`group relative rounded-2xl border p-6 transition-all duration-300 flex flex-col justify-between overflow-hidden bg-[#0c0d10] ${
+                    opt.featured
+                      ? "border-primary/40 shadow-[0_0_30px_rgba(62,207,142,0.12)] hover:border-primary"
+                      : "border-white/[0.06] hover:border-white/[0.15]"
+                  }`}
                 >
-                  <div className={`absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl ${opt.accent} rounded-full blur-3xl pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity`} />
+                  <div
+                    className={`absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl ${opt.accent} rounded-full blur-3xl pointer-events-none opacity-40 group-hover:opacity-100 transition-opacity`}
+                  />
 
                   <div className="space-y-4 relative z-10">
                     <div className="flex items-center justify-between">
-                      <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-brand group-hover:scale-105 transition-transform">
+                      <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
                         <Icon className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-zinc-300 uppercase tracking-wider">
+                      <span
+                        className={`text-[10px] font-mono px-2.5 py-1 rounded-full border uppercase tracking-wider font-semibold ${opt.badgeColor}`}
+                      >
                         {opt.badge}
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-bold text-white group-hover:text-brand transition-colors">
+                      <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">
                         {opt.title}
                       </h3>
-                      <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">
+                      <span className="text-xs text-zinc-500 font-mono block mt-0.5">
+                        For: {opt.audience}
+                      </span>
+                      <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
                         {opt.description}
                       </p>
-                    </div>
-
-                    <div className="pt-2">
-                      <span className="text-[11px] font-mono text-zinc-500 block">
-                        Quick Demo:
-                      </span>
-                      <span className="text-xs font-mono text-zinc-300 bg-[#08090a] px-2.5 py-1 rounded-md border border-white/[0.04] inline-block mt-1">
-                        {opt.demoInfo}
-                      </span>
                     </div>
                   </div>
 
                   <div className="pt-6 relative z-10">
                     <Link href={opt.href} className="w-full">
                       <Button
-                        className="w-full h-10 bg-white/[0.04] hover:bg-brand hover:text-carbon-950 text-zinc-200 border border-white/[0.08] font-semibold text-xs rounded-xl transition-all duration-200 flex items-center justify-between px-4 group-hover:border-brand/40"
+                        className={`w-full h-10 font-semibold text-xs rounded-xl transition-all duration-200 flex items-center justify-between px-4 ${
+                          opt.featured
+                            ? "bg-primary text-[#08090a] hover:bg-primary-deep"
+                            : "bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 border border-white/[0.08]"
+                        }`}
                       >
                         <span>{opt.actionLabel}</span>
-                        <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-carbon-950 transition-colors" />
+                        <ArrowRight className="w-4 h-4" />
                       </Button>
                     </Link>
                   </div>
@@ -400,535 +672,42 @@ export function LandingPage({ session }: LandingPageProps) {
             })}
           </div>
         </section>
-
-        {/* SECTION: SCROLL-BASED STORYTELLING */}
-        <section id="storytelling" className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-white/[0.06]">
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-brand block font-semibold">
-              SCROLL-BASED OPERATIONAL NARRATIVE
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              The Anatomy of a Fast Gym
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-400">
-              Explore how GymERP orchestrates high-throughput attendance, real-time rosters, and continuous database isolation.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Story Navigation Rail (5 cols) */}
-            <div className="lg:col-span-5 space-y-3">
-              {storyChapters.map((ch, idx) => {
-                const isActive = activeStory === idx;
-                return (
-                  <button
-                    key={ch.step}
-                    type="button"
-                    onClick={() => setActiveStory(idx)}
-                    className={`w-full text-left p-5 rounded-2xl border transition-all duration-200 flex flex-col gap-2 ${
-                      isActive
-                        ? "bg-[#0c0d10] border-brand/40 shadow-[0_4px_24px_rgba(62,207,142,0.1)]"
-                        : "bg-[#08090a] border-white/[0.04] hover:border-white/[0.08] hover:bg-[#0c0d10]/50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span
-                        className={`text-xs font-mono font-bold ${
-                          isActive ? "text-brand" : "text-zinc-500"
-                        }`}
-                      >
-                        {ch.step} // {ch.tag}
-                      </span>
-                      <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/[0.06]">
-                        {ch.stat}
-                      </span>
-                    </div>
-
-                    <h3 className="text-sm sm:text-base font-bold text-white">
-                      {ch.title}
-                    </h3>
-
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      {ch.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Interactive Story Visual Stage (7 cols sticky) */}
-            <div className="lg:col-span-7 lg:sticky lg:top-24">
-              <div className="rounded-3xl border border-white/[0.08] bg-[#0c0d10] p-6 sm:p-8 shadow-2xl relative overflow-hidden min-h-[420px] flex flex-col justify-between">
-                {/* Background Ambient Glow */}
-                <div className="absolute -top-20 -right-20 w-60 h-60 bg-brand/10 rounded-full blur-3xl pointer-events-none" />
-
-                {/* Chapter 01 Interactive: Turnstile Scanner Viewfinder */}
-                {activeStory === 0 && (
-                  <motion.div
-                    key="turnstile-view"
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.25 }}
-                    className="space-y-6"
-                  >
-                    <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-brand animate-pulse" />
-                        <span className="text-xs font-mono text-zinc-300 font-semibold uppercase">
-                          Turnstile Lane 01 • Optical Feed
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-zinc-500">
-                        FPS: 60 • ISO: AUTO
-                      </span>
-                    </div>
-
-                    <div className="bg-[#08090a] rounded-2xl border border-white/[0.06] p-6 flex flex-col items-center text-center space-y-4 relative overflow-hidden">
-                      <div className="w-40 h-40 rounded-xl bg-white p-3 shadow-inner flex items-center justify-center relative">
-                        <QrCode className="w-32 h-32 text-black" />
-                        {simulatedGateState === "scanning" && (
-                          <div className="absolute inset-0 bg-brand/20 border-2 border-brand rounded-xl animate-pulse flex items-center justify-center">
-                            <span className="text-[10px] font-mono font-bold bg-carbon-950 text-brand px-2 py-0.5 rounded">
-                              DECODING 38ms
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-white">
-                          Dynamic Single-Scan Member QR
-                        </p>
-                        <p className="text-[11px] text-zinc-400 font-mono">
-                          Member: Alex Mercer • Plan: All-Access Black Card
-                        </p>
-                      </div>
-
-                      {simulatedGateState === "unlocked" ? (
-                        <div className="w-full py-2.5 px-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-semibold flex items-center justify-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span>AUTHORIZATION CONFIRMED • GATE UNLOCKED (38ms)</span>
-                        </div>
-                      ) : (
-                        <Button
-                          onClick={handleSimulateScan}
-                          disabled={simulatedGateState !== "idle"}
-                          className="h-9 px-4 bg-brand text-carbon-950 hover:bg-brand/90 font-bold text-xs rounded-xl"
-                        >
-                          {simulatedGateState === "scanning" ? "Verifying..." : "Simulate Live Ingress Scan"}
-                        </Button>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3 text-center text-xs font-mono">
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-[10px] text-zinc-500 block">SCAN DELAY</span>
-                        <span className="text-white font-bold">38ms</span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-[10px] text-zinc-500 block">SECURITY</span>
-                        <span className="text-emerald-400 font-bold">Anti-Proxy</span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-[10px] text-zinc-500 block">PASS SHARING</span>
-                        <span className="text-white font-bold">Blocked</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Chapter 02 Interactive: Class Capacity Locking */}
-                {activeStory === 1 && (
-                  <motion.div
-                    key="class-view"
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.25 }}
-                    className="space-y-6"
-                  >
-                    <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-                      <div className="flex items-center gap-2">
-                        <Dumbbell className="w-4 h-4 text-emerald-400" />
-                        <span className="text-xs font-mono text-zinc-300 font-semibold uppercase">
-                          Live Studio Schedule Engine
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-brand bg-brand/10 border border-brand/20 px-2 py-0.5 rounded-full">
-                        Lock Active
-                      </span>
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-[#08090a] border border-white/[0.06] space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] font-mono text-zinc-500 uppercase">
-                            Today • 07:00 AM
-                          </span>
-                          <h4 className="text-base font-bold text-white">
-                            Olympic Powerlifting & Clean Tech
-                          </h4>
-                          <p className="text-xs text-zinc-400 font-mono">
-                            Coach Marcus Ray • Strength Zone
-                          </p>
-                        </div>
-                        <span className="text-xs font-mono font-bold text-white bg-white/[0.04] px-2.5 py-1 rounded-lg border border-white/[0.08]">
-                          {demoClassBooked ? "19 / 20" : "18 / 20"} Spots
-                        </span>
-                      </div>
-
-                      {/* Visual Capacity Bar */}
-                      <div className="w-full h-2 rounded-full bg-zinc-900 border border-white/[0.06] overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-emerald-500 to-brand transition-all duration-300 rounded-full"
-                          style={{ width: demoClassBooked ? "95%" : "90%" }}
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between pt-2">
-                        <span className="text-xs text-zinc-400">
-                          {demoClassBooked
-                            ? "✓ Spot reserved for Alex Mercer"
-                            : "Only 2 spots remaining for this session"}
-                        </span>
-                        <Button
-                          size="sm"
-                          onClick={() => setDemoClassBooked(!demoClassBooked)}
-                          className={`h-8 px-3.5 text-xs font-bold rounded-lg transition-all ${
-                            demoClassBooked
-                              ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-900"
-                              : "bg-brand text-carbon-950 hover:bg-brand/90"
-                          }`}
-                        >
-                          {demoClassBooked ? "Cancel Spot" : "Simulate Reservation"}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      Instant synchronization between athlete mobile reservations, front-desk attendance rosters, and trainer tablets.
-                    </p>
-                  </motion.div>
-                )}
-
-                {/* Chapter 03 Interactive: Autonomous Revenue Ledger */}
-                {activeStory === 2 && (
-                  <motion.div
-                    key="ledger-view"
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.25 }}
-                    className="space-y-6"
-                  >
-                    <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="w-4 h-4 text-brand" />
-                        <span className="text-xs font-mono text-zinc-300 font-semibold uppercase">
-                          Autonomous Reconciliation Ledger
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-emerald-400">
-                        Synced 2s ago
-                      </span>
-                    </div>
-
-                    <div className="space-y-2.5">
-                      {[
-                        {
-                          name: "Vikram Malhotra",
-                          tier: "Annual Elite Membership",
-                          amount: "₹18,500",
-                          time: "Just now",
-                          status: "Captured",
-                        },
-                        {
-                          name: "Pooja Sharma",
-                          tier: "Monthly Unlimited Pass",
-                          amount: "₹2,499",
-                          time: "14m ago",
-                          status: "Settled",
-                        },
-                        {
-                          name: "Rahul Verma",
-                          tier: "Quarterly Strength Access",
-                          amount: "₹6,999",
-                          time: "1h ago",
-                          status: "Settled",
-                        },
-                      ].map((item, i) => (
-                        <div
-                          key={i}
-                          className="p-3 rounded-xl bg-[#08090a] border border-white/[0.06] flex items-center justify-between text-xs font-mono"
-                        >
-                          <div className="space-y-0.5">
-                            <p className="font-semibold text-white font-sans">{item.name}</p>
-                            <p className="text-[11px] text-zinc-500">{item.tier}</p>
-                          </div>
-                          <div className="text-right space-y-0.5">
-                            <p className="font-bold text-white">{item.amount}</p>
-                            <span className="text-[10px] text-emerald-400 px-1.5 py-0.2 rounded bg-emerald-950/40 border border-emerald-800/30">
-                              {item.status}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] text-xs text-zinc-400 flex items-center justify-between font-mono">
-                      <span>Zero Manual Entry: Razorpay & Stripe Webhooks</span>
-                      <span className="text-brand font-bold">100% Match</span>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Chapter 04 Interactive: Dedicated Node Fastify Engine */}
-                {activeStory === 3 && (
-                  <motion.div
-                    key="daemon-view"
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.25 }}
-                    className="space-y-6 font-mono text-xs"
-                  >
-                    <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-                      <div className="flex items-center gap-2">
-                        <Server className="w-4 h-4 text-purple-400" />
-                        <span className="text-zinc-300 font-semibold uppercase">
-                          Node Fastify Telemetry (:4000)
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-emerald-400 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span>HEALTHY</span>
-                      </span>
-                    </div>
-
-                    <div className="bg-[#08090a] rounded-2xl border border-white/[0.06] p-4 text-zinc-300 space-y-2 leading-relaxed">
-                      <p className="text-zinc-500"># Fastify Runtime Metrics</p>
-                      <p>GET /health ───&gt; 200 OK (2ms)</p>
-                      <p>POST /api/attendance/scan ───&gt; 200 OK (38ms)</p>
-                      <p className="text-emerald-400">
-                        PG Pool: 10 connections established • Idle: 8 • Ping: 3ms
-                      </p>
-                      <p className="text-purple-400">
-                        RLS Status: SET LOCAL app.current_tenant_id = &apos;ironpulse_prod&apos;
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3 text-center">
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-[10px] text-zinc-500 block">POSTGRES PING</span>
-                        <span className="text-emerald-400 font-bold">~3ms</span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-[10px] text-zinc-500 block">MEMORY RSS</span>
-                        <span className="text-white font-bold">64 MB</span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                        <span className="text-[10px] text-zinc-500 block">ISOLATION</span>
-                        <span className="text-purple-400 font-bold">Row-Level</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Footer Controls for Story Stage */}
-                <div className="pt-6 border-t border-white/[0.06] flex items-center justify-between text-xs text-zinc-500 font-mono">
-                  <span>Step {activeStory + 1} of 4</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      disabled={activeStory === 0}
-                      onClick={() => setActiveStory((prev) => Math.max(0, prev - 1))}
-                      className="px-2.5 py-1 rounded bg-white/[0.04] text-zinc-400 hover:text-white disabled:opacity-30"
-                    >
-                      Prev
-                    </button>
-                    <button
-                      type="button"
-                      disabled={activeStory === storyChapters.length - 1}
-                      onClick={() =>
-                        setActiveStory((prev) => Math.min(storyChapters.length - 1, prev + 1))
-                      }
-                      className="px-2.5 py-1 rounded bg-white/[0.04] text-zinc-400 hover:text-white disabled:opacity-30"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION: ARCHITECTURE & COMPARISON */}
-        <section id="architecture" className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-white/[0.06]">
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-brand block font-semibold">
-              ENGINEERED DIFFERENTLY
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Obsidian Architecture vs. Legacy Gym Software
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-400">
-              Legacy software is bloated with outdated clunky menus and 5-second turnstile lag. GymERP was built for physical gym throughput.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Legacy Column */}
-            <div className="p-6 rounded-2xl border border-red-500/20 bg-red-950/10 space-y-4">
-              <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider block">
-                Legacy Software (Mindbody, ABC, Zen Planner)
-              </span>
-              <ul className="space-y-3 text-xs text-zinc-400">
-                <li className="flex items-start gap-2.5">
-                  <span className="text-red-400 font-bold">✕</span>
-                  <span>3 to 5 second camera scanning lag creating long peak-hour lines at turnstiles.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-red-400 font-bold">✕</span>
-                  <span>Screenshot pass sharing abuse with static barcode/QR graphics.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-red-400 font-bold">✕</span>
-                  <span>Manual spreadsheet exporting to reconcile cash, cards, and bank payments.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-red-400 font-bold">✕</span>
-                  <span>Over-engineered, washed-out grey interfaces with endless nested dropdowns.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* GymERP Column */}
-            <div className="p-6 rounded-2xl border border-brand/40 bg-emerald-950/10 space-y-4 shadow-[0_0_30px_rgba(62,207,142,0.06)]">
-              <span className="text-xs font-mono font-bold text-brand uppercase tracking-wider block">
-                GymERP 2.4 (Linear / Supabase Inspired)
-              </span>
-              <ul className="space-y-3 text-xs text-zinc-200">
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-                  <span>Sub-40ms optical ingress recognition directly through lightweight kiosks.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-                  <span>Encrypted dynamic tokens rotated per-scan to eliminate pass fraud.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-                  <span>Automated double-entry ledger with instant Razorpay/Stripe webhook receipts.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-                  <span>Pure obsidian dark design with dedicated Node Fastify backend and strict RLS.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* BOTTOM CTA: JUMP IN */}
-        <section className="py-20 px-4 sm:px-6 max-w-4xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Ready to experience zero-friction gym management?
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
-            Test any role immediately with live seeded demo credentials across athletes, desk staff, gym owners, or platform engineers.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link href="/portal/login">
-              <Button className="h-10 px-5 bg-brand text-carbon-950 font-bold hover:bg-brand/90 rounded-xl text-xs">
-                Athlete Member Pass
-              </Button>
-            </Link>
-            <Link href="/login?preset=staff">
-              <Button
-                variant="outline"
-                className="h-10 px-5 border-white/[0.08] bg-[#0c0d10] text-zinc-200 hover:text-white rounded-xl text-xs"
-              >
-                Front Desk Scanner
-              </Button>
-            </Link>
-            <Link href="/login?preset=admin">
-              <Button
-                variant="outline"
-                className="h-10 px-5 border-white/[0.08] bg-[#0c0d10] text-zinc-200 hover:text-white rounded-xl text-xs"
-              >
-                Gym Admin Console
-              </Button>
-            </Link>
-          </div>
-        </section>
       </main>
 
-      {/* MINIMALIST FOOTER */}
-      <footer className="border-t border-white/[0.06] bg-[#050506] py-12 px-4 sm:px-6 text-xs text-zinc-500">
+      {/* Minimal Obsidian Footer */}
+      <footer className="border-t border-white/[0.06] bg-[#060708] py-12 px-4 sm:px-6 relative z-10">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-brand text-carbon-950 flex items-center justify-center font-bold text-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-lg bg-primary text-[#08090a] flex items-center justify-center font-black text-xs">
               G
             </div>
-            <span className="font-extrabold text-white tracking-widest text-sm">GYMERP</span>
-            <span className="text-zinc-600">/</span>
-            <span className="font-mono text-[11px] text-zinc-400">High-Performance ERP</span>
+            <div>
+              <span className="font-extrabold text-white text-sm tracking-wider block">
+                GYMERP CORE
+              </span>
+              <span className="text-[11px] text-zinc-500 font-mono">
+                Production Optical Turnstile OS
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4 font-mono text-[11px] text-zinc-400">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-              <span>Daemon: Online</span>
-            </span>
-            <span className="text-zinc-700">•</span>
-            <span>PostgreSQL: RLS Isolated</span>
+          {/* Direct Role Links */}
+          <div className="flex items-center gap-6 text-xs text-zinc-400 font-medium">
+            <Link href="/portal/login" className="hover:text-white transition-colors text-primary font-semibold">
+              Member Portal
+            </Link>
+            <Link href="/login" className="hover:text-white transition-colors">
+              Staff & Admin
+            </Link>
+            <Link href="/staff/kiosk" target="_blank" className="hover:text-white transition-colors">
+              Physical Kiosk
+            </Link>
+            <Link href="/platform/login" className="hover:text-white transition-colors text-zinc-500">
+              Platform Console
+            </Link>
           </div>
-
-          <p className="text-[11px] text-zinc-500">
-            © {new Date().getFullYear()} GymERP. Engineered for physical performance.
-          </p>
         </div>
       </footer>
-
-      {/* QUICK PORTAL SELECTOR MODAL */}
-      <Dialog open={isPortalModalOpen} onOpenChange={setIsPortalModalOpen}>
-        <DialogContent className="max-w-lg p-6 bg-[#0c0d10] border-white/[0.08] rounded-2xl shadow-2xl">
-          <DialogHeader className="space-y-1.5 text-left">
-            <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
-              <Lock className="w-4 h-4 text-brand" />
-              <span>Select Access Portal</span>
-            </DialogTitle>
-            <DialogDescription className="text-xs text-zinc-400">
-              Choose the access portal corresponding to your role at the gym.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-3 pt-4">
-            {portalOptions.map((opt) => {
-              const Icon = opt.icon;
-              return (
-                <Link
-                  key={opt.id}
-                  href={opt.href}
-                  onClick={() => setIsPortalModalOpen(false)}
-                  className="flex items-center justify-between p-3.5 rounded-xl bg-[#08090a] border border-white/[0.06] hover:border-brand/40 hover:bg-white/[0.02] transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-brand">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white group-hover:text-brand transition-colors">
-                        {opt.title}
-                      </p>
-                      <p className="text-[11px] text-zinc-400 font-mono">{opt.demoInfo}</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
-                </Link>
-              );
-            })}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

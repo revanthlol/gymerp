@@ -24,11 +24,6 @@ export default async function StaffLayout({
     redirect("/login");
   }
 
-  // If admin visits /staff/*, redirect them to /admin/kiosk to keep them in the admin shell
-  if (session.role === "admin") {
-    redirect("/admin/kiosk");
-  }
-
   let tenant: { name: string; status: string } | undefined;
   try {
     const results = await withTenantDb(session, async (tx) => {

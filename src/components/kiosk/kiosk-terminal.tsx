@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -19,12 +18,35 @@ import {
   Maximize2,
   Minimize2,
   UploadCloud,
+  Smartphone,
+  DoorOpen,
+  LogOut,
+  Keyboard,
+  Phone,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { getRotatingQrAction, staffManualCheckInAction } from "@/lib/api/attendance";
-import { playSuccessChime, playDeniedBuzz, playDuplicateNotice } from "@/lib/kiosk/audio";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  getRotatingQrAction,
+  kioskPassOrPhoneCheckInAction,
+  staffManualCheckInAction,
+} from "@/lib/api/attendance";
+import { KioskMode, UniqueQrData } from "@/lib/attendance/qr";
+import {
+  playSuccessChime,
+  playDeniedBuzz,
+  playDuplicateNotice,
+} from "@/lib/kiosk/audio";
 import {
   enqueueOfflineCheckIn,
   getPendingQueueCount,
@@ -48,33 +70,57 @@ interface AttendanceItem {
 }
 
 interface KioskTerminalProps {
-  initialQr: {
-    tokenString: string;
-    qrDataUrl: string;
-    expiresAt: number;
-    remainingSeconds: number;
-  };
+  initialQr: UniqueQrData;
   members: MemberItem[];
   recentAttendance: AttendanceItem[];
+  defaultMode?: KioskMode;
 }
 
 export function KioskTerminal({
   initialQr,
   members,
   recentAttendance,
+  defaultMode = "entry",
 }: KioskTerminalProps) {
+  const [kioskMode, setKioskMode] = useState<KioskMode>(defaultMode);
   const [qrData, setQrData] = useState(initialQr);
-  const [remainingSecs, setRemainingSecs] = useState(initialQr.remainingSeconds);
+  const [remainingSecs, setRemainingSecs] = useState(initialQr.remainingSeconds || 20);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchMember, setSearchMember] = useState("");
-  const [checkingInId, setCheckingInId] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Recent attendance feed & flash banner
   const [attendanceFeed, setAttendanceFeed] = useState(recentAttendance);
+  const [lastScannedMember, setLastScannedMember] = useState<{
+    name: string;
+    mode: "entry" | "exit";
+    time: string;
+  } | null>(null);
+
+  // Manual PIN / Phone Check-In Modal for dead phone battery
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [phoneInput, setPhoneInput] = useState("");
+  const [phoneSubmitting, setPhoneSubmitting] = useState(false);
+  const [keypadResult, setKeypadResult] = useState<{
+    success: boolean;
+    expired?: boolean;
+    message: string;
+    member?: {
+      id: string;
+      fullName: string;
+      phone: string;
+      joinDate: string;
+      expiryDate: string;
+      status: "active" | "expired" | "frozen";
+    };
+  } | null>(null);
+
+  // Network & offline queue state
   const [isOnline, setIsOnline] = useState(true);
   const [pendingOffline, setPendingOffline] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Initialize network status & pending offline count
+  // Initialize network & fullscreen listeners
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -83,13 +129,13 @@ export function KioskTerminal({
 
     const handleOnline = () => {
       setIsOnline(true);
-      toast.success("Wi-Fi reconnected. Syncing offline check-in queue...");
+      toast.success("Wi-Fi connected. Syncing kiosk queue...");
       handleSyncQueue();
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      toast.warning("Wi-Fi disconnected. Kiosk operating in offline queue mode.");
+      toast.warning("Operating in offline queue mode.");
     };
 
     const handleFullscreenChange = () => {
@@ -107,21 +153,46 @@ export function KioskTerminal({
     };
   }, []);
 
-  // Live countdown timer for 2-hour dynamic rotation
+  // Refresh QR code when kioskMode changes
+  useEffect(() => {
+    handleRefreshQr(kioskMode, true);
+  }, [kioskMode]);
+
+  // Anti-proxy live countdown timer: rotates every 20 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setRemainingSecs((prev) => {
         if (prev <= 1) {
-          // Trigger automatic refresh of rotating QR code
-          handleRefreshQr();
-          return 0;
+          handleRefreshQr(kioskMode, true);
+          return 20;
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [kioskMode]);
+
+  const handleRefreshQr = async (mode: KioskMode = kioskMode, silent = false) => {
+    if (!isOnline) {
+      if (!silent) toast.info("Offline mode: Local QR remaining active.");
+      return;
+    }
+
+    setRefreshing(true);
+    try {
+      const refreshed = await getRotatingQrAction(mode);
+      setQrData(refreshed);
+      setRemainingSecs(refreshed.remainingSeconds || 20);
+      if (!silent) {
+        toast.success(`Turnstile QR rotated for ${mode.toUpperCase()} mode`);
+      }
+    } catch {
+      if (!silent) toast.error("Could not rotate QR code");
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleToggleFullscreen = () => {
     if (typeof document === "undefined") return;
@@ -138,7 +209,7 @@ export function KioskTerminal({
 
     try {
       const result = await flushKioskQueue(async (item) => {
-        const res = await staffManualCheckInAction(item.memberId);
+        const res = await staffManualCheckInAction(item.memberId, kioskMode === "exit" ? "exit" : "entry");
         return { success: res.success };
       });
 
@@ -146,393 +217,517 @@ export function KioskTerminal({
       setPendingOffline(updatedCount);
 
       if (result.synced > 0) {
-        toast.success(`Successfully synced ${result.synced} offline check-in(s) to cloud!`);
+        toast.success(`Synced ${result.synced} offline check-ins to database`);
       }
     } catch {
-      toast.error("Error synchronizing offline queue.");
+      toast.error("Offline sync encountered an error");
     } finally {
       setIsSyncing(false);
     }
   };
 
-  const handleRefreshQr = async (silent = false) => {
-    if (!isOnline) {
-      if (!silent) toast.info("Offline mode: QR code remains active locally.");
-      return;
-    }
+  // Manual Phone/PIN Check-In submission (for dead phone battery)
+  const handlePhoneCheckInSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phoneInput.trim()) return;
 
-    setRefreshing(true);
+    setPhoneSubmitting(true);
+    setKeypadResult(null);
+
     try {
-      const refreshed = await getRotatingQrAction();
-      setQrData(refreshed);
-      setRemainingSecs(refreshed.remainingSeconds);
-      if (!silent) {
-        toast.success("Check-In QR pass updated to new unique code");
-      }
-    } catch {
-      if (!silent) toast.error("Failed to rotate QR token");
-    } finally {
-      setRefreshing(false);
-    }
-  };
+      const res: any = await kioskPassOrPhoneCheckInAction({
+        identifier: phoneInput.trim(),
+        mode: kioskMode,
+      });
 
-  const handleManualCheckIn = async (member: MemberItem) => {
-    setCheckingInId(member.id);
+      setKeypadResult(res);
 
-    // If offline, store directly into IndexedDB queue with instant chime
-    if (!isOnline) {
-      try {
-        await enqueueOfflineCheckIn({
-          memberId: member.id,
-          memberName: member.fullName,
-          method: "manual",
-          timestamp: new Date().toISOString(),
-        });
-        const count = await getPendingQueueCount();
-        setPendingOffline(count);
-        playSuccessChime();
-        toast.info(`Offline check-in saved locally for ${member.fullName}`);
-
-        setAttendanceFeed((prev) => [
-          {
-            id: `offline-${Date.now()}`,
-            memberId: member.id,
-            checkedInAt: new Date().toISOString(),
-            method: "manual (offline)",
-            verifiedBy: "Local Kiosk Queue",
-          },
-          ...prev.slice(0, 7),
-        ]);
-        setSearchMember("");
-        handleRefreshQr(true);
-      } catch {
-        playDeniedBuzz();
-        toast.error("Could not save to local offline storage.");
-      } finally {
-        setCheckingInId(null);
-      }
-      return;
-    }
-
-    // Online check-in via server action
-    try {
-      const res = await staffManualCheckInAction(member.id);
       if (res.success) {
-        playSuccessChime();
-        toast.success(`Check-in confirmed for ${member.fullName}`);
+        if (soundEnabled) playSuccessChime();
+        toast.success(res.message);
+
+        setLastScannedMember({
+          name: res.member?.fullName || "Athlete",
+          mode: kioskMode === "exit" ? "exit" : "entry",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        });
+
+        // Flash banner auto-dismisses after 4.5 seconds
+        setTimeout(() => setLastScannedMember(null), 4500);
+
         setAttendanceFeed((prev) => [
           {
             id: String(Date.now()),
-            memberId: member.id,
+            memberId: res.member?.id || "keypad",
             checkedInAt: new Date().toISOString(),
-            method: "manual",
-            verifiedBy: "Front Desk Staff",
+            method: kioskMode === "exit" ? "kiosk_exit" : "kiosk_entry",
+            verifiedBy: "Keypad Pass",
           },
-          ...prev.slice(0, 7),
+          ...prev.slice(0, 5),
         ]);
-        setSearchMember("");
-        // Automatically roll over to the next fresh unique QR code per scan!
-        handleRefreshQr(true);
+
+        // Instantly rotate QR code for next person in line
+        handleRefreshQr(kioskMode, true);
+
+        // Auto-close dialog after 3.2 seconds on success
+        setTimeout(() => {
+          setIsPinModalOpen(false);
+          setPhoneInput("");
+          setKeypadResult(null);
+        }, 3200);
+      } else if (res.expired) {
+        if (soundEnabled) playDeniedBuzz();
+        toast.error(res.message);
       } else {
-        if ((res as any).duplicate) {
-          playDuplicateNotice();
-        } else {
-          playDeniedBuzz();
-        }
+        if (soundEnabled) playDeniedBuzz();
         toast.error(res.message);
       }
     } catch {
-      // Network drop during request: fallback to offline queue
-      await enqueueOfflineCheckIn({
-        memberId: member.id,
-        memberName: member.fullName,
-        method: "manual",
-        timestamp: new Date().toISOString(),
-      }).catch(() => null);
-      playSuccessChime();
-      const count = await getPendingQueueCount();
-      setPendingOffline(count);
-      toast.warning(`Network dropout: Queued ${member.fullName} offline.`);
+      if (soundEnabled) playDeniedBuzz();
+      toast.error("Error communicating with gym turnstile gate");
     } finally {
-      setCheckingInId(null);
+      setPhoneSubmitting(false);
     }
   };
-
-  // Format countdown string HH:MM:SS
-  const formatTimer = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h > 0 ? `${h}h ` : ""}${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}s`;
-  };
-
-  // Filter members for fast staff manual search
-  const searchResults = searchMember.trim()
-    ? members
-        .filter(
-          (m) =>
-            m.fullName.toLowerCase().includes(searchMember.toLowerCase()) ||
-            m.phone.includes(searchMember)
-        )
-        .slice(0, 4)
-    : [];
 
   const getMemberName = (id: string) => {
     const found = members.find((m) => m.id === id);
     return found ? found.fullName : "Gym Athlete";
   };
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12">
-      {/* Page Title & Status Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Gym Check-In Kiosk</h1>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            Member entrance kiosk with auto-refreshing QR pass and front-desk check-in
-          </p>
-        </div>
+  // Theme highlights based on mode
+  const modeColor =
+    kioskMode === "exit"
+      ? "amber"
+      : kioskMode === "auto"
+      ? "cyan"
+      : "emerald";
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Back to Dashboard button */}
+  return (
+    <div className="min-h-screen bg-[#060709] text-zinc-100 flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none relative overflow-hidden">
+      {/* Subtle Atmospheric Lighting Aura */}
+      <div
+        className={`absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full blur-[140px] pointer-events-none transition-all duration-700 ${
+          kioskMode === "exit"
+            ? "bg-amber-500/10"
+            : kioskMode === "auto"
+            ? "bg-cyan-500/10"
+            : "bg-primary/10"
+        }`}
+      />
+
+      {/* Top Header Controls */}
+      <header className="relative z-10 flex items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
+        <div className="flex items-center gap-3">
           <Link
             href="/admin"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-sm border border-white/[0.08] bg-white/[0.04] text-xs text-zinc-300 hover:text-white hover:border-white/[0.15] transition-colors"
+            className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.07] text-zinc-400 hover:text-white transition-colors"
+            title="Exit to Admin Dashboard"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Dashboard</span>
+            <ArrowLeft className="w-4 h-4" />
           </Link>
-          {/* Network Status Indicator */}
-          <div
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-mono ${
-              isOnline
-                ? "bg-primary/10 border-primary/25 text-primary"
-                : "bg-amber-950/40 border-amber-800/50 text-amber-400 animate-pulse"
-            }`}
-          >
-            {isOnline ? (
-              <>
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <Wifi className="w-3 h-3" />
-                <span>Online</span>
-              </>
-            ) : (
-              <>
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
-                <WifiOff className="w-3 h-3" />
-                <span>Offline Queue</span>
-              </>
-            )}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-sm tracking-wider text-white font-mono">
+                GYMERP KIOSK
+              </span>
+              <span
+                className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded-full font-semibold border ${
+                  kioskMode === "exit"
+                    ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                    : kioskMode === "auto"
+                    ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
+                    : "bg-primary/10 border-primary/30 text-primary"
+                }`}
+              >
+                {kioskMode === "exit"
+                  ? "Exit Turnstile"
+                  : kioskMode === "auto"
+                  ? "Smart Dual Kiosk"
+                  : "Entrance Turnstile"}
+              </span>
+            </div>
+            <p className="text-xs text-zinc-400">
+              Point phone camera at screen to mark attendance
+            </p>
+          </div>
+        </div>
+
+        {/* Mode Selector & Hardware Controls */}
+        <div className="flex items-center gap-2">
+          {/* Mode Switcher Pill */}
+          <div className="hidden sm:flex items-center p-1 rounded-xl bg-[#0d0e12] border border-white/[0.08] text-xs">
+            <button
+              onClick={() => setKioskMode("entry")}
+              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+                kioskMode === "entry"
+                  ? "bg-primary text-[#08090a] font-semibold shadow-md"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Entry Mode
+            </button>
+            <button
+              onClick={() => setKioskMode("exit")}
+              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+                kioskMode === "exit"
+                  ? "bg-amber-400 text-[#08090a] font-semibold shadow-md"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Exit Mode
+            </button>
+            <button
+              onClick={() => setKioskMode("auto")}
+              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+                kioskMode === "auto"
+                  ? "bg-cyan-400 text-[#08090a] font-semibold shadow-md"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Auto Detect
+            </button>
           </div>
 
-          {/* Pending Offline Queue Sync */}
-          {pendingOffline > 0 && (
-            <button
-              type="button"
-              onClick={handleSyncQueue}
-              disabled={isSyncing || !isOnline}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono hover:bg-amber-500/20 transition-all disabled:opacity-50"
-              title="Click to flush offline check-ins to cloud"
-            >
-              <UploadCloud className={`w-3 h-3 ${isSyncing ? "animate-bounce" : ""}`} />
-              <span>{pendingOffline} Queued</span>
-              {isOnline && <span className="underline ml-0.5">Sync</span>}
-            </button>
-          )}
-
-          {/* Fullscreen Toggle for Kiosk Tablets */}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleToggleFullscreen}
-            className="h-7 px-2.5 text-xs bg-white/[0.04] border-white/[0.08] text-zinc-300 hover:text-white rounded-sm flex items-center gap-1.5"
-            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen Kiosk Mode"}
+          {/* Sound Toggle */}
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-zinc-400 hover:text-white"
+            title={soundEnabled ? "Mute audio chimes" : "Enable audio chimes"}
           >
-            {isFullscreen ? (
-              <>
-                <Minimize2 className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Exit</span>
-              </>
-            ) : (
-              <>
-                <Maximize2 className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Fullscreen</span>
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
+            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-zinc-600" />}
+          </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: Dynamic Member Check-In Pass Terminal (Takes 7 cols) */}
-        <div className="lg:col-span-7 glass-panel p-8 rounded-xl text-center space-y-6 flex flex-col items-center justify-between border-white/[0.08] relative overflow-hidden bg-[#0c0d10]/95">
-          <div className="space-y-1 text-center">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-1.5">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Live Entrance Pass</span>
-            </div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">Member Check-In</h2>
-            <p className="text-xs text-zinc-400">
-              Hold your pass up to the scanner or scan from your phone
+          {/* Fullscreen Button */}
+          <button
+            onClick={handleToggleFullscreen}
+            className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-zinc-400 hover:text-white"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Kiosk Mode"}
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
+        </div>
+      </header>
+
+      {/* Main Kiosk Center Stage */}
+      <main className="relative z-10 my-auto flex flex-col items-center justify-center py-6">
+        {/* Dynamic Flash Announcement upon member scan */}
+        <AnimatePresence>
+          {lastScannedMember && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className={`absolute top-0 z-30 px-6 py-3 rounded-2xl border shadow-2xl flex items-center gap-3 backdrop-blur-xl ${
+                lastScannedMember.mode === "exit"
+                  ? "bg-amber-500/20 border-amber-500/40 text-amber-200"
+                  : "bg-primary/20 border-primary/40 text-emerald-200"
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  lastScannedMember.mode === "exit"
+                    ? "bg-amber-400 text-black"
+                    : "bg-primary text-black"
+                }`}
+              >
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">
+                  {lastScannedMember.name}
+                </p>
+                <p className="text-xs text-zinc-300 font-mono">
+                  {lastScannedMember.mode === "exit" ? "Checked Out" : "Checked In"} • Gate Unlocked ({lastScannedMember.time})
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="w-full max-w-xl text-center space-y-6">
+          {/* Dynamic Instructions */}
+          <div className="space-y-1">
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              {kioskMode === "exit"
+                ? "Scan Out for Exit"
+                : kioskMode === "auto"
+                ? "Scan Pass to Enter or Exit"
+                : "Scan Pass for Gym Entry"}
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-400 font-normal">
+              Open your phone camera • Point at the QR pass below • Turnstile unlocks
             </p>
           </div>
 
-          {/* High-Resolution Clean QR Display */}
-          <div className="relative p-6 rounded-2xl bg-[#08090a] border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex items-center justify-center overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={qrData.tokenString}
-                initial={{ scale: 0.94, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.94, opacity: 0 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="p-4 bg-white rounded-xl shadow-2xl flex items-center justify-center"
-              >
-                <img
-                  src={qrData.qrDataUrl}
-                  alt="Dynamic Entrance QR Code"
-                  className="w-60 h-60 sm:w-68 sm:h-68 object-contain select-none"
-                />
-              </motion.div>
-            </AnimatePresence>
-          </div>
+          {/* Prominent High-Contrast Dynamic QR Code */}
+          <div className="relative inline-block mx-auto">
+            {/* Pulsing Border Glow */}
+            <div
+              className={`absolute -inset-3 rounded-3xl opacity-40 blur-xl transition-all duration-500 ${
+                kioskMode === "exit"
+                  ? "bg-amber-500"
+                  : kioskMode === "auto"
+                  ? "bg-cyan-400"
+                  : "bg-primary"
+              }`}
+            />
 
-          {/* Rotation Timer & Status Notice */}
-          <div className="w-full space-y-3 pt-2">
-            <div className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-[#090a0c] border border-white/[0.08] text-xs font-mono">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <Clock className="w-4 h-4 text-primary" />
-                <span>Auto-refreshes in:</span>
-              </div>
-              <span className="text-primary font-bold text-sm tracking-wider font-mono">
-                {formatTimer(remainingSecs)}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-zinc-500 px-1">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                <span>Anti-proxy dynamic token</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleRefreshQr(false)}
-                disabled={refreshing}
-                className="hover:text-zinc-200 text-zinc-400 flex items-center gap-1.5 transition-colors text-xs font-medium"
-                title="Generate fresh QR code"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
-                <span>Refresh Code</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Manual Staff Check-In & Live Feed (Takes 5 cols) */}
-        <div className="lg:col-span-5 space-y-6 flex flex-col justify-between">
-          {/* Manual Member Lookup Section */}
-          <div className="glass-panel p-5 rounded-lg space-y-4 border-white/[0.08]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-semibold text-zinc-200">
-                <UserCheck className="w-4 h-4 text-primary" />
-                <span>Manual Staff Check-In</span>
-              </div>
-              <span className="text-[10px] text-zinc-500 font-mono">Phone / Name</span>
-            </div>
-
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
-              <Input
-                placeholder="Search athlete by name or phone..."
-                value={searchMember}
-                onChange={(e) => setSearchMember(e.target.value)}
-                className="pl-9 bg-[#1c1c1c] border-white/[0.08] text-xs h-9 rounded-sm focus:border-primary"
-              />
-            </div>
-
-            {/* Quick Match Results with Motion */}
-            <AnimatePresence>
-              {searchResults.length > 0 && (
+            <div className="relative p-5 sm:p-7 rounded-3xl bg-[#0c0d10] border border-white/[0.12] shadow-[0_24px_60px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center">
+              <AnimatePresence mode="wait">
                 <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-1.5 pt-1 overflow-hidden"
+                  key={qrData.tokenString}
+                  initial={{ scale: 0.94, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.94, opacity: 0 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className="p-4 bg-white rounded-2xl shadow-xl flex items-center justify-center"
                 >
-                  {searchResults.map((m) => (
-                    <motion.div
-                      key={m.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      className="p-2.5 rounded-md bg-[#1c1c1c] border border-white/[0.08] flex items-center justify-between text-xs"
-                    >
-                      <div>
-                        <p className="font-medium text-white">{m.fullName}</p>
-                        <p className="text-[10px] text-zinc-400 font-mono">{m.phone}</p>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => handleManualCheckIn(m)}
-                        disabled={checkingInId === m.id || m.status !== "active"}
-                        className="h-7 text-[11px] px-2.5 bg-primary text-[#171717] font-medium hover:bg-primary-deep rounded-sm"
-                      >
-                        {checkingInId === m.id ? "Checking In..." : "Check In"}
-                      </Button>
-                    </motion.div>
-                  ))}
+                  <img
+                    src={qrData.qrDataUrl}
+                    alt="Anti-Proxy Turnstile QR"
+                    className="w-64 h-64 sm:w-80 sm:h-80 object-contain select-none"
+                  />
                 </motion.div>
-              )}
-            </AnimatePresence>
+              </AnimatePresence>
+
+              {/* Progress Countdown Bar */}
+              <div className="w-full mt-4 space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono px-1">
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <Clock className="w-3.5 h-3.5 text-zinc-300" />
+                    <span>Anti-proxy code rotates in:</span>
+                  </div>
+                  <span
+                    className={`font-bold ${
+                      kioskMode === "exit"
+                        ? "text-amber-400"
+                        : kioskMode === "auto"
+                        ? "text-cyan-400"
+                        : "text-primary"
+                    }`}
+                  >
+                    {remainingSecs}s
+                  </span>
+                </div>
+
+                <div className="w-full h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full ${
+                      kioskMode === "exit"
+                        ? "bg-amber-400"
+                        : kioskMode === "auto"
+                        ? "bg-cyan-400"
+                        : "bg-primary"
+                    }`}
+                    style={{ width: `${(remainingSecs / 20) * 100}%` }}
+                    transition={{ duration: 0.2 }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Live Recent Check-Ins Feed with Motion */}
-          <div className="glass-panel p-5 rounded-lg space-y-3 border-white/[0.08] flex-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-200">Live Check-In Feed</span>
-              <span className="text-[10px] text-zinc-500 font-mono">Today</span>
+          {/* 3 Step Visual Guide & Dead Phone Fallback */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[11px] text-zinc-300">
+              <Smartphone className="w-3.5 h-3.5 text-primary" />
+              <span>1. Open Camera</span>
             </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[11px] text-zinc-300">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <span>2. Scan Screen</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[11px] text-zinc-300">
+              <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+              <span>3. Gate Unlocks</span>
+            </div>
+          </div>
 
-            {attendanceFeed.length === 0 ? (
-              <div className="py-8 text-center text-xs text-zinc-500">
-                No entries recorded today yet.
-              </div>
-            ) : (
-              <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                <AnimatePresence initial={false}>
-                  {attendanceFeed.map((att) => (
-                    <motion.div
-                      key={att.id}
-                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="p-2.5 rounded-md bg-[#1c1c1c]/60 border border-white/[0.06] flex items-center justify-between text-xs hover:border-white/[0.12] transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                        <div>
-                          <p className="font-medium text-zinc-200">{getMemberName(att.memberId)}</p>
-                          <p className="text-[10px] text-zinc-500 font-mono">
-                            {new Date(att.checkedInAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary" className="text-[10px] uppercase font-mono">
-                        {att.method === "qr_scan" ? "QR Scan" : "Desk"}
-                      </Badge>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
+          {/* Fallback button if member phone battery is dead */}
+          <div className="pt-1">
+            <button
+              onClick={() => setIsPinModalOpen(true)}
+              className="text-xs text-zinc-400 hover:text-white underline underline-offset-4 transition-colors font-medium"
+            >
+              Phone dead or no camera? Check in with Phone Number
+            </button>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer Status Bar */}
+      <footer className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/[0.07] pt-4 text-xs font-mono text-zinc-500">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`w-2 h-2 rounded-full animate-pulse ${
+                isOnline ? "bg-primary" : "bg-amber-400"
+              }`}
+            />
+            <span>{isOnline ? "Cloud Gate Controller Online" : "Offline Storage Active"}</span>
+          </div>
+          <span>•</span>
+          <span>Single-Use Nonce Security</span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => handleRefreshQr(kioskMode, false)}
+            disabled={refreshing}
+            className="hover:text-zinc-300 flex items-center gap-1.5 transition-colors"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+            <span>Force Rotate QR</span>
+          </button>
+        </div>
+      </footer>
+
+      {/* Manual Phone/PIN Check-In Dialog for dead batteries */}
+      <Dialog open={isPinModalOpen} onOpenChange={(open) => {
+        setIsPinModalOpen(open);
+        if (!open) {
+          setKeypadResult(null);
+          setPhoneInput("");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md bg-[#0c0d10] border border-white/[0.1] text-zinc-100 p-6 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
+              <Phone className="w-4 h-4 text-primary" />
+              <span>Kiosk Keypad Check-In</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-zinc-400">
+              Enter your registered phone number or Gym Pass ID.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Expired Member Card View */}
+          {keypadResult && keypadResult.expired && keypadResult.member && (
+            <div className="p-5 rounded-2xl bg-gradient-to-b from-red-950/40 to-[#0c0d10] border border-red-500/50 shadow-[0_0_35px_rgba(239,68,68,0.2)] text-center space-y-4 my-2">
+              <div className="w-14 h-14 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center mx-auto">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <div>
+                <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-mono font-bold bg-red-500/25 text-red-400 border border-red-500/40 uppercase tracking-widest">
+                  Membership Expired
+                </span>
+                <h3 className="text-lg font-bold text-white tracking-tight mt-1.5">
+                  {keypadResult.member.fullName}
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-left p-3.5 rounded-xl bg-[#08090a] border border-white/[0.08] text-xs font-mono">
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase block">Athlete ID</span>
+                  <span className="text-zinc-200 font-bold">#{keypadResult.member.id.slice(0, 8)}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase block">Status</span>
+                  <span className="text-red-400 font-bold uppercase">Expired</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase block">Joined</span>
+                  <span className="text-zinc-400">{keypadResult.member.joinDate}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase block">Expired On</span>
+                  <span className="text-red-400 font-bold">{keypadResult.member.expiryDate}</span>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-red-500/10 border border-red-500/25 text-xs text-red-300 font-medium">
+                Please visit the front desk to renew your pass before entering.
+              </div>
+
+              <div className="pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setKeypadResult(null);
+                    setPhoneInput("");
+                  }}
+                  className="w-full border-white/[0.1] text-xs text-zinc-300 hover:bg-white/[0.05]"
+                >
+                  Try Another Number
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Active Member Card View */}
+          {keypadResult && keypadResult.success && keypadResult.member && (
+            <div className="p-5 rounded-2xl bg-gradient-to-b from-primary/15 to-[#0c0d10] border border-primary/40 shadow-[0_0_35px_rgba(62,207,142,0.2)] text-center space-y-4 my-2">
+              <div className="w-14 h-14 rounded-full bg-primary/20 border border-primary/40 text-primary flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <div>
+                <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-mono font-bold bg-primary/25 text-primary border border-primary/40 uppercase tracking-widest">
+                  {kioskMode === "exit" ? "Exit Logged" : "Access Granted"}
+                </span>
+                <h3 className="text-lg font-bold text-white tracking-tight mt-1.5">
+                  {keypadResult.member.fullName}
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-left p-3.5 rounded-xl bg-[#08090a] border border-white/[0.08] text-xs font-mono">
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase block">Athlete ID</span>
+                  <span className="text-zinc-200 font-bold">#{keypadResult.member.id.slice(0, 8)}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase block">Status</span>
+                  <span className="text-primary font-bold uppercase">Active</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase block">Joined</span>
+                  <span className="text-zinc-400">{keypadResult.member.joinDate}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase block">Valid Until</span>
+                  <span className="text-emerald-400 font-bold">{keypadResult.member.expiryDate}</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-primary font-medium">Turnstile Gate Unlocked. Welcome!</p>
+            </div>
+          )}
+
+          {/* Keypad Form Input (shown when not displaying card result) */}
+          {(!keypadResult || (!keypadResult.success && !keypadResult.expired)) && (
+            <form onSubmit={handlePhoneCheckInSubmit} className="space-y-4 pt-2">
+              <Input
+                type="tel"
+                required
+                autoFocus
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+                placeholder="Phone number or Pass ID"
+                className="bg-[#14161b] border-white/[0.1] text-center text-lg tracking-widest font-mono h-12 rounded-xl text-white focus:border-primary"
+              />
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsPinModalOpen(false)}
+                  className="border-white/[0.08] text-xs text-zinc-300 hover:bg-white/[0.05]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={phoneSubmitting || !phoneInput.trim()}
+                  className="bg-primary hover:bg-primary-deep text-[#08090a] font-semibold text-xs px-5"
+                >
+                  {phoneSubmitting ? "Verifying..." : "Confirm Entrance"}
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

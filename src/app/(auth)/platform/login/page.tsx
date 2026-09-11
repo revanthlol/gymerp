@@ -12,8 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Reveal } from "@/components/Reveal";
 
 export default function PlatformLoginPage() {
-  const [email, setEmail] = useState("platform@gymerp.local");
-  const [password, setPassword] = useState("Admin12345!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

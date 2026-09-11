@@ -13,6 +13,8 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { TurnstileQrDialog } from "@/components/admin/turnstile-qr-dialog";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +50,10 @@ export default async function AdminDashboardPage() {
     };
   });
 
+  if (data.plans.length === 0) {
+    redirect("/admin/onboarding");
+  }
+
   const activeMembers = data.members.filter((m) => m.status === "active").length;
   const inactiveMembers = data.members.length - activeMembers;
   const totalRevenue = data.payments.reduce(
@@ -66,6 +72,16 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Link href="/admin/onboarding">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs h-9 bg-[#0c0d10] border-white/[0.08] text-zinc-300 hover:text-white rounded-lg flex items-center gap-1.5"
+            >
+              <Sliders className="w-3.5 h-3.5 text-primary" />
+              <span>Facility Setup Wizard</span>
+            </Button>
+          </Link>
           <TurnstileQrDialog />
         </div>
       </div>

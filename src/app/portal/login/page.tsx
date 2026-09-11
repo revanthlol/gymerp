@@ -44,10 +44,7 @@ export default function MemberLoginPage() {
     });
   };
 
-  const handlePreset = (val: string) => {
-    setIdentifier(val);
-    setErrorMsg(null);
-  };
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#08090a] text-zinc-100 relative overflow-hidden">
@@ -115,29 +112,7 @@ export default function MemberLoginPage() {
               </p>
             </div>
 
-            {/* Quick Demo Athlete selector */}
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500">
-                Quick 1-Click Demo Accounts:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  { name: "Marcus V.", val: "+1 (555) 234-5678", plan: "VIP" },
-                  { name: "Elena R.", val: "+1 (555) 876-5432", plan: "Monthly" },
-                  { name: "Liam C.", val: "+1 (555) 345-6789", plan: "Monthly" },
-                ].map((item) => (
-                  <button
-                    key={item.val}
-                    type="button"
-                    onClick={() => handlePreset(item.val)}
-                    className="px-2.5 py-1 rounded-lg bg-[#08090a] border border-white/[0.08] text-[11px] font-medium text-zinc-300 hover:text-brand hover:border-brand/40 transition-colors flex items-center gap-1"
-                  >
-                    <span>{item.name}</span>
-                    <span className="text-[9px] text-zinc-500 font-mono">({item.plan})</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+
 
             <Button
               type="submit"
