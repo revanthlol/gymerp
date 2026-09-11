@@ -127,20 +127,34 @@ export async function updateMemberStatusAction(
   });
 }
 
-export async function deleteMemberAction(memberId: string) {
-  const session = await getSession();
-  if (!session || !session.tenantId || session.role !== "admin") {
-    throw new Error("Unauthorized: Only gym admin can remove athlete accounts");
+export async function deleteMemberAction(memberId: string): Promise<
+  | { success: true }
+  | { success: false; error: string }
+> {
+  try {
+    const session = await getSession();
+    if (!session || !session.tenantId || (session.role !== "admin" && session.role !== "staff")) {
+      return { success: false, error: "Unauthorized: Only gym admin or staff can remove athlete accounts" };
+    }
+
+    return await withTenantDb(session, async (tx) => {
+      // Cleanly delete child records in case cascade isn't configured in PostgreSQL
+      await tx.delete(attendance).where(eq(attendance.memberId, memberId));
+      await tx.delete(memberships).where(eq(memberships.memberId, memberId));
+
+      await tx
+        .delete(members)
+        .where(and(eq(members.id, memberId), eq(members.tenantId, session.tenantId!)));
+
+      revalidatePath("/admin/members");
+      revalidatePath("/admin");
+      revalidatePath("/staff/members");
+      revalidatePath("/staff");
+      return { success: true };
+    });
+  } catch (err: any) {
+    console.error("Error deleting member:", err);
+    return { success: false, error: err?.message || "Failed to remove member account" };
   }
-
-  return await withTenantDb(session, async (tx) => {
-    await tx
-      .delete(members)
-      .where(and(eq(members.id, memberId), eq(members.tenantId, session.tenantId!)));
-
-    revalidatePath("/admin/members");
-    revalidatePath("/admin");
-    return { success: true };
-  });
 }
 

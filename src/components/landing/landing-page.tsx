@@ -73,58 +73,58 @@ export function LandingPage({ session }: LandingPageProps) {
   const loginGateways = [
     {
       id: "member",
-      title: "Athlete & Member Portal",
-      audience: "Gym Members & Athletes",
+      title: "Member & Athlete Portal",
+      audience: "Gym Members",
       description:
-        "Instant smartphone entry pass, real-time class reservations, training streak metrics, and digital payment receipts.",
+        "Instant phone entry pass, see active membership status, book workout classes, and check attendance history.",
       icon: Smartphone,
       accent: "from-primary/20 via-primary/5 to-transparent",
-      badge: "Primary Portal",
+      badge: "Members",
       badgeColor: "bg-primary/10 text-primary border-primary/20",
       href: "/portal/login",
-      actionLabel: "Access Member Pass",
+      actionLabel: "Open Member Pass",
       featured: true,
     },
     {
       id: "staff",
-      title: "Front Desk & Staff Terminal",
-      audience: "Desk Staff & Fitness Coaches",
+      title: "Front Desk & Staff",
+      audience: "Receptionists & Trainers",
       description:
-        "Sub-50ms turnstile overrides, live active gym floor roster, walk-in athlete registrations, and kiosk screen management.",
+        "Quick member check-in, see who is currently working out on the gym floor, register walk-ins, and manage classes.",
       icon: QrCode,
       accent: "from-cyan-500/20 via-cyan-500/5 to-transparent",
-      badge: "Staff Terminal",
+      badge: "Front Desk",
       badgeColor: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
       href: "/login",
-      actionLabel: "Staff Desk Sign In",
+      actionLabel: "Front Desk Sign In",
       featured: false,
     },
     {
       id: "admin",
-      title: "Gym Owner & Site Manager",
-      audience: "Facility Owners & Managers",
+      title: "Gym Owner & Manager",
+      audience: "Gym Owners & Managers",
       description:
-        "Complete business intelligence: subscription plan configuration, member CRM, automated billing reconciliation, and capacity scheduling.",
+        "Full control over your gym: create membership plans, track monthly revenue, manage member renewals, and add staff accounts.",
       icon: LayoutDashboard,
       accent: "from-emerald-500/20 via-teal-500/5 to-transparent",
-      badge: "Facility ERP",
+      badge: "Gym Management",
       badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
       href: "/login",
-      actionLabel: "Manager Sign In",
+      actionLabel: "Owner Sign In",
       featured: false,
     },
     {
       id: "platform",
-      title: "Platform Superadmin Console",
-      audience: "Franchise Operators & Devs",
+      title: "Platform Console",
+      audience: "Franchise Operators & Admins",
       description:
-        "Fleet provisioning, database connection pool telemetry, Row-Level Security partition health, and global infrastructure orchestration.",
+        "Create new gym accounts, issue licenses, and manage multi-location gym franchises from a single master dashboard.",
       icon: ShieldCheck,
       accent: "from-purple-500/20 via-indigo-500/5 to-transparent",
       badge: "Superadmin",
       badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/20",
       href: "/platform/login",
-      actionLabel: "Platform Gateway",
+      actionLabel: "Platform Sign In",
       featured: false,
     },
   ];
@@ -133,46 +133,46 @@ export function LandingPage({ session }: LandingPageProps) {
     {
       id: "kiosk",
       step: "01",
-      tag: "OPTICAL INGRESS",
-      title: "Physical Kiosk Screen & Native Camera Scan",
-      subtitle: "Dedicated tablets mounted at gym entrance and exit lanes.",
+      tag: "EASY CHECK-IN",
+      title: "Instant Phone Check-In at the Door",
+      subtitle: "Mount a tablet at your entrance. Members scan and walk in.",
       description:
-        "A secure web terminal runs full-screen on wall-mounted displays. When athletes or coaches walk up, they point their smartphone camera at the dynamic high-contrast QR code. In less than 50 milliseconds, the magnetic turnstile unlocks without downloading third-party apps.",
-      highlight: "<50ms Ingress",
-      badge: "Zero App Download",
+        "Mount any standard tablet or iPad at your front door. When members arrive, they simply scan the code with their smartphone camera. They are checked in under a second — no plastic keycards to buy, and members do not have to install any bulky apps.",
+      highlight: "1-Second Check-In",
+      badge: "No App Required",
     },
     {
       id: "crypto",
       step: "02",
-      tag: "ANTI-PROXY PROTOCOL",
-      title: "Single-Use Cryptographic HMAC Nonce",
-      subtitle: "Every scan immediately burns the code and cycles to the next one.",
+      tag: "STOP CHEATING",
+      title: "Stop Pass Sharing Between Friends",
+      subtitle: "Members can't screenshot a pass and send it to their buddies.",
       description:
-        "Traditional barcodes are easily screenshotted or sent via WhatsApp to friends. GymERP generates rotating HMAC-SHA256 nonces with a 20-second lifespan. As soon as a turnstile accepts a scan, the nonce is burned in PostgreSQL and the kiosk immediately rotates to a fresh code for the next member in line.",
-      highlight: "20s Live Window",
-      badge: "Single-Use Nonce",
+        "With old-school barcode cards, members screenshot their pass and share it with friends to let them sneak in for free. GymERP automatically changes the check-in code every 20 seconds. As soon as one person scans it, that code expires instantly so nobody else can reuse it.",
+      highlight: "Stops Free Entry",
+      badge: "Auto-Rotating Code",
     },
     {
       id: "dead-battery",
       step: "03",
-      tag: "FAIL-SAFE ACCESS",
-      title: "Dead Phone Keypad & Live Membership Card",
-      subtitle: "Never lock out an athlete whose battery drained during their day.",
+      tag: "BACKUP ACCESS",
+      title: "Dead Phone? Keypad Check-In",
+      subtitle: "Nobody gets locked out if their phone battery dies during work.",
       description:
-        "If a member's phone dies, they tap the kiosk keypad and enter their mobile number or Pass ID. The system instantly displays their dark aesthetic digital pass: ID, Name, Joining Date, and Expiration Date. If their subscription has expired, it highlights in bold glowing red with immediate desk instructions.",
+        "If a member comes straight from work with a dead phone, they simply tap the tablet screen and enter their phone number. Their photo and membership status immediately pop up on screen. If their membership expired, it clearly shows in red so your front desk can collect payment.",
       highlight: "100% Reliable",
-      badge: "Keypad Fallback",
+      badge: "Phone Number Backup",
     },
     {
       id: "daemon",
       step: "04",
-      tag: "HIGH PERFORMANCE",
-      title: "Dedicated Node Daemon vs Serverless Cold Starts",
-      subtitle: "Engineered for physical hardware that cannot tolerate 2-second delays.",
+      tag: "PEAK HOUR SPEED",
+      title: "Never Lags During Morning & Evening Rushes",
+      subtitle: "Built to stay fast even when 50 members walk in at the same time.",
       description:
-        "Serverless functions suffer from cold starts and connection pool exhaustion when multiple kiosks ping simultaneously. GymERP runs a persistent Node.js Fastify daemon on dedicated compute with pooled PostgreSQL connections, sub-5ms database latency, and strict Row-Level Security tenant isolation.",
-      highlight: "Zero Cold Starts",
-      badge: "Fastify Daemon",
+        "Most gym software slows down or crashes during the 7 AM and 6 PM rush hours. GymERP is built on high-speed servers with direct database links, so check-ins happen in real time with zero loading spinners or awkward door bottlenecks.",
+      highlight: "Zero Rush Hour Lag",
+      badge: "Instant Response",
     },
   ];
 
@@ -270,9 +270,9 @@ export function LandingPage({ session }: LandingPageProps) {
             className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0c0d10] border border-white/[0.08] text-xs font-mono shadow-sm"
           >
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-zinc-400">Gym Operating System</span>
+            <span className="text-zinc-400">Gym Management & Check-In</span>
             <span className="text-zinc-600">•</span>
-            <span className="text-primary font-semibold">Sub-50ms Optical Ingress</span>
+            <span className="text-primary font-semibold">Fast Check-In • No Pass Sharing</span>
           </motion.div>
 
           {/* Editorial Headline */}
@@ -283,15 +283,15 @@ export function LandingPage({ session }: LandingPageProps) {
             className="space-y-4"
           >
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1]">
-              Physical ingress. <br />
+              Run your gym smoothly. <br />
               <span className="bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
-                Cryptographic speed.
+                Stop pass sharing.
               </span>
             </h1>
             <p className="max-w-2xl mx-auto text-sm sm:text-base text-zinc-400 leading-relaxed font-normal">
-              An obsidian-crafted gym ERP engineered for live physical facilities. Wall-mounted
-              kiosks with rotating cryptographic QR tokens, instant smartphone camera check-ins, and
-              immutable attendance ledgers.
+              The modern management software for gyms, fitness studios, and martial arts dojos.
+              Instant phone check-in at the front desk, automatic expired pass alerts, and members
+              can't screenshot passes to sneak friends in.
             </p>
           </motion.div>
 
@@ -308,7 +308,7 @@ export function LandingPage({ session }: LandingPageProps) {
                 className="w-full sm:w-auto h-11 px-6 bg-primary text-[#08090a] font-bold hover:bg-primary-deep rounded-xl shadow-[0_0_20px_rgba(62,207,142,0.25)] text-sm flex items-center justify-center gap-2"
               >
                 <Smartphone className="w-4 h-4" />
-                <span>Athlete Pass & Member Login</span>
+                <span>Member Check-In & Login</span>
               </Button>
             </Link>
             <a href="#interactive-kiosk" className="w-full sm:w-auto">
@@ -318,7 +318,7 @@ export function LandingPage({ session }: LandingPageProps) {
                 className="w-full sm:w-auto h-11 px-5 border-white/[0.08] bg-[#0c0d10] text-zinc-200 hover:text-white hover:bg-[#14161b] rounded-xl text-sm flex items-center justify-center gap-2"
               >
                 <QrCode className="w-4 h-4 text-primary" />
-                <span>See How Physical Kiosks Work</span>
+                <span>See How Check-In Works</span>
               </Button>
             </a>
           </motion.div>
@@ -328,14 +328,14 @@ export function LandingPage({ session }: LandingPageProps) {
         <section id="interactive-kiosk" className="py-16 px-4 sm:px-6 max-w-5xl mx-auto">
           <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
             <span className="text-[11px] font-mono uppercase tracking-widest text-primary font-semibold block">
-              HARDWARE ARCHITECTURE PREVIEW
+              LIVE FRONT DOOR SIMULATOR
             </span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Interactive Kiosk & Smartphone Scan Flow
+              See How Front Door Check-In Works
             </h2>
             <p className="text-xs sm:text-sm text-zinc-400">
-              Test how a wall-mounted tablet displays dynamic QR tokens, burns them on scan, and
-              validates member status in real-time.
+              Watch how the tablet at your front door lets members scan to enter and catches expired
+              memberships automatically.
             </p>
           </div>
 
@@ -356,11 +356,11 @@ export function LandingPage({ session }: LandingPageProps) {
                 <div className="flex items-center justify-between border-b border-white/[0.08] pb-4 mb-6 text-xs font-mono">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <span className="text-white font-semibold">TURNSTILE KIOSK #01</span>
+                    <span className="text-white font-semibold">FRONT DOOR CHECK-IN TABLET</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-zinc-400">
                     <Clock className="w-3.5 h-3.5" />
-                    <span>Live Gate Controller</span>
+                    <span>Live Tablet Screen</span>
                   </div>
                 </div>
 
@@ -376,7 +376,7 @@ export function LandingPage({ session }: LandingPageProps) {
                           : "text-zinc-400 hover:text-white bg-white/[0.02]"
                       }`}
                     >
-                      {m === "entry" ? "Entry Gate" : m === "exit" ? "Exit Gate" : "Smart Auto"}
+                      {m === "entry" ? "Entry Door" : m === "exit" ? "Exit Door" : "Both (Auto)"}
                     </button>
                   ))}
                 </div>
@@ -401,8 +401,8 @@ export function LandingPage({ session }: LandingPageProps) {
                   {/* 20-Second Progress Timer */}
                   <div className="w-56 space-y-1.5 text-center">
                     <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
-                      <span>Nonce: {simToken}</span>
-                      <span className="text-primary font-bold">{simCountdown}s TTL</span>
+                      <span>Code: {simToken}</span>
+                      <span className="text-primary font-bold">New code in {simCountdown}s</span>
                     </div>
                     <div className="w-full h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
                       <div
@@ -423,7 +423,7 @@ export function LandingPage({ session }: LandingPageProps) {
                       className="mt-4 p-3.5 rounded-xl bg-primary/15 border border-primary/40 text-center flex items-center justify-center gap-2 text-xs font-semibold text-primary"
                     >
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
-                      <span>ACCESS GRANTED • ALEX VANCE (Gate Unlocked)</span>
+                      <span>WELCOME IN • ALEX VANCE (Active Membership)</span>
                     </motion.div>
                   )}
                   {simState === "expired" && (
@@ -434,7 +434,7 @@ export function LandingPage({ session }: LandingPageProps) {
                       className="mt-4 p-3.5 rounded-xl bg-red-950/40 border border-red-500/50 text-center flex items-center justify-center gap-2 text-xs font-semibold text-red-400"
                     >
                       <AlertCircle className="w-4 h-4 shrink-0" />
-                      <span>MEMBERSHIP EXPIRED • PLEASE SEE FRONT DESK</span>
+                      <span>MEMBERSHIP EXPIRED • PLEASE RENEW AT FRONT DESK</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -446,11 +446,11 @@ export function LandingPage({ session }: LandingPageProps) {
               <div className="p-6 rounded-2xl bg-[#0c0d10] border border-white/[0.08] space-y-4">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono uppercase text-primary font-bold">
-                    SIMULATION CONTROLS
+                    TRY BOTH SCENARIOS
                   </span>
-                  <h3 className="text-lg font-bold text-white">Test Real Scenarios</h3>
+                  <h3 className="text-lg font-bold text-white">See It in Action</h3>
                   <p className="text-xs text-zinc-400">
-                    See how GymERP responds to active athletes, expired members, and instant single-use nonce burn.
+                    Test how your door tablet greets active members and automatically catches unpaid expired memberships.
                   </p>
                 </div>
 
@@ -462,10 +462,10 @@ export function LandingPage({ session }: LandingPageProps) {
                   >
                     <span className="flex items-center gap-2">
                       <Smartphone className="w-4 h-4" />
-                      <span>Simulate Active Athlete Scan</span>
+                      <span>Simulate Paid Member Scan</span>
                     </span>
                     <span className="font-mono text-[10px] bg-black/20 px-2 py-0.5 rounded">
-                      Pass Approved
+                      Access Granted
                     </span>
                   </Button>
 
@@ -477,7 +477,7 @@ export function LandingPage({ session }: LandingPageProps) {
                   >
                     <span className="flex items-center gap-2">
                       <AlertCircle className="w-4 h-4" />
-                      <span>Simulate Expired Membership</span>
+                      <span>Simulate Expired Member Scan</span>
                     </span>
                     <span className="font-mono text-[10px] bg-red-500/20 px-2 py-0.5 rounded">
                       Red Alert
@@ -487,12 +487,12 @@ export function LandingPage({ session }: LandingPageProps) {
 
                 <div className="pt-2 border-t border-white/[0.06] text-[11px] text-zinc-400 space-y-1 font-mono">
                   <div className="flex items-center justify-between">
-                    <span>Nonce Status:</span>
-                    <span className="text-primary font-bold">Auto-Burning on Ingress</span>
+                    <span>Pass Sharing Protection:</span>
+                    <span className="text-primary font-bold">Active (Single-Use Code)</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>Pass Verification:</span>
-                    <span className="text-zinc-200">Sub-50ms</span>
+                    <span>Door Response Time:</span>
+                    <span className="text-zinc-200">Under 1 second</span>
                   </div>
                 </div>
               </div>
@@ -504,13 +504,13 @@ export function LandingPage({ session }: LandingPageProps) {
         <section id="how-it-works" className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-white/[0.06]">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
             <span className="text-[11px] font-mono uppercase tracking-widest text-primary block font-semibold">
-              SEAMLESS SCROLL ARCHITECTURE
+              WHY GYM OWNERS CHOOSE GYMERP
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Engineered For Physical Gyms
+              Built Specifically for Real Gyms
             </h2>
             <p className="text-xs sm:text-sm text-zinc-400">
-              Explore the four core engineering breakthroughs powering the GymERP ecosystem.
+              Four simple reasons gym owners switch to GymERP for door access and member management.
             </p>
           </div>
 
@@ -558,7 +558,7 @@ export function LandingPage({ session }: LandingPageProps) {
                 <div className="space-y-4 relative z-10">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono text-primary font-bold uppercase tracking-wider">
-                      Chapter {storyChapters[activeStoryChapter].step} • {storyChapters[activeStoryChapter].tag}
+                      Feature {storyChapters[activeStoryChapter].step} • {storyChapters[activeStoryChapter].tag}
                     </span>
                     <span className="text-xs font-mono font-bold text-zinc-300 bg-white/[0.05] px-3 py-1 rounded-full border border-white/[0.08]">
                       {storyChapters[activeStoryChapter].highlight}
@@ -574,23 +574,23 @@ export function LandingPage({ session }: LandingPageProps) {
                   </p>
                 </div>
 
-                {/* Interactive Technical Spec Visualizer */}
+                {/* Practical Gym Benefits Box */}
                 <div className="p-4 rounded-2xl bg-[#08090a] border border-white/[0.06] grid grid-cols-2 gap-4 text-xs font-mono text-zinc-400 relative z-10">
                   <div>
-                    <span className="text-[10px] text-zinc-500 block uppercase">Protocol</span>
-                    <span className="text-white font-bold">HMAC-SHA256 Nonce</span>
+                    <span className="text-[10px] text-zinc-500 block uppercase">Door Security</span>
+                    <span className="text-white font-bold">Stops Pass Sharing</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-zinc-500 block uppercase">Replay Guard</span>
-                    <span className="text-primary font-bold">Single-Use Burn</span>
+                    <span className="text-[10px] text-zinc-500 block uppercase">Dead Battery Backup</span>
+                    <span className="text-primary font-bold">Phone Keypad Entry</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-zinc-500 block uppercase">Database Layer</span>
-                    <span className="text-white font-bold">Neon RLS PostgreSQL</span>
+                    <span className="text-[10px] text-zinc-500 block uppercase">Payment Alerts</span>
+                    <span className="text-white font-bold">Instant Red Warning</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-zinc-500 block uppercase">Hardware Target</span>
-                    <span className="text-emerald-400 font-bold">Wall Kiosk / iOS / Android</span>
+                    <span className="text-[10px] text-zinc-500 block uppercase">Supported Hardware</span>
+                    <span className="text-emerald-400 font-bold">Any Tablet or iPad</span>
                   </div>
                 </div>
               </div>
@@ -686,7 +686,7 @@ export function LandingPage({ session }: LandingPageProps) {
                 GYMERP CORE
               </span>
               <span className="text-[11px] text-zinc-500 font-mono">
-                Production Optical Turnstile OS
+                Modern Gym Management & Door Access System
               </span>
             </div>
           </div>

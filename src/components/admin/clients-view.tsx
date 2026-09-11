@@ -172,7 +172,11 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
     }
 
     try {
-      await deleteMemberAction(selectedMember.id);
+      const res = await deleteMemberAction(selectedMember.id);
+      if (res && !res.success) {
+        toast.error(res.error || "Failed to remove member");
+        return;
+      }
       const remaining = membersList.filter((m) => m.id !== selectedMember.id);
       setMembersList(remaining);
       setSelectedMember(remaining[0] || null);

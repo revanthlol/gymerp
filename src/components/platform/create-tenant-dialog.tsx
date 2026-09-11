@@ -50,7 +50,11 @@ export function CreateTenantDialog() {
 
     try {
       const res = await provisionTenantAction(formData);
-      setResult(res);
+      if (!res.success) {
+        toast.error(res.error || "Failed to provision gym tenant");
+        return;
+      }
+      setResult(res as any);
       toast.success(`Gym "${res.tenant.name}" provisioned successfully!`);
     } catch (err: any) {
       toast.error(err.message || "Failed to provision gym tenant");
