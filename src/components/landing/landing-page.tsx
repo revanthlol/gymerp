@@ -196,9 +196,6 @@ export function LandingPage({ session }: LandingPageProps) {
               <span className="font-extrabold text-white text-base tracking-widest leading-none">
                 GYMERP
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-zinc-400 hidden sm:inline-block">
-                Core OS
-              </span>
             </div>
           </Link>
 
@@ -262,24 +259,11 @@ export function LandingPage({ session }: LandingPageProps) {
       {/* Main Storytelling Experience */}
       <main className="relative z-10">
         {/* HERO SECTION */}
-        <section className="pt-20 sm:pt-28 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center space-y-8">
-          {/* Status Capsule */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0c0d10] border border-white/[0.08] text-xs font-mono shadow-sm"
-          >
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-zinc-400">Gym Management & Check-In</span>
-            <span className="text-zinc-600">•</span>
-            <span className="text-primary font-semibold">Fast Check-In • No Pass Sharing</span>
-          </motion.div>
-
+        <section className="pt-24 sm:pt-32 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center space-y-8">
           {/* Editorial Headline */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
             className="space-y-4"
           >
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1]">
@@ -327,9 +311,9 @@ export function LandingPage({ session }: LandingPageProps) {
         {/* SECTION: INTERACTIVE PHYSICAL KIOSK & SCANNER SIMULATOR */}
         <section id="interactive-kiosk" className="py-16 px-4 sm:px-6 max-w-5xl mx-auto">
           <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-primary font-semibold block">
-              LIVE FRONT DOOR SIMULATOR
-            </span>
+            <p className="text-xs font-semibold text-primary tracking-wide">
+              Live Front Door Simulator
+            </p>
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               See How Front Door Check-In Works
             </h2>
@@ -353,14 +337,14 @@ export function LandingPage({ session }: LandingPageProps) {
                 }`}
               >
                 {/* Kiosk Status Bar */}
-                <div className="flex items-center justify-between border-b border-white/[0.08] pb-4 mb-6 text-xs font-mono">
+                <div className="flex items-center justify-between border-b border-white/[0.08] pb-4 mb-6 text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <span className="text-white font-semibold">FRONT DOOR CHECK-IN TABLET</span>
+                    <span className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="text-white font-medium">Front Door Tablet</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-zinc-400">
+                  <div className="flex items-center gap-1.5 text-zinc-400 text-[11px]">
                     <Clock className="w-3.5 h-3.5" />
-                    <span>Live Tablet Screen</span>
+                    <span>Kiosk Mode</span>
                   </div>
                 </div>
 
@@ -503,9 +487,9 @@ export function LandingPage({ session }: LandingPageProps) {
         {/* SECTION: SEAMLESS SCROLL STORYTELLING CHAPTERS */}
         <section id="how-it-works" className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-white/[0.06]">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-primary block font-semibold">
-              WHY GYM OWNERS CHOOSE GYMERP
-            </span>
+            <p className="text-xs font-semibold text-primary tracking-wide">
+              Key Capabilities
+            </p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               Built Specifically for Real Gyms
             </h2>
@@ -532,13 +516,13 @@ export function LandingPage({ session }: LandingPageProps) {
                   >
                     <div className="flex items-center justify-between w-full">
                       <span
-                        className={`text-xs font-mono font-bold ${
+                        className={`text-xs font-semibold ${
                           isActive ? "text-primary" : "text-zinc-500"
                         }`}
                       >
-                        {ch.step} // {ch.tag}
+                        {ch.step} • {ch.tag}
                       </span>
-                      <span className="text-[10px] font-mono text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/[0.06]">
+                      <span className="text-[11px] text-zinc-400">
                         {ch.badge}
                       </span>
                     </div>
@@ -557,10 +541,10 @@ export function LandingPage({ session }: LandingPageProps) {
               <div className="p-7 sm:p-9 rounded-3xl border border-white/[0.08] bg-[#0c0d10] relative overflow-hidden space-y-6 shadow-2xl min-h-[380px] flex flex-col justify-between">
                 <div className="space-y-4 relative z-10">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-primary font-bold uppercase tracking-wider">
-                      Feature {storyChapters[activeStoryChapter].step} • {storyChapters[activeStoryChapter].tag}
+                    <span className="text-xs font-semibold text-primary">
+                      Feature {storyChapters[activeStoryChapter].step} — {storyChapters[activeStoryChapter].tag}
                     </span>
-                    <span className="text-xs font-mono font-bold text-zinc-300 bg-white/[0.05] px-3 py-1 rounded-full border border-white/[0.08]">
+                    <span className="text-xs font-medium text-zinc-300 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.08]">
                       {storyChapters[activeStoryChapter].highlight}
                     </span>
                   </div>
@@ -575,22 +559,22 @@ export function LandingPage({ session }: LandingPageProps) {
                 </div>
 
                 {/* Practical Gym Benefits Box */}
-                <div className="p-4 rounded-2xl bg-[#08090a] border border-white/[0.06] grid grid-cols-2 gap-4 text-xs font-mono text-zinc-400 relative z-10">
+                <div className="p-4 rounded-2xl bg-[#08090a] border border-white/[0.06] grid grid-cols-2 gap-4 text-xs text-zinc-400 relative z-10">
                   <div>
                     <span className="text-[10px] text-zinc-500 block uppercase">Door Security</span>
-                    <span className="text-white font-bold">Stops Pass Sharing</span>
+                    <span className="text-white font-semibold">Stops Pass Sharing</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-zinc-500 block uppercase">Dead Battery Backup</span>
-                    <span className="text-primary font-bold">Phone Keypad Entry</span>
+                    <span className="text-primary font-semibold">Phone Keypad Entry</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-zinc-500 block uppercase">Payment Alerts</span>
-                    <span className="text-white font-bold">Instant Red Warning</span>
+                    <span className="text-white font-semibold">Instant Red Warning</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-zinc-500 block uppercase">Supported Hardware</span>
-                    <span className="text-emerald-400 font-bold">Any Tablet or iPad</span>
+                    <span className="text-emerald-400 font-semibold">Any Tablet or iPad</span>
                   </div>
                 </div>
               </div>
@@ -601,9 +585,9 @@ export function LandingPage({ session }: LandingPageProps) {
         {/* SECTION: THE FOUR SECURE GATEWAYS (LOGINS) */}
         <section id="portals" className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-white/[0.06]">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-primary block font-semibold">
-              ROLE-BASED AUTHENTICATION
-            </span>
+            <p className="text-xs font-semibold text-primary tracking-wide">
+              Dedicated Portals
+            </p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               Four Dedicated Portals
             </h2>
@@ -634,7 +618,7 @@ export function LandingPage({ session }: LandingPageProps) {
                         <Icon className="w-5 h-5" />
                       </div>
                       <span
-                        className={`text-[10px] font-mono px-2.5 py-1 rounded-full border uppercase tracking-wider font-semibold ${opt.badgeColor}`}
+                        className={`text-[11px] font-medium px-2 py-0.5 rounded-md border ${opt.badgeColor}`}
                       >
                         {opt.badge}
                       </span>

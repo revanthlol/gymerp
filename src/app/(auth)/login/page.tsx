@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight, QrCode } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight, QrCode, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,12 +18,37 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleResetPassword = async () => {
+    if (!email.trim()) {
+      setError("Please enter your work email first, then click Forgot password.");
+      return;
+    }
+    setResetLoading(true);
+    setError(null);
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      setResetSent(true);
+    } catch (err: any) {
+      console.error("Password reset error:", err);
+      if (err?.code === "auth/user-not-found") {
+        setError("No gym staff account found with this email address.");
+      } else {
+        setError(err.message || "Failed to send password reset email. Please verify the email address.");
+      }
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setResetSent(false);
 
     try {
       // 1. Sign in with Firebase client SDK
@@ -55,7 +80,15 @@ function LoginForm() {
       router.refresh();
     } catch (err: any) {
       console.error("Login error:", err);
-      setError(err.message || "Invalid credentials. Please verify your email and password.");
+      if (err?.code === "auth/invalid-credential" || err?.code === "auth/wrong-password") {
+        setError("Invalid email or password. Please verify your credentials or use the reset link below.");
+      } else if (err?.code === "auth/user-not-found") {
+        setError("No account found with this email. Please check the spelling or ask your gym administrator.");
+      } else if (err?.code === "auth/too-many-requests") {
+        setError("Too many failed attempts. Please wait a moment or reset your password.");
+      } else {
+        setError(err.message || "Invalid credentials. Please verify your email and password.");
+      }
     } finally {
       setLoading(false);
     }
@@ -136,7 +169,21 @@ function LoginForm() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-medium text-zinc-300">Password</label>
+                  <button
+                    type="button"
+                    onClick={handleResetPassword}
+                    disabled={resetLoading}
+                    className="text-[11px] text-zinc-400 hover:text-primary transition-colors underline-offset-2 hover:underline"
+                  >
+                    {resetLoading ? "Sending link..." : "Forgot password?"}
+                  </button>
                 </div>
+                {resetSent && (
+                  <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>Password reset link sent to your email. Check your inbox.</span>
+                  </div>
+                )}
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}

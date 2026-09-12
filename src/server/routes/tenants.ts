@@ -42,6 +42,17 @@ export const tenantRoutes: FastifyPluginAsync = async (fastify) => {
     const result = await withTenantDb(
       { userId: session.uid, role: "platform", tenantId: null },
       async (tx) => {
+        // Check slug collision
+        const existingSlug = await tx
+          .select({ id: tenants.id })
+          .from(tenants)
+          .where(eq(tenants.slug, input.slug))
+          .limit(1);
+
+        if (existingSlug.length > 0) {
+          throw new Error(`A gym with slug '${input.slug}' already exists. Please choose a different slug.`);
+        }
+
         // 1. Insert Tenant Record
         const [newTenant] = await tx
           .insert(tenants)
@@ -55,8 +66,11 @@ export const tenantRoutes: FastifyPluginAsync = async (fastify) => {
           })
           .returning();
 
-        // 2. Create Firebase User
-        const tempPassword = `GymInit_${Math.random().toString(36).slice(-8)}!`;
+        // 2. Create or Update Firebase User
+        const tempPassword =
+          input.adminPassword && input.adminPassword.trim().length >= 6
+            ? input.adminPassword.trim()
+            : `GymPass_${Math.random().toString(36).slice(-6)}!A1`;
         let fbUid: string;
 
         try {
@@ -70,6 +84,11 @@ export const tenantRoutes: FastifyPluginAsync = async (fastify) => {
           if (err.code === "auth/email-already-exists") {
             const existing = await adminAuth.getUserByEmail(input.contactEmail);
             fbUid = existing.uid;
+            // Update password and display name if already exists
+            await adminAuth.updateUser(fbUid, {
+              password: tempPassword,
+              displayName: input.adminFullName,
+            });
           } else {
             throw new Error("Failed to create user in Firebase Auth: " + err.message);
           }
@@ -81,14 +100,25 @@ export const tenantRoutes: FastifyPluginAsync = async (fastify) => {
           tenant_id: newTenant.id,
         });
 
-        // 4. Insert User Record in PostgreSQL
-        await tx.insert(users).values({
-          firebaseUid: fbUid,
-          tenantId: newTenant.id,
-          role: "admin",
-          email: input.contactEmail,
-          fullName: input.adminFullName,
-        });
+        // 4. Insert or Update User Record in PostgreSQL
+        await tx
+          .insert(users)
+          .values({
+            firebaseUid: fbUid,
+            tenantId: newTenant.id,
+            role: "admin",
+            email: input.contactEmail,
+            fullName: input.adminFullName,
+          })
+          .onConflictDoUpdate({
+            target: users.email,
+            set: {
+              firebaseUid: fbUid,
+              tenantId: newTenant.id,
+              role: "admin",
+              fullName: input.adminFullName,
+            },
+          });
 
         // 5. Generate Password Reset / Invitation Link
         let inviteLink = "";

@@ -143,7 +143,6 @@ export function StaffDashboardView({
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
             <span>Front Desk & Floor Operations</span>
-            <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Real-time facility ingress, active gym floor headcount, and turnstile overrides for {gymName}.

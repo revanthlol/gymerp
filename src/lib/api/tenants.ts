@@ -62,8 +62,11 @@ export async function provisionTenantAction(rawInput: CreateTenantInput): Promis
           })
           .returning();
 
-        // 3. Create or Sync Firebase User with temporary password
-        const tempPassword = `GymInit_${Math.random().toString(36).slice(-6)}!A1`;
+        // 3. Create or Sync Firebase User with initial or custom password
+        const tempPassword =
+          input.adminPassword && input.adminPassword.trim().length >= 6
+            ? input.adminPassword.trim()
+            : `GymPass_${Math.random().toString(36).slice(-6)}!A1`;
         let fbUid: string;
 
         try {

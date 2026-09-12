@@ -164,12 +164,15 @@ export const memberRoutes: FastifyPluginAsync = async (fastify) => {
   // 6. Delete member
   fastify.delete<{ Params: { id: string } }>(
     "/:id",
-    { preHandler: [requireRole("admin")] },
+    { preHandler: [requireRole("admin", "staff")] },
     async (request, reply) => {
       const session = request.sessionUser!;
       const { id } = request.params;
 
       await withTenantDb(session, async (tx) => {
+        // Cascade delete child records
+        await tx.delete(attendance).where(eq(attendance.memberId, id));
+        await tx.delete(memberships).where(eq(memberships.memberId, id));
         await tx
           .delete(members)
           .where(and(eq(members.id, id), eq(members.tenantId, session.tenantId!)));

@@ -79,9 +79,6 @@ export default function MemberLoginPage() {
               <QrCode className="w-4 h-4 text-brand" />
               <span>Digital Pass Verification</span>
             </div>
-            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
-              SECURE
-            </span>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">

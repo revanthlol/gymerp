@@ -12,6 +12,7 @@ export const createTenantSchema = z.object({
   adminFullName: z.string().min(2, "Admin full name is required"),
   initialStatus: z.enum(["trial", "active"]).default("active"),
   licenseDurationDays: z.coerce.number().int().positive().default(365),
+  adminPassword: z.string().min(6, "Password must be at least 6 characters").optional().or(z.literal("")),
 });
 
 export type CreateTenantInput = z.infer<typeof createTenantSchema>;

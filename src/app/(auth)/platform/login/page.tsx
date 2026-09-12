@@ -43,15 +43,27 @@ export default function PlatformLoginPage() {
       }
 
       const role = data.user.role;
-      if (role !== "platform") {
-        throw new Error("Access Denied: Account lacks platform administrator privileges.");
+      if (role === "admin") {
+        router.push("/admin");
+        router.refresh();
+        return;
+      } else if (role === "staff") {
+        router.push("/staff");
+        router.refresh();
+        return;
+      } else if (role !== "platform") {
+        throw new Error("Access Denied: This portal is reserved for platform administrators. Gym owners and staff should sign in at /login.");
       }
 
       router.push("/platform");
       router.refresh();
     } catch (err: any) {
       console.error("Platform login error:", err);
-      setError(err.message || "Invalid platform credentials.");
+      if (err?.code === "auth/invalid-credential" || err?.code === "auth/wrong-password" || err?.code === "auth/user-not-found") {
+        setError("Invalid email or password. Please verify your credentials.");
+      } else {
+        setError(err.message || "Invalid platform credentials.");
+      }
     } finally {
       setLoading(false);
     }

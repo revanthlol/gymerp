@@ -71,8 +71,8 @@ export function StaffHeader({
 
         {/* Right Status & User Profile */}
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#0c0d10] border border-white/[0.06] text-xs font-mono text-zinc-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+          <div className="hidden md:flex items-center gap-2 text-xs text-zinc-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
             <span>Kiosks Connected</span>
           </div>
 

@@ -19,18 +19,18 @@ export function PlatformNav({ userEmail }: { userEmail: string }) {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-white text-sm">GymERP</span>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 font-semibold">
+              <span className="text-[11px] px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20 font-medium">
                 Platform Console
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500 font-mono">Global Superadmin Tier</p>
+            <p className="text-[11px] text-zinc-500">Global Administration</p>
           </div>
         </div>
 
-        {/* Global Network Status Pill */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-[#0c0d10] border border-white/[0.06] text-xs font-mono text-zinc-400">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Core Network: Operational</span>
+        {/* Global Network Status */}
+        <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span>Operational</span>
         </div>
 
         {/* User & Logout */}
