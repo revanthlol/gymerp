@@ -3,9 +3,9 @@ import { LandingPage } from "@/components/landing/landing-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "GymERP | Physical Operations. Zero Friction.",
+  title: "GymERP | Easy Door Check-In & Gym Management",
   description:
-    "Modern obsidian-crafted gym ERP with sub-40ms turnstile access, automated revenue ledgers, and group class scheduling.",
+    "Run your gym smoothly and stop pass sharing. Instant phone check-in at the front desk, automatic expired membership warnings, and complete member management.",
 };
 
 export const dynamic = "force-dynamic";

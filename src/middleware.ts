@@ -23,6 +23,7 @@ export async function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get("__session")?.value;
 
   const isPublicRoute =
+    pathname === "/" ||
     pathname === "/login" ||
     pathname === "/platform/login" ||
     pathname === "/portal/login" ||
