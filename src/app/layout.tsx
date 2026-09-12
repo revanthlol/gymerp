@@ -37,9 +37,9 @@ export default async function RootLayout({
           <AuthProvider initialUser={session}>
             <PwaRegister />
             {children}
-            <Toaster position="top-right" />
           </AuthProvider>
         </div>
+        <Toaster position="top-right" />
       </body>
     </html>
   );

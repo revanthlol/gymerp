@@ -55,7 +55,7 @@ export default async function AdminPlansPage() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-white text-base tracking-tight">{p.name}</h3>
-                <span className="text-xs font-mono text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
                   {p.durationDays} Days
                 </span>
               </div>

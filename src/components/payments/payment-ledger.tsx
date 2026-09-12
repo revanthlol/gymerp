@@ -188,8 +188,8 @@ export function PaymentLedger({
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
               Payments & Settlements
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
-              LIVE LEDGER
+            <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Live Ledger
             </span>
           </div>
           <p className="text-sm text-zinc-400 mt-1">
@@ -415,19 +415,19 @@ export function PaymentLedger({
                       {/* Status */}
                       <td className="px-5 py-4">
                         {payment.status === "paid" && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950/50 text-emerald-400 border border-emerald-800/40">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>Paid</span>
                           </span>
                         )}
                         {payment.status === "pending" && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-950/50 text-amber-400 border border-amber-800/40">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
                             <Clock className="w-3 h-3" />
                             <span>Pending</span>
                           </span>
                         )}
                         {payment.status === "failed" && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-950/50 text-red-400 border border-red-800/40">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
                             <XCircle className="w-3 h-3" />
                             <span>Failed</span>
                           </span>

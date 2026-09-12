@@ -149,7 +149,7 @@ export function LandingPage({ session }: LandingPageProps) {
       title: "Gym Owner & Management",
       audience: "Owners & General Managers",
       description:
-        "Full control over membership plans, live recurring revenue analytics, staff roster access, and multi-turnstile configuration.",
+        "Full control over membership plans, live recurring revenue analytics, staff roster access, and front-desk check-in stations.",
       icon: LayoutDashboard,
       accent: "from-emerald-500/20 via-teal-500/5 to-transparent",
       badge: "Gym Management",
@@ -169,7 +169,7 @@ export function LandingPage({ session }: LandingPageProps) {
       subtitle: "Mount any standard tablet or iPad at your front entrance. Members scan and walk in.",
       description:
         "No proprietary card readers or expensive RFID scanners required. Mount any budget iPad or Android tablet at your front door. Members open their digital pass on their phone, tap it against the scanner, and walk in within 400 milliseconds.",
-      metrics: "0.4s Ingress",
+      metrics: "0.4s Check-in",
       benefit: "No bulky apps or plastic cards to buy",
     },
     {
@@ -177,10 +177,10 @@ export function LandingPage({ session }: LandingPageProps) {
       step: "02",
       tag: "Stop Pass Sharing",
       title: "Block Pass Screenshots Between Friends",
-      subtitle: "Single-use cryptographic tokens prevent members from sharing passes.",
+      subtitle: "Auto-refreshing dynamic passes prevent members from sharing screenshots.",
       description:
-        "Traditional barcode cards let gym members screenshot their card and send it to friends to sneak in for free. GymERP rotates every QR token every 20 seconds. Once scanned at the door, that token is burned instantly on the server and cannot be reused.",
-      metrics: "Single-Use",
+        "Traditional barcode cards let gym members screenshot their card and send it to friends to sneak in for free. GymERP rotates every QR token every 20 seconds. Once scanned at the door, that token is verified and invalidated immediately so it cannot be copied.",
+      metrics: "Anti-Share",
       benefit: "100% protection against unpaid guest entry",
     },
     {
@@ -233,7 +233,7 @@ export function LandingPage({ session }: LandingPageProps) {
       </div>
 
       {/* Modern Sticky Navigation Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#08090a]/80 backdrop-blur-xl transition-all">
+      <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#08090a]/75 backdrop-blur-2xl transition-all shadow-[0_4px_30px_rgba(0,0,0,0.5),inset_0_-1px_0_rgba(255,255,255,0.04)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Brand Mark */}
           <Link href="/" className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
@@ -325,7 +325,7 @@ export function LandingPage({ session }: LandingPageProps) {
           >
             <span className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/[0.03] border border-white/[0.08]">
               <Zap className="w-3.5 h-3.5 text-primary" />
-              <span>0.4s Ingress Speed</span>
+              <span>Instant 0.4s Check-in</span>
             </span>
             <span className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/[0.03] border border-white/[0.08]">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -851,7 +851,7 @@ export function LandingPage({ session }: LandingPageProps) {
                 GYMERP
               </span>
               <span className="text-[11px] text-zinc-500">
-                Modern Gym Management & Ingress Verification
+                Modern Gym Operations & Check-in Verification
               </span>
             </div>
           </div>

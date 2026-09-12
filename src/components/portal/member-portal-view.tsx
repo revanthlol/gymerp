@@ -122,8 +122,8 @@ export function MemberPortalView({ data }: MemberPortalProps) {
 
   return (
     <div className="min-h-screen bg-[#08090a] text-zinc-100 pb-16">
-      {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#08090a]/90 backdrop-blur-md">
+      {/* Top Header Bar Pinned to Top */}
+      <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#08090a]/80 backdrop-blur-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4),inset_0_-1px_0_rgba(255,255,255,0.04)]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-brand text-carbon-950 flex items-center justify-center font-black text-sm shadow-[0_0_14px_rgba(62,207,142,0.25)]">
@@ -140,8 +140,8 @@ export function MemberPortalView({ data }: MemberPortalProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs">
-              <User className="w-3.5 h-3.5 text-brand" />
+            <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] text-xs">
+              <User className="w-3.5 h-3.5 text-primary" />
               <span className="font-medium text-white">{member.fullName}</span>
             </div>
 
@@ -175,12 +175,12 @@ export function MemberPortalView({ data }: MemberPortalProps) {
 
           <div>
             {isMemberActive ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/50 text-emerald-400 text-xs font-mono font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Active Member</span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-950/60 border border-red-800/50 text-red-400 text-xs font-mono font-semibold">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">
                 <AlertTriangle className="w-3.5 h-3.5" />
                 <span className="capitalize">{member.status} Pass</span>
               </span>

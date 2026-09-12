@@ -5,8 +5,9 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Shield, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import { Shield, Eye, EyeOff, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Reveal } from "@/components/Reveal";
@@ -143,7 +144,7 @@ export default function PlatformLoginPage() {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2 text-white" />
                     <span>Verifying...</span>
                   </>
                 ) : (

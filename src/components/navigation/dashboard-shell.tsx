@@ -45,7 +45,7 @@ const adminNavItems = [
 const staffNavItems = [
   { title: "Front Desk",       href: "/staff",            icon: LayoutDashboard },
   { title: "Member Directory", href: "/staff/members",    icon: Users },
-  { title: "Floor & Turnstile", href: "/staff/attendance", icon: Inbox },
+  { title: "Attendance & Floor", href: "/staff/attendance", icon: Inbox },
   { title: "Class Rosters",    href: "/staff/classes",    icon: Dumbbell },
   { title: "Physical Kiosk",   href: "/staff/kiosk",      icon: QrCode, badge: "Live" },
 ];
@@ -53,7 +53,7 @@ const staffNavItems = [
 const PAGE_LABELS: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/members": "Members & Athletes",
-  "/admin/attendance": "Turnstile & Check-ins",
+  "/admin/attendance": "Attendance & Check-ins",
   "/admin/classes": "Classes & Group Scheduling",
   "/admin/plans": "Membership Plans",
   "/admin/payments": "Transactions & Invoices",
@@ -62,7 +62,7 @@ const PAGE_LABELS: Record<string, string> = {
   "/admin/onboarding": "Facility Onboarding Setup",
   "/staff": "Front Desk Operations",
   "/staff/members": "Member Directory & Check-In",
-  "/staff/attendance": "Live Turnstile & Floor Roster",
+  "/staff/attendance": "Live Check-ins & Floor Roster",
   "/staff/classes": "Class Rosters & Sessions",
   "/staff/kiosk": "Self-Serve Kiosk Terminal",
 };
@@ -125,7 +125,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
     "Dashboard";
 
   return (
-    <div className="min-h-screen bg-[#08090a] text-zinc-100 flex relative overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+    <div className="min-h-screen bg-[#08090a] text-zinc-100 flex relative overflow-x-clip selection:bg-primary/20 selection:text-primary">
       {/* 1. Desktop Sidebar */}
       {!isMobile && (
         <aside
@@ -356,8 +356,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
           isMobile ? "pl-0" : isPinned ? "pl-64" : "pl-16"
         )}
       >
-        {/* Sticky Top Bar */}
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-white/[0.07] bg-[#08090a]/90 backdrop-blur-xl px-4 lg:px-6">
+        {/* Sticky Top Bar Pinned to Top */}
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#08090a]/80 backdrop-blur-2xl px-4 lg:px-6 shadow-[0_4px_24px_rgba(0,0,0,0.4),inset_0_-1px_0_rgba(255,255,255,0.04)]">
           <div className="flex items-center gap-3">
             {isMobile && (
               <button

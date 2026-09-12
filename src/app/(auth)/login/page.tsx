@@ -5,10 +5,11 @@ import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/aut
 import { auth } from "@/lib/firebase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight, QrCode, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, ArrowRight, QrCode, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { Reveal } from "@/components/Reveal";
 
 function LoginForm() {
@@ -210,7 +211,7 @@ function LoginForm() {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <Spinner size="sm" variant="current" className="mr-2" />
                     <span>Verifying role...</span>
                   </>
                 ) : (

@@ -185,7 +185,7 @@ export function KioskTerminal({
       setQrData(refreshed);
       setRemainingSecs(refreshed.remainingSeconds || 20);
       if (!silent) {
-        toast.success(`Turnstile QR rotated for ${mode.toUpperCase()} mode`);
+        toast.success(`Kiosk QR rotated for ${mode.toUpperCase()} mode`);
       }
     } catch {
       if (!silent) toast.error("Could not rotate QR code");
@@ -284,7 +284,7 @@ export function KioskTerminal({
       }
     } catch {
       if (soundEnabled) playDeniedBuzz();
-      toast.error("Error communicating with gym turnstile gate");
+      toast.error("Error communicating with check-in system");
     } finally {
       setPhoneSubmitting(false);
     }
@@ -332,19 +332,19 @@ export function KioskTerminal({
                 GYMERP KIOSK
               </span>
               <span
-                className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded-full font-semibold border ${
+                className={`text-[11px] capitalize font-medium px-2 py-0.5 rounded-md border ${
                   kioskMode === "exit"
-                    ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                    ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
                     : kioskMode === "auto"
-                    ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
-                    : "bg-primary/10 border-primary/30 text-primary"
+                    ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
+                    : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                 }`}
               >
                 {kioskMode === "exit"
-                  ? "Exit Turnstile"
+                  ? "Exit Scanner"
                   : kioskMode === "auto"
-                  ? "Smart Dual Kiosk"
-                  : "Entrance Turnstile"}
+                  ? "Smart Dual Station"
+                  : "Entrance Station"}
               </span>
             </div>
             <p className="text-xs text-zinc-400">
@@ -456,7 +456,7 @@ export function KioskTerminal({
                 : "Scan Pass for Gym Entry"}
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 font-normal">
-              Open your phone camera • Point at the QR pass below • Turnstile unlocks
+              Open your phone camera • Point at the QR code below • Attendance recorded
             </p>
           </div>
 
@@ -485,7 +485,7 @@ export function KioskTerminal({
                 >
                   <img
                     src={qrData.qrDataUrl}
-                    alt="Anti-Proxy Turnstile QR"
+                    alt="Dynamic Check-in QR"
                     className="w-64 h-64 sm:w-80 sm:h-80 object-contain select-none"
                   />
                 </motion.div>
@@ -609,7 +609,7 @@ export function KioskTerminal({
                 <AlertCircle className="w-8 h-8" />
               </div>
               <div>
-                <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-mono font-bold bg-red-500/25 text-red-400 border border-red-500/40 uppercase tracking-widest">
+                <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
                   Membership Expired
                 </span>
                 <h3 className="text-lg font-bold text-white tracking-tight mt-1.5">
@@ -663,7 +663,7 @@ export function KioskTerminal({
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <div>
-                <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-mono font-bold bg-primary/25 text-primary border border-primary/40 uppercase tracking-widest">
+                <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   {kioskMode === "exit" ? "Exit Logged" : "Access Granted"}
                 </span>
                 <h3 className="text-lg font-bold text-white tracking-tight mt-1.5">
@@ -690,7 +690,7 @@ export function KioskTerminal({
                 </div>
               </div>
 
-              <p className="text-xs text-primary font-medium">Turnstile Gate Unlocked. Welcome!</p>
+              <p className="text-xs text-primary font-medium">Check-in Confirmed. Welcome!</p>
             </div>
           )}
 

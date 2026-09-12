@@ -135,7 +135,7 @@ export default async function AdminDashboardPage() {
             <div key={p.id} className="glass-panel p-5 rounded-lg space-y-3 relative overflow-hidden border border-white/[0.08]">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-white text-base">{p.name}</h3>
-                <span className="text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
                   {p.durationDays} days
                 </span>
               </div>

@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { QrCode, Clock, RefreshCw, ShieldCheck, Copy, Check } from "lucide-react";
 import { getRotatingQrAction } from "@/lib/api/attendance";
 import { toast } from "sonner";
@@ -100,14 +101,14 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
             <span>Entrance QR Pass Generator</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-zinc-400">
-            Secure auto-refreshing pass for gym turnstile and kiosk camera scanning.
+            Secure auto-refreshing pass for gym entrance and kiosk camera scanning.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center py-4 space-y-4">
           {loading || !qrData ? (
             <div className="w-64 h-64 rounded-xl bg-[#08090a] border border-white/[0.08] flex items-center justify-center text-xs text-zinc-500">
-              <RefreshCw className="w-5 h-5 animate-spin text-zinc-400" />
+              <Spinner size="md" />
             </div>
           ) : (
             <div className="p-4 bg-white rounded-xl shadow-2xl border border-white/20">

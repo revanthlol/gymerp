@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createPlanAction } from "@/lib/api/plans";
-import { Plus, Sliders, Loader2 } from "lucide-react";
+import { Plus, Sliders } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
 export function AddPlanDialog() {
@@ -141,7 +142,7 @@ export function AddPlanDialog() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                  <Spinner size="xs" className="mr-1.5 text-[#08090a]" />
                   <span>Creating...</span>
                 </>
               ) : (

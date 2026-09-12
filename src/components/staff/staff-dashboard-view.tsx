@@ -145,7 +145,7 @@ export function StaffDashboardView({
             <span>Front Desk & Floor Operations</span>
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Real-time facility ingress, active gym floor headcount, and turnstile overrides for {gymName}.
+            Real-time facility arrivals, active gym floor headcount, and manual check-in overrides for {gymName}.
           </p>
         </div>
 
@@ -178,7 +178,7 @@ export function StaffDashboardView({
             <span className="text-xs text-zinc-400">athletes inside</span>
           </div>
           <p className="text-[11px] text-zinc-400">
-            Real-time occupancy tracking via entry/exit turnstiles
+            Real-time occupancy tracking via front-desk check-in stations
           </p>
         </div>
 
@@ -310,7 +310,7 @@ export function StaffDashboardView({
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-white text-sm">{m.fullName}</span>
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase border ${
+                            className={`px-2 py-0.5 rounded-md text-[11px] font-medium capitalize border ${
                               m.status === "active"
                                 ? "bg-primary/10 text-primary border-primary/20"
                                 : "bg-red-500/10 text-red-400 border-red-500/20"
@@ -319,7 +319,7 @@ export function StaffDashboardView({
                             {m.status}
                           </span>
                           {isOnFloor && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                            <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                               On Floor
                             </span>
                           )}
@@ -375,7 +375,7 @@ export function StaffDashboardView({
             >
               <Flame className="w-4 h-4 text-primary" />
               <span>Active Floor Roster</span>
-              <span className="px-2 py-0.2 rounded-full text-[10px] font-mono bg-primary/10 text-primary border border-primary/20">
+              <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-primary/10 text-primary border border-primary/20">
                 {floorMembers.length}
               </span>
             </button>
@@ -390,7 +390,7 @@ export function StaffDashboardView({
             >
               <Clock className="w-4 h-4 text-zinc-400" />
               <span>Today&apos;s Gate Log</span>
-              <span className="px-2 py-0.2 rounded-full text-[10px] font-mono bg-white/[0.04] text-zinc-400 border border-white/[0.08]">
+              <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-white/[0.04] text-zinc-400 border border-white/[0.08]">
                 {attendanceList.length}
               </span>
             </button>
@@ -405,7 +405,7 @@ export function StaffDashboardView({
                 <Users className="w-8 h-8 text-zinc-600 mx-auto" />
                 <p className="text-sm font-semibold text-zinc-300">Gym Floor is Currently Empty</p>
                 <p className="text-xs text-zinc-500">
-                  Athletes checking in at turnstiles will populate here with workout durations.
+                  Athletes checking in at kiosks or front desk will populate here with workout durations.
                 </p>
               </div>
             ) : (
@@ -424,7 +424,7 @@ export function StaffDashboardView({
                           <span className="font-semibold text-white text-sm">
                             {fm.member?.fullName || "Gym Athlete"}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-primary/10 text-primary border border-primary/20">
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                             Training Now
                           </span>
                         </div>
@@ -460,7 +460,7 @@ export function StaffDashboardView({
           <div className="glass-panel rounded-2xl border border-white/[0.08] overflow-hidden">
             {attendanceList.length === 0 ? (
               <div className="p-12 text-center text-xs text-zinc-500">
-                No turnstile check-ins recorded yet today.
+                No member check-ins recorded yet today.
               </div>
             ) : (
               <div className="divide-y divide-white/[0.06]">

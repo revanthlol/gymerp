@@ -3,23 +3,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
+          "border-primary/20 bg-primary/10 text-primary font-medium",
         secondary:
-          "border-transparent bg-zinc-800 text-zinc-300 hover:bg-zinc-700",
+          "border-white/[0.08] bg-white/[0.04] text-zinc-300",
         destructive:
-          "border-transparent bg-red-950/60 text-red-400 border-red-800/50",
-        outline: "text-foreground border-zinc-800",
+          "border-red-500/20 bg-red-500/10 text-red-400",
+        outline: "text-zinc-300 border-white/[0.1] bg-transparent",
         success:
-          "border-emerald-800/50 bg-emerald-950/40 text-emerald-400",
+          "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
         warning:
-          "border-amber-800/50 bg-amber-950/40 text-amber-400",
+          "border-amber-500/20 bg-amber-500/10 text-amber-400",
         vip:
-          "border-brand/40 bg-brand/15 text-brand font-semibold text-[10px] tracking-wider uppercase px-2 py-0.5",
+          "border-primary/30 bg-primary/10 text-primary font-semibold text-[11px] tracking-wide uppercase px-2 py-0.5",
       },
     },
     defaultVariants: {

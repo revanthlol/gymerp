@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { provisionTenantAction } from "@/lib/api/tenants";
-import { Plus, Loader2, CheckCircle2, Copy, Check } from "lucide-react";
+import { Plus, CheckCircle2, Copy, Check } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
 export function CreateTenantDialog() {
@@ -322,7 +323,7 @@ export function CreateTenantDialog() {
               <Button type="submit" disabled={loading} className="w-full glow-bottom">
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                     <span>Provisioning Tenant...</span>
                   </>
                 ) : (

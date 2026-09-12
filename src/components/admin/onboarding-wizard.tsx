@@ -13,7 +13,6 @@ import {
   ArrowLeft,
   QrCode,
   Sparkles,
-  Loader2,
   Lock,
   Plus,
   Trash2,
@@ -26,6 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { completeTenantOnboardingAction, OnboardingPlanInput } from "@/lib/api/onboarding";
 import { toast } from "sonner";
 
@@ -43,10 +43,10 @@ interface OnboardingWizardProps {
 
 const STEPS = [
   { id: 1, label: "Facility Profile", icon: Building2 },
-  { id: 2, label: "Turnstiles & Ingress", icon: QrCode },
+  { id: 2, label: "Check-in Stations", icon: QrCode },
   { id: 3, label: "Membership Plans", icon: CreditCard },
   { id: 4, label: "Staff Team", icon: Users },
-  { id: 5, label: "Verification & Launch", icon: ShieldCheck },
+  { id: 5, label: "Review & Launch", icon: ShieldCheck },
 ];
 
 export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizardProps) {
@@ -63,8 +63,8 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
     phone: tenant.phone || "",
     city: "New Delhi, India",
     openingHours: "06:00 AM - 10:30 PM",
-    turnstileEntryLane: "Turnstile Lane #01 (Main Entry)",
-    turnstileExitLane: "Turnstile Lane #02 (Locker Room Exit)",
+    turnstileEntryLane: "Front-Desk Scanner #01 (Main Entry)",
+    turnstileExitLane: "Exit Scanner #01 (Main Exit)",
     staffName: "",
     staffEmail: "",
   });
@@ -181,7 +181,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
           <div>
             <h1 className="text-base font-bold text-white tracking-tight">GYMERP ONBOARDING</h1>
             <p className="text-[11px] text-zinc-400 font-mono">
-              First-Time Facility Setup & Cryptographic Verification
+              First-Time Facility Setup & Verification
             </p>
           </div>
         </div>
@@ -193,8 +193,8 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
 
       {/* Main Wizard Form Container */}
       <main className="max-w-3xl mx-auto w-full my-8">
-        {/* Step Navigation Pill Indicator */}
-        <div className="flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-[#0c0d10] border border-white/[0.07] mb-8 overflow-x-auto">
+        {/* Step Navigation Bar without scrollbar */}
+        <div className="flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-[#0c0d10]/80 backdrop-blur-xl border border-white/[0.08] mb-8 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {STEPS.map((s) => {
             const Icon = s.icon;
             const isDone = s.id < currentStep;
@@ -331,7 +331,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
               </motion.div>
             )}
 
-            {/* STEP 2: TURNSTILES & INGRESS */}
+            {/* STEP 2: CHECK-IN STATIONS & GATES */}
             {currentStep === 2 && (
               <motion.div
                 key="step-2"
@@ -342,20 +342,20 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
               >
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono text-primary uppercase font-bold tracking-widest">
-                    STEP 02 // ACCESS CONTROL
+                    STEP 02 // ACCESS STATIONS
                   </span>
                   <h2 className="text-xl font-bold text-white tracking-tight">
-                    Turnstile Lanes & Security Rules
+                    Check-in Stations & Scanner Gates
                   </h2>
                   <p className="text-xs text-zinc-400">
-                    Configure entrance and exit physical kiosk terminals and security policies.
+                    Configure entrance and exit front-desk kiosk terminals and member check-in rules.
                   </p>
                 </div>
 
                 <div className="space-y-4 pt-2">
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-zinc-300">
-                      Entrance Turnstile Lane Name
+                      Entrance Check-in Station Name
                     </label>
                     <Input
                       value={formData.turnstileEntryLane}
@@ -366,7 +366,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-zinc-300">
-                      Exit Turnstile Lane Name
+                      Exit Check-out Station Name
                     </label>
                     <Input
                       value={formData.turnstileExitLane}
@@ -379,24 +379,24 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                   <div className="p-4 rounded-2xl bg-[#08090a] border border-white/[0.06] space-y-3">
                     <h4 className="text-xs font-semibold text-white flex items-center gap-2">
                       <ShieldCheck className="w-4 h-4 text-primary" />
-                      <span>Armed Ingress Policies</span>
+                      <span>Check-in Security & Fraud Prevention</span>
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-zinc-400">
                       <div className="flex items-start gap-2">
                         <Check className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                        <span>Dynamic HMAC-SHA256 tokens rotate every 20 seconds</span>
+                        <span>Dynamic QR codes rotate automatically every 20 seconds</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                        <span>Single-use nonce burn prevents screenshot proxy check-ins</span>
+                        <span>Anti-screenshot protection prevents pass sharing</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                        <span>Emergency dead-phone keypad check-in enabled on kiosk</span>
+                        <span>Tactile PIN keypad backup for dead phone batteries</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                        <span>Instant expired pass detection in bold red</span>
+                        <span>Instant audio and visual feedback for active or expired memberships</span>
                       </div>
                     </div>
                   </div>
@@ -599,7 +599,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                         <QrCode className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-white">Cryptographic Ingress Controller</p>
+                        <p className="text-xs font-semibold text-white">Front-Desk Check-in Stations</p>
                         <p className="text-[11px] text-zinc-500 font-mono">
                           {formData.turnstileEntryLane} & Exit Lane
                         </p>
@@ -607,7 +607,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                     </div>
                     <span className="inline-flex items-center gap-1 text-[11px] font-mono text-primary font-semibold">
                       <Check className="w-3.5 h-3.5" />
-                      <span>Armed</span>
+                      <span>Configured</span>
                     </span>
                   </div>
 
@@ -693,7 +693,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                    <Spinner size="sm" className="mr-1 text-[#08090a]" />
                     <span>Verifying Subsystems...</span>
                   </>
                 ) : completed ? (

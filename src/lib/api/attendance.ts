@@ -331,7 +331,7 @@ export async function memberSelfScanKioskAction(input: {
           duplicate: true,
           memberName: memberRecord.fullName,
           memberCard,
-          message: "You already checked in less than 5 minutes ago. Turnstile gate is unlocked.",
+          message: "You already checked in less than 5 minutes ago. Check-in is already confirmed.",
         };
       }
     }

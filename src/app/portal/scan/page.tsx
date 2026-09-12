@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { memberSelfScanKioskAction } from "@/lib/api/attendance";
 import { playSuccessChime, playDeniedBuzz } from "@/lib/kiosk/audio";
 
@@ -109,7 +110,7 @@ function ScanProcessor() {
       playDeniedBuzz();
       setResult({
         success: false,
-        message: "Failed to connect to gym turnstile server. Please try again.",
+        message: "Failed to connect to gym check-in terminal. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -137,7 +138,7 @@ function ScanProcessor() {
             <span className="font-bold text-white text-lg tracking-tight">GYMERP SCAN</span>
           </div>
           <p className="text-xs text-zinc-400">
-            {requestedMode === "exit" ? "Gym Exit Turnstile" : "Gym Entrance Kiosk"}
+            {requestedMode === "exit" ? "Gym Exit Scanner" : "Front-Desk Check-in Kiosk"}
           </p>
         </div>
 
@@ -148,12 +149,12 @@ function ScanProcessor() {
             animate={{ opacity: 1, scale: 1 }}
             className="glass-panel p-8 rounded-2xl border border-white/[0.08] text-center space-y-4"
           >
-            <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mx-auto">
-              <RefreshCw className="w-6 h-6 animate-spin" />
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mx-auto">
+              <Spinner size="lg" />
             </div>
             <div className="space-y-1">
-              <h2 className="text-base font-semibold text-white">Validating Turnstile Token</h2>
-              <p className="text-xs text-zinc-400">Verifying single-use cryptographic pass...</p>
+              <h2 className="text-base font-semibold text-white">Validating Check-in Pass</h2>
+              <p className="text-xs text-zinc-400">Verifying your active membership pass...</p>
             </div>
           </motion.div>
         )}
@@ -170,7 +171,7 @@ function ScanProcessor() {
             </div>
 
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
                 Membership Expired
               </div>
               <h2 className="text-xl font-bold text-white tracking-tight">
@@ -232,8 +233,8 @@ function ScanProcessor() {
             </div>
 
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono mb-1 bg-white/[0.04] border border-white/[0.08]">
-                <ShieldCheck className="w-3 h-3 text-primary" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium mb-1 bg-white/[0.04] border border-white/[0.08]">
+                <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                 <span>{result.mode === "exit" ? "Exit Logged" : "Access Granted"}</span>
               </div>
               <h2 className="text-xl font-bold text-white tracking-tight">
@@ -331,8 +332,9 @@ export default function KioskScanPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#08090a] flex items-center justify-center text-xs text-zinc-500 font-mono">
-          Loading turnstile scanner...
+        <div className="min-h-screen bg-[#08090a] flex items-center justify-center text-xs text-zinc-400 gap-2">
+          <Spinner size="sm" />
+          <span>Loading check-in camera...</span>
         </div>
       }
     >

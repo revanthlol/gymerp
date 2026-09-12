@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createMemberAction } from "@/lib/api/members";
-import { Plus, Loader2, UserPlus } from "lucide-react";
+import { Plus, UserPlus } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
 interface AddClientDialogProps {
@@ -184,7 +185,7 @@ export function AddClientDialog({ plans }: AddClientDialogProps) {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+                  <Spinner size="sm" variant="current" className="mr-2" />
                   <span>Registering...</span>
                 </>
               ) : (

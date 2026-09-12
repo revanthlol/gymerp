@@ -45,7 +45,7 @@ export default async function StaffAttendancePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">
-            Live Turnstile & Ingress Feed
+            Live Check-ins & Attendance Feed
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Real-time feed of member kiosk check-ins, smartphone QR scans, and front-desk entries.
@@ -106,10 +106,10 @@ export default async function StaffAttendancePage() {
                     </TableCell>
                     <TableCell className="py-3">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase border ${
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium uppercase border ${
                           isExit
                             ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                            : "bg-primary/10 text-primary border-primary/20"
+                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                         }`}
                       >
                         {isExit ? <LogOut className="w-3 h-3" /> : <LogIn className="w-3 h-3" />}

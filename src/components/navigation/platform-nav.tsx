@@ -9,7 +9,7 @@ export function PlatformNav({ userEmail }: { userEmail: string }) {
   const { logout } = useAuth();
 
   return (
-    <header className="border-b border-white/[0.06] bg-[#08090a]/90 backdrop-blur-md sticky top-0 z-40">
+    <header className="border-b border-white/[0.08] bg-[#08090a]/80 backdrop-blur-2xl sticky top-0 z-40 shadow-[0_4px_24px_rgba(0,0,0,0.4),inset_0_-1px_0_rgba(255,255,255,0.04)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">

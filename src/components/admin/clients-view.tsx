@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AddClientDialog } from "@/components/admin/add-client-dialog";
 import {
   getMemberActivitiesAction,
@@ -210,12 +211,15 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
       <div className="flex-1 flex flex-col space-y-4">
         {/* Top Control Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-bold text-white tracking-tight">Athletes & Members</h1>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Direct roster, real-time subscription lifecycle, and coaching dossiers.
+            </p>
+          </div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-white">
-              Athletes & Members
-            </h1>
-            <span className="text-xs font-mono font-medium text-zinc-400 bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.07]">
-              {membersList.length} total
+            <span className="text-xs font-medium text-zinc-400 bg-white/[0.04] px-2.5 py-1 rounded-md border border-white/[0.08]">
+              {membersList.length} Total Athletes
             </span>
           </div>
 
@@ -259,15 +263,16 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
             <TableHeader className="bg-[#08090a]/80">
               <TableRow className="border-b border-white/[0.06] hover:bg-transparent">
                 <TableHead className="w-12 px-4">
-                  <input
-                    type="checkbox"
-                    onChange={handleSelectAll}
-                    checked={
-                      filteredMembers.length > 0 &&
-                      filteredMembers.every((m) => checkedIds[m.id])
-                    }
-                    className="w-4 h-4 rounded bg-[#08090a] border-zinc-700 text-primary focus:ring-0 cursor-pointer accent-primary"
-                  />
+                  <div className="flex items-center justify-center">
+                    <Checkbox
+                      checked={
+                        filteredMembers.length > 0 &&
+                        filteredMembers.every((m) => checkedIds[m.id])
+                      }
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Select all athletes"
+                    />
+                  </div>
                 </TableHead>
                 <TableHead className="text-zinc-400 font-medium text-xs">Athlete</TableHead>
                 <TableHead className="text-zinc-400 font-medium text-xs">Status</TableHead>
@@ -299,12 +304,15 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                     >
                       {/* Checkbox */}
                       <TableCell className="w-12 px-4" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(e) => handleToggleCheck(member.id, e as any)}
-                          className="w-4 h-4 rounded bg-[#08090a] border-zinc-700 text-primary focus:ring-0 cursor-pointer accent-primary"
-                        />
+                        <div className="flex items-center justify-center">
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={() =>
+                              setCheckedIds((prev) => ({ ...prev, [member.id]: !prev[member.id] }))
+                            }
+                            aria-label={`Select ${member.fullName}`}
+                          />
+                        </div>
                       </TableCell>
 
                       {/* Name with Initials Badge */}
@@ -327,9 +335,9 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                       {/* Status */}
                       <TableCell className="text-xs py-3.5">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-semibold border ${
+                          className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium capitalize border ${
                             member.status === "active"
-                              ? "bg-primary/10 text-primary border-primary/20"
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                               : member.status === "frozen"
                               ? "bg-sky-500/10 text-sky-400 border-sky-500/20"
                               : "bg-amber-500/10 text-amber-400 border-amber-500/20"
@@ -380,9 +388,9 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
                       {selectedMember.fullName}
                     </h2>
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-semibold border mt-1 ${
+                      className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium capitalize border mt-1 ${
                         selectedMember.status === "active"
-                          ? "bg-primary/10 text-primary border-primary/20"
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                           : selectedMember.status === "frozen"
                           ? "bg-sky-500/10 text-sky-400 border-sky-500/20"
                           : "bg-amber-500/10 text-amber-400 border-amber-500/20"

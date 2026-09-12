@@ -31,7 +31,6 @@ import {
   Building2,
   ShieldAlert,
   ShieldCheck,
-  Loader2,
   KeyRound,
   CalendarPlus,
   Trash2,
@@ -40,6 +39,7 @@ import {
   Check,
   AlertTriangle,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
 interface TenantRecord {
@@ -385,7 +385,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                             className="h-8 text-xs text-emerald-400 hover:text-emerald-300 gap-1 border border-emerald-800/40 bg-emerald-950/20"
                           >
                             {isProcessing ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <Spinner size="xs" className="text-emerald-400" />
                             ) : (
                               <ShieldCheck className="w-3.5 h-3.5" />
                             )}
@@ -400,7 +400,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                             className="h-8 text-xs text-red-400 hover:text-red-300 gap-1 border border-red-800/40 bg-red-950/20"
                           >
                             {isProcessing ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <Spinner size="xs" className="text-red-400" />
                             ) : (
                               <ShieldAlert className="w-3.5 h-3.5" />
                             )}
@@ -620,7 +620,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2 text-black" />
                     <span>Resetting credentials...</span>
                   </>
                 ) : (
@@ -684,7 +684,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                    <Spinner size="xs" className="mr-1.5 text-white" />
                     <span>Purging...</span>
                   </>
                 ) : (
