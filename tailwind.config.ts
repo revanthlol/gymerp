@@ -78,6 +78,31 @@ const config: Config = {
           700: "#1b1e24",
           600: "#272a32",
         },
+        // Vibrant Athletic Performance Palette
+        energy: {
+          DEFAULT: "#f43f5e",
+          soft: "#fb7185",
+          deep: "#e11d48",
+          glow: "rgba(244, 63, 94, 0.25)",
+        },
+        pulse: {
+          DEFAULT: "#6366f1",
+          soft: "#818cf8",
+          deep: "#4f46e5",
+          violet: "#8b5cf6",
+          glow: "rgba(99, 102, 241, 0.25)",
+        },
+        vitality: {
+          DEFAULT: "#06b6d4",
+          soft: "#22d3ee",
+          mint: "#10b981",
+          glow: "rgba(6, 182, 212, 0.25)",
+        },
+        warmth: {
+          DEFAULT: "#f59e0b",
+          soft: "#fbbf24",
+          deep: "#d97706",
+        },
       },
       borderRadius: {
         xs: "4px",

@@ -316,26 +316,6 @@ export function LandingPage({ session }: LandingPageProps) {
       <main className="relative z-10">
         {/* HERO SECTION */}
         <section className="pt-20 sm:pt-28 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center space-y-8">
-          {/* Dynamic Floating Feature Badges */}
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex flex-wrap items-center justify-center gap-2 text-xs text-zinc-400"
-          >
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/[0.03] border border-white/[0.08]">
-              <Zap className="w-3.5 h-3.5 text-primary" />
-              <span>Instant 0.4s Check-in</span>
-            </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/[0.03] border border-white/[0.08]">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Anti-Pass Sharing</span>
-            </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/[0.03] border border-white/[0.08]">
-              <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Zero App Downloads</span>
-            </span>
-          </motion.div>
 
           {/* Bold Editorial Headline */}
           <motion.div

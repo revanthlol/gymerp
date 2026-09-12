@@ -5,12 +5,9 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Shield, Eye, EyeOff, AlertCircle, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Reveal } from "@/components/Reveal";
 
 export default function PlatformLoginPage() {
   const [email, setEmail] = useState("");
@@ -26,11 +23,9 @@ export default function PlatformLoginPage() {
     setError(null);
 
     try {
-      // 1. Sign in with Firebase client SDK
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
       const idToken = await userCredential.user.getIdToken();
 
-      // 2. Exchange ID token for secure session cookie
       const res = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,7 +33,6 @@ export default function PlatformLoginPage() {
       });
 
       const data = await res.json();
-
       if (!res.ok) {
         throw new Error(data.error || "Failed to establish platform session");
       }
@@ -53,15 +47,14 @@ export default function PlatformLoginPage() {
         router.refresh();
         return;
       } else if (role !== "platform") {
-        throw new Error("Access Denied: This portal is reserved for platform administrators. Gym owners and staff should sign in at /login.");
+        throw new Error("Access Denied: This portal is reserved for platform administrators.");
       }
 
       router.push("/platform");
       router.refresh();
     } catch (err: any) {
-      console.error("Platform login error:", err);
       if (err?.code === "auth/invalid-credential" || err?.code === "auth/wrong-password" || err?.code === "auth/user-not-found") {
-        setError("Invalid email or password. Please verify your credentials.");
+        setError("Invalid email or password.");
       } else {
         setError(err.message || "Invalid platform credentials.");
       }
@@ -71,101 +64,105 @@ export default function PlatformLoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#08090a] text-zinc-100">
-      <Reveal className="w-full max-w-[420px] space-y-6">
-        {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 group-hover:scale-105 transition-transform mx-auto">
-            <Shield className="w-6 h-6" />
-          </Link>
-          <h1 className="text-xl font-bold text-white tracking-tight">Platform Console</h1>
-          <p className="text-xs text-zinc-400">
-            Global administrative access and tenant fleet management
-          </p>
-        </div>
+    <div className="min-h-svh w-full flex flex-col justify-between p-6 sm:p-10 bg-[#090a0f] text-zinc-100">
+      <div className="flex items-center">
+        <Link href="/" className="flex items-center gap-2.5 font-medium group">
+          <div className="flex size-7 items-center justify-center rounded-lg bg-zinc-800 text-white font-bold text-sm">
+            P
+          </div>
+          <span className="font-semibold text-white tracking-tight text-base">
+            Platform Console
+          </span>
+        </Link>
+      </div>
 
-        {/* Login Card */}
-        <Card className="glass-panel border-white/[0.08] bg-[#0c0d10] rounded-2xl">
-          <CardHeader className="space-y-1 pb-3">
-            <CardTitle className="text-sm font-semibold text-zinc-200">
-              Superadmin Authentication
-            </CardTitle>
-            <CardDescription className="text-xs text-zinc-400">
-              Restricted infrastructure gateway
-            </CardDescription>
-          </CardHeader>
+      <div className="flex flex-1 items-center justify-center py-12">
+        <div className="w-full max-w-sm space-y-6">
+          <div className="space-y-1.5">
+            <h1 className="text-2xl font-semibold tracking-tight text-white">
+              Platform Sign In
+            </h1>
+            <p className="text-sm text-zinc-400">
+              Administrative access for global infrastructure management
+            </p>
+          </div>
 
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="p-3 rounded-xl bg-red-950/40 border border-red-800/50 text-red-300 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-                <span>{error}</span>
-              </div>
-            )}
+          {error && (
+            <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-xs text-red-300">
+              {error}
+            </div>
+          )}
 
-            <form onSubmit={handleSubmit} className="space-y-3.5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Admin Email</label>
-                <Input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="platform@gymerp.local"
-                  className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-purple-500"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Master Key / Password</label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10 bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-purple-500"
-                    placeholder="••••••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 p-1"
-                  >
-                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="text-xs font-medium text-zinc-300">
+                Admin Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="platform@gymerp.local"
                 disabled={loading}
-                className="w-full h-10 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl transition-all"
-              >
-                {loading ? (
-                  <>
-                    <Spinner size="sm" className="mr-2 text-white" />
-                    <span>Verifying...</span>
-                  </>
-                ) : (
-                  <span>Access Platform Console</span>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                className="h-10 bg-zinc-900/60 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 rounded-lg focus-visible:ring-1 focus-visible:ring-zinc-400"
+              />
+            </div>
 
-        {/* Back Link to Gym Portal */}
-        <div className="text-center pt-2">
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
-          >
-            <ArrowLeft className="w-3 h-3" />
-            <span>Return to Gym Portal Login</span>
-          </Link>
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="text-xs font-medium text-zinc-300">
+                Master Password
+              </label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  className="h-10 pr-9 bg-zinc-900/60 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 rounded-lg focus-visible:ring-1 focus-visible:ring-zinc-400"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-10 bg-white text-zinc-950 hover:bg-zinc-200 font-medium rounded-lg transition-colors mt-1"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <span>Authenticating...</span>
+                </>
+              ) : (
+                <span>Access Console</span>
+              )}
+            </Button>
+          </form>
+
+          <div className="pt-2 text-center text-xs text-zinc-400">
+            <Link href="/login" className="text-zinc-400 hover:text-white transition-colors">
+              &larr; Return to Gym Staff Login
+            </Link>
+          </div>
         </div>
-      </Reveal>
+      </div>
+
+      <div className="text-xs text-zinc-500">
+        &copy; {new Date().getFullYear()} GymERP Platform Infrastructure.
+      </div>
     </div>
   );
 }
