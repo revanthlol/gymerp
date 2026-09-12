@@ -32,6 +32,7 @@ export const tenants = pgTable(
     phone: text("phone"),
     logoUrl: text("logo_url"),
     licenseExpiresAt: timestamp("license_expires_at", { withTimezone: true }),
+    kioskPassphrase: text("kiosk_passphrase").default("123456"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },

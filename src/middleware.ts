@@ -27,6 +27,8 @@ export async function middleware(request: NextRequest) {
     pathname === "/login" ||
     pathname === "/platform/login" ||
     pathname === "/portal/login" ||
+    pathname.startsWith("/portal/scan") ||
+    pathname.startsWith("/kiosk") ||
     pathname === "/api/health" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks") ||
@@ -40,7 +42,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Member Portal protection
+  // Member Portal protection (except /portal/scan which is accessible for quick phone check-in)
   if (pathname.startsWith("/portal")) {
     const memberSession = request.cookies.get("__member_session")?.value;
     if (!memberSession) {

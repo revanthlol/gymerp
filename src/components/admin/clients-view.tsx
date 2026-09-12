@@ -79,6 +79,11 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [checkedIds, setCheckedIds] = useState<Record<string, boolean>>({});
 
+  // Synchronize when server revalidates initialMembers
+  useEffect(() => {
+    setMembersList(initialMembers);
+  }, [initialMembers]);
+
   // When selected member changes, populate their note
   useEffect(() => {
     if (selectedMember) {
@@ -224,7 +229,13 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <AddClientDialog plans={plans} />
+            <AddClientDialog
+              plans={plans}
+              onMemberAdded={(newMember) => {
+                setMembersList((prev) => [newMember, ...prev]);
+                setSelectedMember(newMember);
+              }}
+            />
           </div>
         </div>
 

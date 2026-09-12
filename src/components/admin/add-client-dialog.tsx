@@ -12,15 +12,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createMemberAction } from "@/lib/api/members";
+import { useRouter } from "next/navigation";
 import { Plus, UserPlus } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
 interface AddClientDialogProps {
   plans: Array<{ id: string; name: string; price: string; durationDays: number }>;
+  onMemberAdded?: (member: any) => void;
 }
 
-export function AddClientDialog({ plans }: AddClientDialogProps) {
+export function AddClientDialog({ plans, onMemberAdded }: AddClientDialogProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +47,10 @@ export function AddClientDialog({ plans }: AddClientDialogProps) {
       if (res.success) {
         toast.success(`Athlete "${res.member.fullName}" registered successfully!`);
         setOpen(false);
+        if (onMemberAdded) {
+          onMemberAdded(res.member);
+        }
+        router.refresh();
         setFormData({
           fullName: "",
           email: "",

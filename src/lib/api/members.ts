@@ -61,6 +61,8 @@ export async function createMemberAction(rawInput: CreateMemberInput) {
 
     revalidatePath("/admin/members");
     revalidatePath("/admin");
+    revalidatePath("/staff/members");
+    revalidatePath("/staff");
 
     return {
       success: true,
