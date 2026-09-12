@@ -1,29 +1,49 @@
-"use client";
+"use client"
 
-import { Toaster as Sonner } from "sonner";
-
-type ToasterProps = React.ComponentProps<typeof Sonner>;
+import { useTheme } from "next-themes"
+import { Toaster as Sonner, type ToasterProps } from "sonner"
+import { RiCheckboxCircleLine, RiInformationLine, RiErrorWarningLine, RiCloseCircleLine, RiLoaderLine } from "@remixicon/react"
 
 const Toaster = ({ ...props }: ToasterProps) => {
+  const { theme = "system" } = useTheme()
+
   return (
     <Sonner
-      theme="dark"
-      className="toaster group !z-[99999]"
-      style={{ zIndex: 99999 }}
+      theme={theme as ToasterProps["theme"]}
+      className="toaster group"
+      icons={{
+        success: (
+          <RiCheckboxCircleLine className="size-4" />
+        ),
+        info: (
+          <RiInformationLine className="size-4" />
+        ),
+        warning: (
+          <RiErrorWarningLine className="size-4" />
+        ),
+        error: (
+          <RiCloseCircleLine className="size-4" />
+        ),
+        loading: (
+          <RiLoaderLine className="size-4 animate-spin" />
+        ),
+      }}
+      style={
+        {
+          "--normal-bg": "var(--popover)",
+          "--normal-text": "var(--popover-foreground)",
+          "--normal-border": "var(--border)",
+          "--border-radius": "var(--radius)",
+        } as React.CSSProperties
+      }
       toastOptions={{
         classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-[#0c0d10]/95 group-[.toaster]:backdrop-blur-xl group-[.toaster]:text-zinc-100 group-[.toaster]:border-white/10 group-[.toaster]:shadow-2xl group-[.toaster]:rounded-xl !z-[99999]",
-          description: "group-[.toast]:text-zinc-400",
-          actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          toast: "cn-toast",
         },
       }}
       {...props}
     />
-  );
-};
+  )
+}
 
-export { Toaster };
+export { Toaster }
