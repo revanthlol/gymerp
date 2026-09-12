@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
@@ -5,6 +6,7 @@ import { AuthProvider } from "@/lib/auth/context";
 import { getSession } from "@/lib/auth/session";
 import { Toaster } from "@/components/ui/sonner";
 import { PwaRegister } from "@/components/pwa/pwa-register";
+import { NavigationProgress } from "@/components/navigation-progress";
 import { cn } from "@/lib/utils";
 
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -36,6 +38,9 @@ export default async function RootLayout({
     <html lang="en" className={cn("dark", "font-mono", jetbrainsMono.variable)}>
       <body className={`${inter.variable} font-sans bg-[#080809] text-zinc-100 antialiased relative min-h-screen`}>
         <div className="ambient-glow-mesh" aria-hidden="true" />
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <div className="relative z-10">
           <AuthProvider initialUser={session}>
             <PwaRegister />
