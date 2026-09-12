@@ -2,10 +2,19 @@
 
 import { adminAuth } from "@/lib/firebase/admin";
 import { db } from "@/lib/db";
-import { tenants, users } from "@/lib/db/schema";
+import {
+  tenants,
+  users,
+  members,
+  memberships,
+  membershipPlans,
+  payments,
+  attendance,
+  gymClasses,
+} from "@/lib/db/schema";
 import { createTenantSchema, CreateTenantInput } from "@/lib/validations/tenant";
 import { withTenantDb } from "@/lib/db/tenant";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth/session";
 
@@ -195,7 +204,154 @@ export async function toggleTenantStatusAction(
       }
     }
   );
+}
 
-  revalidatePath("/platform");
-  return { success: true };
+export async function extendTenantLicenseAction(
+  tenantId: string,
+  additionalDays: number
+): Promise<{ success: boolean; error?: string; newExpiry?: Date | null }> {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "platform") {
+      return { success: false, error: "Unauthorized: Only platform superadmin can extend licenses" };
+    }
+
+    return await withTenantDb(
+      { userId: session.uid, role: "platform", tenantId: null },
+      async (tx) => {
+        const [tenant] = await tx.select().from(tenants).where(eq(tenants.id, tenantId)).limit(1);
+        if (!tenant) {
+          return { success: false, error: "Tenant not found" };
+        }
+
+        let newExpiry: Date | null = null;
+        if (additionalDays === -1) {
+          // Lifetime license
+          newExpiry = null;
+        } else {
+          const baseDate =
+            tenant.licenseExpiresAt && new Date(tenant.licenseExpiresAt) > new Date()
+              ? new Date(tenant.licenseExpiresAt)
+              : new Date();
+          baseDate.setDate(baseDate.getDate() + additionalDays);
+          newExpiry = baseDate;
+        }
+
+        await tx
+          .update(tenants)
+          .set({ licenseExpiresAt: newExpiry, updatedAt: new Date() })
+          .where(eq(tenants.id, tenantId));
+
+        revalidatePath("/platform");
+        return { success: true, newExpiry };
+      }
+    );
+  } catch (err: any) {
+    console.error("Failed to extend tenant license:", err);
+    return { success: false, error: err.message || "Failed to extend license" };
+  }
+}
+
+export async function resetTenantAdminPasswordAction(
+  tenantId: string,
+  customPassword?: string
+): Promise<{
+  success: boolean;
+  error?: string;
+  adminEmail?: string;
+  newPassword?: string;
+  resetLink?: string;
+}> {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "platform") {
+      return { success: false, error: "Unauthorized: Only platform superadmin can reset credentials" };
+    }
+
+    return await withTenantDb(
+      { userId: session.uid, role: "platform", tenantId: null },
+      async (tx) => {
+        const [adminUser] = await tx
+          .select()
+          .from(users)
+          .where(and(eq(users.tenantId, tenantId), eq(users.role, "admin")))
+          .limit(1);
+
+        if (!adminUser) {
+          return { success: false, error: "No admin user found for this tenant" };
+        }
+
+        const newPassword =
+          customPassword && customPassword.trim().length >= 6
+            ? customPassword.trim()
+            : `GymPass_${Math.random().toString(36).slice(-6)}!A1`;
+
+        // Update in Firebase Auth
+        await adminAuth.updateUser(adminUser.firebaseUid, {
+          password: newPassword,
+        });
+
+        // Generate invitation/reset link
+        let resetLink = "";
+        try {
+          resetLink = await adminAuth.generatePasswordResetLink(adminUser.email);
+        } catch {
+          resetLink = "";
+        }
+
+        return {
+          success: true,
+          adminEmail: adminUser.email,
+          newPassword,
+          resetLink,
+        };
+      }
+    );
+  } catch (err: any) {
+    console.error("Failed to reset tenant password:", err);
+    return { success: false, error: err.message || "Failed to reset password" };
+  }
+}
+
+export async function deleteTenantAction(
+  tenantId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "platform") {
+      return { success: false, error: "Unauthorized: Only platform superadmin can delete tenants" };
+    }
+
+    return await withTenantDb(
+      { userId: session.uid, role: "platform", tenantId: null },
+      async (tx) => {
+        // Collect user firebaseUids to delete from Firebase
+        const tenantUsers = await tx
+          .select({ firebaseUid: users.firebaseUid })
+          .from(users)
+          .where(eq(users.tenantId, tenantId));
+
+        // Cascade delete child entities
+        await tx.delete(attendance).where(eq(attendance.tenantId, tenantId));
+        await tx.delete(payments).where(eq(payments.tenantId, tenantId));
+        await tx.delete(memberships).where(eq(memberships.tenantId, tenantId));
+        await tx.delete(gymClasses).where(eq(gymClasses.tenantId, tenantId));
+        await tx.delete(membershipPlans).where(eq(membershipPlans.tenantId, tenantId));
+        await tx.delete(members).where(eq(members.tenantId, tenantId));
+        await tx.delete(users).where(eq(users.tenantId, tenantId));
+        await tx.delete(tenants).where(eq(tenants.id, tenantId));
+
+        // Clean up Firebase Auth accounts
+        await Promise.all(
+          tenantUsers.map((u: any) => adminAuth.deleteUser(u.firebaseUid).catch(() => null))
+        );
+
+        revalidatePath("/platform");
+        return { success: true };
+      }
+    );
+  } catch (err: any) {
+    console.error("Failed to delete tenant:", err);
+    return { success: false, error: err.message || "Failed to delete tenant" };
+  }
 }

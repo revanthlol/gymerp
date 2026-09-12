@@ -220,17 +220,6 @@ function LoginForm() {
             </form>
           </CardContent>
         </Card>
-
-        {/* Discreet Platform Superadmin Link */}
-        <div className="text-center pt-2">
-          <Link
-            href="/platform/login"
-            className="inline-flex items-center gap-1.5 text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
-          >
-            <span>Platform Infrastructure Console</span>
-            <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
       </Reveal>
     </div>
   );
