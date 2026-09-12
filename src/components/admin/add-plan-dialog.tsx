@@ -12,11 +12,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createPlanAction } from "@/lib/api/plans";
+import { useRouter } from "next/navigation";
 import { Plus, Sliders } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
-export function AddPlanDialog() {
+interface AddPlanDialogProps {
+  onPlanCreated?: (newPlan: any) => void;
+}
+
+export function AddPlanDialog({ onPlanCreated }: AddPlanDialogProps = {}) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
@@ -42,6 +48,10 @@ export function AddPlanDialog() {
 
       if (res.success) {
         toast.success(`Plan "${name}" created successfully!`);
+        if (res.plan) {
+          onPlanCreated?.(res.plan);
+        }
+        router.refresh();
         setOpen(false);
         setName("");
         setDescription("");

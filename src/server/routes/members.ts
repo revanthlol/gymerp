@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from "fastify";
 import { withTenantDb } from "@/lib/db/tenant";
-import { members, memberships, membershipPlans, attendance } from "@/lib/db/schema";
+import { members, memberships, membershipPlans, attendance, payments } from "@/lib/db/schema";
 import { createMemberSchema } from "@/lib/validations/member";
 import { authenticateSession, requireRole } from "../middleware/auth";
 import { eq, desc, and } from "drizzle-orm";
@@ -171,6 +171,7 @@ export const memberRoutes: FastifyPluginAsync = async (fastify) => {
 
       await withTenantDb(session, async (tx) => {
         // Cascade delete child records
+        await tx.delete(payments).where(eq(payments.memberId, id));
         await tx.delete(attendance).where(eq(attendance.memberId, id));
         await tx.delete(memberships).where(eq(memberships.memberId, id));
         await tx

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Clock,
@@ -45,10 +46,15 @@ interface ClassesViewProps {
 }
 
 export function ClassesView({ initialClasses = [] }: ClassesViewProps) {
+  const router = useRouter();
   const [classes, setClasses] = useState<GymClassItem[]>(initialClasses);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setClasses(initialClasses);
+  }, [initialClasses]);
 
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -106,6 +112,7 @@ export function ClassesView({ initialClasses = [] }: ClassesViewProps) {
         };
 
         setClasses((prev) => [created, ...prev]);
+        router.refresh();
         toast.success(`Class "${created.name}" created and saved!`);
         setIsModalOpen(false);
         setNewName("");
@@ -125,6 +132,7 @@ export function ClassesView({ initialClasses = [] }: ClassesViewProps) {
     try {
       await deleteClassAction(id);
       setClasses((prev) => prev.filter((c) => c.id !== id));
+      router.refresh();
       toast.success(`Class "${name}" deleted`);
     } catch (err: any) {
       toast.error(err?.message || "Failed to delete class");
@@ -138,6 +146,7 @@ export function ClassesView({ initialClasses = [] }: ClassesViewProps) {
         setClasses((prev) =>
           prev.map((c) => (c.id === id ? { ...c, bookedCount: res.gymClass.bookedCount } : c))
         );
+        router.refresh();
         toast.success(delta > 0 ? "Athlete spot booked" : "Spot released");
       }
     } catch (err: any) {

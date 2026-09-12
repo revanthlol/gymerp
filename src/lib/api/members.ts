@@ -1,7 +1,7 @@
 "use server";
 
 import { withTenantDb } from "@/lib/db/tenant";
-import { members, memberships, membershipPlans, attendance } from "@/lib/db/schema";
+import { members, memberships, membershipPlans, attendance, payments } from "@/lib/db/schema";
 import { createMemberSchema, CreateMemberInput } from "@/lib/validations/member";
 import { getSession } from "@/lib/auth/session";
 import { eq, desc, and } from "drizzle-orm";
@@ -141,6 +141,7 @@ export async function deleteMemberAction(memberId: string): Promise<
 
     return await withTenantDb(session, async (tx) => {
       // Cleanly delete child records in case cascade isn't configured in PostgreSQL
+      await tx.delete(payments).where(eq(payments.memberId, memberId));
       await tx.delete(attendance).where(eq(attendance.memberId, memberId));
       await tx.delete(memberships).where(eq(memberships.memberId, memberId));
 

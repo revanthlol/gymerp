@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableHeader,
@@ -58,10 +59,16 @@ interface PlatformTenantsViewProps {
 }
 
 export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps) {
+  const router = useRouter();
+  const [tenants, setTenants] = useState<TenantRecord[]>(initialTenants);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setTenants(initialTenants);
+  }, [initialTenants]);
 
   // Dialog states for superadmin actions
   const [licenseModalTenant, setLicenseModalTenant] = useState<TenantRecord | null>(null);
@@ -85,7 +92,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  const filteredTenants = initialTenants.filter((tenant) => {
+  const filteredTenants = tenants.filter((tenant) => {
     const matchesSearch =
       tenant.name.toLowerCase().includes(search.toLowerCase()) ||
       tenant.slug.toLowerCase().includes(search.toLowerCase()) ||
@@ -105,6 +112,10 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
     startTransition(async () => {
       try {
         await toggleTenantStatusAction(tenant.id, newStatus);
+        setTenants((prev) =>
+          prev.map((t) => (t.id === tenant.id ? { ...t, status: newStatus } : t))
+        );
+        router.refresh();
         toast.success(
           `Tenant "${tenant.name}" ${
             newStatus === "suspended"
@@ -129,6 +140,18 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
       try {
         const res = await extendTenantLicenseAction(targetId, days);
         if (!res.success) throw new Error(res.error);
+        setTenants((prev) =>
+          prev.map((t) => {
+            if (t.id !== targetId) return t;
+            const currentExpiry = t.licenseExpiresAt ? new Date(t.licenseExpiresAt) : new Date();
+            const nextExpiry =
+              days === -1
+                ? new Date(Date.now() + 100 * 365 * 24 * 3600 * 1000)
+                : new Date(currentExpiry.getTime() + days * 24 * 3600 * 1000);
+            return { ...t, licenseExpiresAt: nextExpiry.toISOString() };
+          })
+        );
+        router.refresh();
         toast.success(
           days === -1
             ? `Granted lifetime license to ${licenseModalTenant.name}`
@@ -183,6 +206,8 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
       try {
         const res = await deleteTenantAction(targetId);
         if (!res.success) throw new Error(res.error);
+        setTenants((prev) => prev.filter((t) => t.id !== targetId));
+        router.refresh();
         toast.success(`Tenant ${deleteModalTenant.name} and all data successfully purged.`);
         setDeleteModalTenant(null);
         setConfirmDeleteName("");
@@ -244,7 +269,11 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
             })}
           </div>
 
-          <CreateTenantDialog />
+          <CreateTenantDialog
+            onTenantCreated={(newTenant) => {
+              setTenants((prev) => [newTenant, ...prev]);
+            }}
+          />
         </div>
       </div>
 

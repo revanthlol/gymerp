@@ -12,11 +12,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { provisionTenantAction } from "@/lib/api/tenants";
+import { useRouter } from "next/navigation";
 import { Plus, CheckCircle2, Copy, Check } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
-export function CreateTenantDialog() {
+interface CreateTenantDialogProps {
+  onTenantCreated?: (newTenant: any) => void;
+}
+
+export function CreateTenantDialog({ onTenantCreated }: CreateTenantDialogProps = {}) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -57,6 +63,10 @@ export function CreateTenantDialog() {
         return;
       }
       setResult(res as any);
+      if (res.tenant) {
+        onTenantCreated?.(res.tenant);
+      }
+      router.refresh();
       toast.success(`Gym "${res.tenant.name}" provisioned successfully!`);
     } catch (err: any) {
       toast.error(err.message || "Failed to provision gym tenant");
