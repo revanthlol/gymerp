@@ -24,6 +24,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface DashboardShellProps {
   gymName: string;
@@ -153,22 +154,22 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             if (!isPinned) setIsSidebarHovered(false);
           }}
           className={cn(
-            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-2xl bg-white/[0.03] backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(130%)] border border-white/[0.08] shadow-2xl shadow-black/40 flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
+            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-2xl bg-white/80 dark:bg-white/[0.03] backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(130%)] border border-zinc-200/80 dark:border-white/[0.08] shadow-xl shadow-zinc-900/5 dark:shadow-black/40 flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
             isExpanded ? "w-56" : "w-16"
           )}
         >
           {/* Top Logo Block */}
-          <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.06] px-3 py-2.5">
+          <div className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200/60 dark:border-white/[0.06] px-3 py-2.5">
             <Link href={isStaff ? "/staff" : "/admin"} className="flex items-center gap-2.5 overflow-hidden group">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-white/12 to-white/[0.02] text-white border border-white/15 flex items-center justify-center font-bold text-xs tracking-tight shrink-0 shadow-lg shadow-black/20 group-hover:border-white/30 transition-all">
+              <div className="w-8 h-8 rounded-xl bg-zinc-900 dark:bg-gradient-to-br dark:from-white/12 dark:to-white/[0.02] text-white border border-zinc-700 dark:border-white/15 flex items-center justify-center font-bold text-xs tracking-tight shrink-0 shadow-sm group-hover:border-zinc-500 dark:group-hover:border-white/30 transition-all">
                 G
               </div>
               {isExpanded && (
                 <div className="flex flex-col overflow-hidden animate-in fade-in duration-150">
-                  <span className="font-bold text-white text-xs tracking-tight leading-none">
+                  <span className="font-bold text-zinc-900 dark:text-white text-xs tracking-tight leading-none">
                     GYMERP
                   </span>
-                  <span className="text-[10px] text-zinc-400 font-medium truncate max-w-[110px] mt-1">
+                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium truncate max-w-[110px] mt-1">
                     {gymName}
                   </span>
                 </div>
@@ -179,29 +180,29 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
               <button
                 onClick={togglePin}
                 title={isPinned ? "Collapse sidebar" : "Pin sidebar"}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-transparent hover:border-white/[0.06] transition-all"
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.06] border border-transparent hover:border-zinc-200 dark:hover:border-white/[0.06] transition-all"
               >
                 {isPinned ? (
                   <PanelLeftClose className="w-3.5 h-3.5" />
                 ) : (
-                  <PanelLeft className="w-3.5 h-3.5 text-sky-400" />
+                  <PanelLeft className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
                 )}
               </button>
             )}
           </div>
 
           {/* User Info Block under Header */}
-          <div className="p-2.5 border-b border-white/[0.06]">
+          <div className="p-2.5 border-b border-zinc-200/60 dark:border-white/[0.06]">
             <div className={cn("flex items-center", isExpanded ? "gap-2.5" : "justify-center")}>
-              <div className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 text-white flex items-center justify-center font-mono text-[11px] font-semibold shrink-0 shadow-inner">
+              <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/[0.06] border border-zinc-200 dark:border-white/10 text-zinc-800 dark:text-white flex items-center justify-center font-mono text-[11px] font-semibold shrink-0">
                 {initials}
               </div>
               {isExpanded && (
                 <div className="flex-1 min-w-0 animate-in fade-in duration-150">
-                  <p className="font-medium text-white truncate text-xs leading-tight">
+                  <p className="font-medium text-zinc-900 dark:text-white truncate text-xs leading-tight">
                     {displayName}
                   </p>
-                  <p className="text-[10px] text-zinc-400 truncate font-mono mt-0.5">
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
                     {isStaff ? "Staff Member" : "Administrator"}
                   </p>
                 </div>
@@ -225,8 +226,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                   className={cn(
                     "flex items-center rounded-xl transition-colors duration-150 text-xs font-medium relative h-9 group overflow-hidden",
                     isActive
-                      ? "bg-white/[0.08] text-white font-semibold border border-white/[0.1] shadow-sm shadow-black/20"
-                      : "text-zinc-400 hover:bg-white/[0.04] hover:text-white border border-transparent"
+                      ? "bg-zinc-100 dark:bg-white/[0.08] text-zinc-900 dark:text-white font-semibold border border-zinc-200 dark:border-white/[0.1] shadow-xs"
+                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-white/[0.04] hover:text-zinc-900 dark:hover:text-white border border-transparent"
                   )}
                 >
                   {/* Stable fixed icon slot — never moves or twitches */}
@@ -234,7 +235,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                     <item.icon
                       className={cn(
                         "w-4 h-4 transition-colors duration-150",
-                        isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
+                        isActive ? "text-primary dark:text-white" : "text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-200"
                       )}
                     />
                   </div>
@@ -254,11 +255,11 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
           </nav>
 
           {/* Footer Logout Block */}
-          <div className="p-2 border-t border-white/[0.06]">
+          <div className="p-2 border-t border-zinc-200/60 dark:border-white/[0.06]">
             <button
               onClick={logout}
               title="Sign out"
-              className="w-full flex items-center h-9 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium overflow-hidden"
+              className="w-full flex items-center h-9 rounded-xl text-red-500/80 hover:text-red-600 dark:text-red-400/80 dark:hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium overflow-hidden"
             >
               <div className="w-11 h-9 shrink-0 flex items-center justify-center">
                 <LogOut className="w-4 h-4" />
@@ -397,15 +398,15 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
               : "lg:left-24 lg:right-6 xl:right-8",
             "h-14 rounded-2xl px-4 sm:px-6 pointer-events-auto",
             isScrolled
-              ? "bg-[#090a0f]/85 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(140%)_contrast(105%)] border border-white/[0.12] shadow-2xl shadow-black/50"
-              : "bg-[#090a0f]/60 backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(130%)] border border-white/[0.08] shadow-lg shadow-black/20"
+              ? "bg-white/85 dark:bg-[#090a0f]/85 backdrop-blur-2xl border border-zinc-200/80 dark:border-white/[0.12] shadow-xl shadow-zinc-900/5 dark:shadow-black/50"
+              : "bg-white/70 dark:bg-[#090a0f]/60 backdrop-blur-xl border border-zinc-200/70 dark:border-white/[0.08] shadow-md shadow-zinc-900/5 dark:shadow-black/20"
           )}
         >
           <div className="flex items-center gap-3">
             {isMobile && (
               <button
                 onClick={() => setIsMobileOpen(true)}
-                className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-all"
+                className="p-2 rounded-xl bg-zinc-100 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/[0.08] text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-white/[0.08] transition-all"
               >
                 <Menu className="w-4 h-4" />
               </button>
@@ -414,8 +415,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             {/* Breadcrumb Hierarchy */}
             <nav className="flex items-center gap-2 text-xs">
               <span className="text-zinc-500 font-medium">GYMERP</span>
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
-              <span className="font-semibold text-white tracking-tight">{currentPageLabel}</span>
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600" />
+              <span className="font-semibold text-zinc-900 dark:text-white tracking-tight">{currentPageLabel}</span>
             </nav>
           </div>
 
@@ -425,22 +426,24 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
               {gymName}
             </span>
 
-            <div className="h-4 w-px bg-white/[0.08] hidden sm:block" />
+            <div className="h-4 w-px bg-zinc-200 dark:bg-white/[0.08] hidden sm:block" />
+
+            <ThemeToggle />
 
             <Link
               href={isStaff ? "/staff/kiosk" : "/admin/kiosk"}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/[0.04] border border-white/[0.08] hover:border-white/20 hover:text-white hover:bg-white/[0.08] transition-all"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-100/80 dark:bg-white/[0.04] border border-zinc-200 dark:border-white/[0.08] hover:border-zinc-300 dark:hover:border-white/20 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/70 dark:hover:bg-white/[0.08] transition-all"
             >
-              <QrCode className="w-3.5 h-3.5 text-sky-400" />
+              <QrCode className="w-3.5 h-3.5 text-sky-500 dark:text-sky-400" />
               <span>Kiosk</span>
             </Link>
 
             <button
               title="Notifications"
-              className="relative p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-transparent hover:border-white/[0.06] transition-all"
+              className="relative p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.06] border border-transparent hover:border-zinc-200 dark:hover:border-white/[0.06] transition-all"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 ring-2 ring-[#090a0f]" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-[#090a0f]" />
             </button>
           </div>
         </header>

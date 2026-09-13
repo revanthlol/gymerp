@@ -7,11 +7,12 @@ import { getSession } from "@/lib/auth/session";
 import { Toaster } from "@/components/ui/sonner";
 import { PwaRegister } from "@/components/pwa/pwa-register";
 import { NavigationProgress } from "@/components/navigation-progress";
+import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const viewport: Viewport = {
   themeColor: "#080809",
@@ -35,19 +36,21 @@ export default async function RootLayout({
   const session = await getSession();
 
   return (
-    <html lang="en" className={cn("dark", "font-mono", jetbrainsMono.variable)}>
-      <body className={`${inter.variable} font-sans bg-[#080809] text-zinc-100 antialiased relative min-h-screen`}>
-        <div className="ambient-glow-mesh" aria-hidden="true" />
-        <Suspense fallback={null}>
-          <NavigationProgress />
-        </Suspense>
-        <div className="relative z-10">
-          <AuthProvider initialUser={session}>
-            <PwaRegister />
-            {children}
-          </AuthProvider>
-        </div>
-        <Toaster position="top-right" />
+    <html lang="en" suppressHydrationWarning className={cn(inter.variable, jetbrainsMono.variable)}>
+      <body className="font-sans bg-background text-foreground antialiased relative min-h-screen">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          <div className="ambient-glow-mesh dark:block hidden" aria-hidden="true" />
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
+          <div className="relative z-10">
+            <AuthProvider initialUser={session}>
+              <PwaRegister />
+              {children}
+            </AuthProvider>
+          </div>
+          <Toaster position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );
