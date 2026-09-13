@@ -27,7 +27,7 @@ export default async function AdminAttendancePage() {
           .select()
           .from(attendance)
           .orderBy(desc(attendance.checkedInAt))
-          .limit(50),
+          .limit(300),
         tx.select().from(members),
       ]);
       return { attendance: rawAttendance, members: rawMembers };

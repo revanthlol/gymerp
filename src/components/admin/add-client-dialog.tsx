@@ -74,9 +74,12 @@ export function AddClientDialog({ plans, onMemberAdded }: AddClientDialogProps) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="h-8 gap-1.5 text-xs">
+        <Button
+          size="sm"
+          className="h-9 px-4 rounded-xl gap-2 text-xs font-semibold shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+        >
           <Plus className="size-3.5 stroke-[2.5]" />
-          Add Member
+          <span>Add Member</span>
         </Button>
       </DialogTrigger>
 

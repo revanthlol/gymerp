@@ -55,7 +55,7 @@ export function StaffDashboardView({
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"floor" | "log">("floor");
 
-  // Compute Active Floor Roster (members who checked in today without an exit check afterwards)
+  // Compute Active on Floor (members who checked in today without an exit check afterwards)
   const floorMembers = useMemo(() => {
     const sorted = [...attendanceList].sort(
       (a, b) => new Date(a.checkedInAt).getTime() - new Date(b.checkedInAt).getTime()
@@ -363,7 +363,7 @@ export function StaffDashboardView({
             }`}
           >
             <Flame className="size-4 text-primary" />
-            <span>Active Floor Roster</span>
+            <span>Active on Floor</span>
             <span className="text-xs text-muted-foreground font-normal">
               ({floorMembers.length})
             </span>
@@ -385,7 +385,7 @@ export function StaffDashboardView({
           </button>
         </div>
 
-        {/* Tab 1: Active Floor Roster */}
+        {/* Tab 1: Active on Floor */}
         {activeTab === "floor" && (
           <div className="rounded-xl border border-border bg-card overflow-hidden shadow-none">
             {floorMembers.length === 0 ? (

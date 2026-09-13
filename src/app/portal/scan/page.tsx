@@ -25,7 +25,8 @@ function ScanProcessor() {
   const router = useRouter();
 
   const rawToken = searchParams.get("token") || "";
-  const requestedMode = (searchParams.get("mode") as "entry" | "exit" | "auto") || "entry";
+  const kioskParam = searchParams.get("kiosk") || "";
+  const requestedMode = (searchParams.get("mode") as "entry" | "exit" | "auto") || "auto";
 
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,10 +58,10 @@ function ScanProcessor() {
       setPhone(savedPhone);
       executeScan(savedPhone);
     }
-  }, [rawToken]);
+  }, [rawToken, kioskParam]);
 
   const executeScan = async (athletePhone: string) => {
-    if (!rawToken) {
+    if (!rawToken && !kioskParam) {
       setResult({
         success: false,
         message: "No check-in QR token detected in link. Please scan the kiosk screen again.",
@@ -71,7 +72,8 @@ function ScanProcessor() {
     setLoading(true);
     try {
       const res: any = await memberSelfScanKioskAction({
-        qrToken: rawToken,
+        qrToken: rawToken || kioskParam,
+        kioskToken: rawToken || kioskParam,
         memberPhone: athletePhone,
         overrideMode: requestedMode,
       });

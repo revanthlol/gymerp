@@ -4,10 +4,15 @@ import { withTenantDb } from "@/lib/db/tenant";
 import { members, attendance, tenants } from "@/lib/db/schema";
 import { generateGymRotatingQr } from "@/lib/attendance/qr";
 import { desc, eq } from "drizzle-orm";
-import { KioskTerminal } from "@/components/kiosk/kiosk-terminal";
-import { KioskShareCard } from "@/components/kiosk/kiosk-share-card";
+import { getTenantKiosksAction } from "@/lib/api/kiosk";
+import { KioskManagementView } from "@/components/admin/kiosk-management-view";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Check-In Turnstiles & Kiosks | GymERP",
+  description: "Front-desk check-in turnstiles and member check-in terminal.",
+};
 
 export default async function StaffKioskPage() {
   const session = await getSession();
@@ -15,8 +20,11 @@ export default async function StaffKioskPage() {
     redirect("/login");
   }
 
-  // 1. Generate live dynamic rotating QR code with auto mode
-  const initialQr = await generateGymRotatingQr(session.tenantId, "auto");
+  // 1. Fetch multi-kiosk stations and rotating QR code
+  const [tenantKiosks, initialQr] = await Promise.all([
+    getTenantKiosksAction(),
+    generateGymRotatingQr(session.tenantId, "auto"),
+  ]);
 
   // 2. Fetch live tenant members, recent turnstile check-ins, and tenant settings
   const data = await withTenantDb(session, async (tx) => {
@@ -29,8 +37,10 @@ export default async function StaffKioskPage() {
         .limit(8),
       tx
         .select({
+          id: tenants.id,
+          name: tenants.name,
           slug: tenants.slug,
-          kioskPassphrase: tenants.kioskPassphrase,
+          logoUrl: tenants.logoUrl,
         })
         .from(tenants)
         .where(eq(tenants.id, session.tenantId!))
@@ -45,19 +55,17 @@ export default async function StaffKioskPage() {
   });
 
   return (
-    <div className="space-y-6">
-      {data.tenant && (
-        <KioskShareCard
-          gymSlug={data.tenant.slug}
-          initialPassphrase={data.tenant.kioskPassphrase || "123456"}
-        />
-      )}
-
-      <KioskTerminal
-        initialQr={initialQr}
-        members={data.members}
-        recentAttendance={data.attendance}
-      />
-    </div>
+    <KioskManagementView
+      initialKiosks={tenantKiosks as any}
+      gym={{
+        id: data.tenant?.id || session.tenantId,
+        name: data.tenant?.name || "Gym",
+        slug: data.tenant?.slug || "gym",
+        logoUrl: data.tenant?.logoUrl,
+      }}
+      initialQr={initialQr}
+      members={data.members}
+      recentAttendance={data.attendance}
+    />
   );
 }

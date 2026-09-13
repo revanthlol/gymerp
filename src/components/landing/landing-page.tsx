@@ -26,6 +26,7 @@ import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SessionUser } from "@/types/auth";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface LandingPageProps {
   session?: SessionUser | null;
@@ -66,6 +67,15 @@ export function LandingPage({ session }: LandingPageProps) {
 
   // Secret Platform Superadmin Backdoor (5-click on footer logo or Ctrl+Shift+P)
   const [secretClicks, setSecretClicks] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -198,11 +208,18 @@ export function LandingPage({ session }: LandingPageProps) {
         <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-primary/10 blur-[130px] rounded-full dark:opacity-80 opacity-50" />
       </div>
 
-      {/* Navigation Bar */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between">
+      {/* Navigation Bar — Floating Frosted Glass treatment matching Admin Portal */}
+      <div className="fixed top-3 sm:top-4 left-0 right-0 z-50 px-3 sm:px-6 pointer-events-none flex justify-center">
+        <header
+          className={cn(
+            "w-full max-w-6xl h-14 sm:h-16 rounded-2xl px-4 sm:px-6 pointer-events-auto flex items-center justify-between transition-all duration-300 ease-out",
+            isScrolled
+              ? "bg-background/80 dark:bg-black/60 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(160%)_contrast(105%)] border border-border/90 dark:border-white/[0.14] shadow-[0_12px_40px_rgba(0,0,0,0.08),inset_0_1px_0_0_rgba(255,255,255,0.2)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+              : "bg-background/60 dark:bg-black/40 backdrop-blur-2xl [backdrop-filter:blur(20px)_saturate(150%)] border border-border/70 dark:border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.05),inset_0_1px_0_0_rgba(255,255,255,0.15)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.06)]"
+          )}
+        >
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm tracking-tight shadow-sm transition-transform group-hover:scale-105">
+            <div className="size-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm tracking-tight shadow-sm transition-transform group-hover:scale-105">
               G
             </div>
             <span className="font-bold text-foreground text-sm tracking-wide">
@@ -226,41 +243,39 @@ export function LandingPage({ session }: LandingPageProps) {
             <ThemeToggle />
             {session ? (
               <Link href={session.role === "admin" ? "/admin" : session.role === "staff" ? "/staff" : "/portal"}>
-                <Button size="sm" className="font-semibold text-xs">
+                <Button
+                  size="sm"
+                  className="relative overflow-hidden rounded-full h-9 px-4 font-semibold text-xs bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 group"
+                >
                   <span>Dashboard</span>
-                  <ArrowRight className="size-3.5 ml-1.5" />
+                  <ArrowRight className="size-3.5 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Button>
               </Link>
             ) : (
               <Link href="/login">
-                <Button size="sm" variant="outline" className="font-semibold text-xs">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="rounded-full h-9 px-4 font-semibold text-xs hover:bg-muted/80 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 border-border"
+                >
                   Sign In
                 </Button>
               </Link>
             )}
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       {/* Main Content */}
       <main className="relative z-10">
         {/* HERO SECTION */}
-        <section className="pt-20 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center">
+        <section className="pt-28 sm:pt-36 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center">
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
             className="flex flex-col items-center gap-5"
           >
-            {/* Live badge */}
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-              </span>
-              <span>Modern Gym Operations & Access</span>
-            </motion.div>
-
             {/* Headline */}
             <motion.h1
               variants={itemVariants}

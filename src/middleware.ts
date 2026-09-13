@@ -29,6 +29,7 @@ export async function middleware(request: NextRequest) {
     pathname === "/portal/login" ||
     pathname.startsWith("/portal/scan") ||
     pathname.startsWith("/kiosk") ||
+    pathname.startsWith("/api/kiosk") ||
     pathname === "/api/health" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks") ||

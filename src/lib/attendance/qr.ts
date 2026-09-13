@@ -205,3 +205,34 @@ export function verifyGymRotatingQr(
 
   return { valid: false, reason: "Unrecognized QR code format" };
 }
+
+/**
+ * Generates a high-resolution, high-contrast QR code for a persistent zero-touch kiosk display or printed desk acrylic
+ */
+export async function generateKioskStationQr(
+  kioskSlug: string,
+  secretToken: string,
+  mode: string = "auto",
+  explicitOrigin?: string
+): Promise<{ qrDataUrl: string; scanUrl: string }> {
+  const origin =
+    explicitOrigin ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    "https://gymerp-liard.vercel.app";
+
+  const scanUrl = `${origin}/portal/scan?kiosk=${encodeURIComponent(kioskSlug)}&token=${encodeURIComponent(secretToken)}&mode=${mode}`;
+
+  const qrDataUrl = await QRCode.toDataURL(scanUrl, {
+    width: 600,
+    margin: 2,
+    color: {
+      dark: "#08090a",
+      light: "#ffffff",
+    },
+    errorCorrectionLevel: "H",
+  });
+
+  return { qrDataUrl, scanUrl };
+}
+

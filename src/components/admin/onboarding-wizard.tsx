@@ -517,7 +517,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                     Front-Desk Coach or Staff Account
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    Optional: Invite your first staff member to operate the check-in desk and monitor floor roster.
+                    Optional: Invite your first staff member to operate the check-in desk and monitor floor activity.
                   </p>
                 </div>
 

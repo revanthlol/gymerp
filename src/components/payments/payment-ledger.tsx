@@ -228,7 +228,7 @@ export function PaymentLedger({
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Revenue */}
-        <div className="p-5 rounded-xl border border-border bg-card space-y-2 shadow-none">
+        <div className="p-5 rounded-xl border border-border bg-card space-y-2 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/25 cursor-default">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Total Revenue
@@ -246,7 +246,7 @@ export function PaymentLedger({
         </div>
 
         {/* This Month */}
-        <div className="p-5 rounded-xl border border-border bg-card space-y-2 shadow-none">
+        <div className="p-5 rounded-xl border border-border bg-card space-y-2 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/25 cursor-default">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               This Month
@@ -264,7 +264,7 @@ export function PaymentLedger({
         </div>
 
         {/* Front-Desk / Cash */}
-        <div className="p-5 rounded-xl border border-border bg-card space-y-2 shadow-none">
+        <div className="p-5 rounded-xl border border-border bg-card space-y-2 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/25 cursor-default">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Manual / POS Cash
@@ -282,7 +282,7 @@ export function PaymentLedger({
         </div>
 
         {/* Razorpay Online */}
-        <div className="p-5 rounded-xl border border-border bg-card space-y-2 shadow-none">
+        <div className="p-5 rounded-xl border border-border bg-card space-y-2 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/25 cursor-default">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Razorpay Online

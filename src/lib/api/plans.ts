@@ -51,9 +51,61 @@ export async function deletePlanAction(planId: string) {
       .where(and(eq(membershipPlans.id, planId), eq(membershipPlans.tenantId, session.tenantId!)));
 
     revalidatePath("/admin/plans");
+    return { success: true };
+  });
+}
+
+export interface UpdatePlanInput {
+  name: string;
+  description?: string;
+  price: string;
+  durationDays: number;
+  isActive?: "true" | "false";
+}
+
+export async function updatePlanAction(planId: string, input: UpdatePlanInput) {
+  const session = await getSession();
+  if (!session || !session.tenantId || session.role !== "admin") {
+    throw new Error("Unauthorized: Only gym admin can update membership plans");
+  }
+
+  return await withTenantDb(session, async (tx) => {
+    const [updatedPlan] = await tx
+      .update(membershipPlans)
+      .set({
+        name: input.name.trim(),
+        description: input.description?.trim() || null,
+        price: input.price.trim(),
+        durationDays: input.durationDays,
+        ...(input.isActive ? { isActive: input.isActive } : {}),
+      })
+      .where(and(eq(membershipPlans.id, planId), eq(membershipPlans.tenantId, session.tenantId!)))
+      .returning();
+
+    revalidatePath("/admin/plans");
     revalidatePath("/admin");
 
-    return { success: true };
+    return { success: true, plan: updatedPlan };
+  });
+}
+
+export async function togglePlanStatusAction(planId: string, isActive: "true" | "false") {
+  const session = await getSession();
+  if (!session || !session.tenantId || session.role !== "admin") {
+    throw new Error("Unauthorized: Only gym admin can update membership plans");
+  }
+
+  return await withTenantDb(session, async (tx) => {
+    const [updatedPlan] = await tx
+      .update(membershipPlans)
+      .set({ isActive })
+      .where(and(eq(membershipPlans.id, planId), eq(membershipPlans.tenantId, session.tenantId!)))
+      .returning();
+
+    revalidatePath("/admin/plans");
+    revalidatePath("/admin");
+
+    return { success: true, plan: updatedPlan };
   });
 }
 

@@ -1,12 +1,15 @@
 "use server";
 
 import { withTenantDb } from "@/lib/db/tenant";
-import { members, attendance, memberships, membershipPlans } from "@/lib/db/schema";
+import { db } from "@/lib/db";
+import { members, attendance, memberships, membershipPlans, kiosks } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth/session";
 import { getMemberSession } from "@/lib/auth/member-session";
 import { generateGymRotatingQr, verifyGymRotatingQr, KioskMode } from "@/lib/attendance/qr";
+import { emitKioskScanEvent } from "@/lib/kiosk/kiosk-events";
 import { eq, desc, and, gte, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import crypto from "crypto";
 
 export async function getRotatingQrAction(mode: KioskMode = "auto") {
   const session = await getSession();
@@ -200,43 +203,80 @@ export async function memberSelfScanKioskAction(input: {
   qrToken: string;
   memberPhone?: string;
   overrideMode?: KioskMode;
+  kioskToken?: string;
 }) {
   const session = await getSession();
   const memberSession = await getMemberSession();
   
-  // Extract tenantId from token format (gymerp:v3:tenantId:...)
   let tokenTenantId: string | null = memberSession?.tenantId || session?.tenantId || null;
-  let parsedToken = input.qrToken;
+  let parsedToken = input.qrToken ? input.qrToken.trim() : "";
+  let matchedKioskToken: string | null = input.kioskToken || null;
+  let isStaticKiosk = false;
+  let staticKioskMode: KioskMode = "auto";
 
   if (parsedToken.includes("token=")) {
     try {
       const url = new URL(parsedToken);
       parsedToken = url.searchParams.get("token") || parsedToken;
+      if (url.searchParams.get("kiosk") && !matchedKioskToken) {
+        matchedKioskToken = url.searchParams.get("token");
+      }
     } catch {
       // not url
     }
   }
 
-  if (parsedToken.startsWith("gymerp:v3:") || parsedToken.startsWith("gymerp:v2:")) {
+  // 1. Check if token or kioskToken matches a physical kiosk station in database
+  const checkToken = parsedToken || input.kioskToken || "";
+  if (checkToken && !checkToken.startsWith("gymerp:")) {
+    const [kioskMatch] = await db
+      .select({
+        id: kiosks.id,
+        tenantId: kiosks.tenantId,
+        secretToken: kiosks.secretToken,
+        mode: kiosks.mode,
+      })
+      .from(kiosks)
+      .where(or(eq(kiosks.secretToken, checkToken), eq(kiosks.slug, checkToken)))
+      .limit(1);
+
+    if (kioskMatch) {
+      tokenTenantId = kioskMatch.tenantId;
+      matchedKioskToken = kioskMatch.secretToken;
+      isStaticKiosk = true;
+      staticKioskMode = kioskMatch.mode as KioskMode;
+    }
+  }
+
+  // Check rotating QR token format (gymerp:v3:tenantId:...)
+  if (!isStaticKiosk && (parsedToken.startsWith("gymerp:v3:") || parsedToken.startsWith("gymerp:v2:"))) {
     const parts = parsedToken.split(":");
     tokenTenantId = parts[2] || tokenTenantId;
   }
 
   if (!tokenTenantId) {
-    return { success: false, message: "Invalid kiosk token or gym location unrecognized" };
+    return { success: false, message: "Invalid kiosk token or gym station unrecognized" };
   }
 
-  // 1. Verify rotating QR token
-  const verification = verifyGymRotatingQr(tokenTenantId, parsedToken);
-  if (!verification.valid) {
-    return {
-      success: false,
-      message: verification.reason || "Kiosk QR code expired. Please scan the fresh code on screen.",
-    };
+  // 2. Verify QR token (crypto check for rotating QR, instant pass for verified static kiosk token)
+  let verification: { valid: boolean; mode?: KioskMode; reason?: string; nonce?: string | null } = {
+    valid: true,
+    mode: staticKioskMode,
+    nonce: null,
+  };
+
+  if (!isStaticKiosk) {
+    verification = verifyGymRotatingQr(tokenTenantId, parsedToken);
+    if (!verification.valid) {
+      return {
+        success: false,
+        message: verification.reason || "Kiosk QR code expired. Please scan the fresh code on screen.",
+      };
+    }
   }
 
   // Determine mode
-  const effectiveMode = input.overrideMode || verification.mode || "entry";
+  const effectiveMode = input.overrideMode || verification.mode || "auto";
 
   // Create virtual session context for tenant query
   const sessionCtx = {
@@ -247,7 +287,7 @@ export async function memberSelfScanKioskAction(input: {
   };
 
   return await withTenantDb(sessionCtx, async (tx) => {
-    // 2. Anti-Replay: Check if nonce already consumed
+    // 3. Anti-Replay: Check if rotating nonce already consumed
     if (verification.nonce) {
       const [alreadyConsumed] = await tx
         .select()
@@ -269,7 +309,7 @@ export async function memberSelfScanKioskAction(input: {
       }
     }
 
-    // 3. Match athlete: by member session or by clean phone number
+    // 4. Match athlete: by member session or by clean phone number
     let memberRecord = null;
     if (memberSession?.memberId) {
       const [foundById] = await tx
@@ -312,12 +352,19 @@ export async function memberSelfScanKioskAction(input: {
       (membershipRecord && new Date(membershipRecord.endDate) < new Date()) ||
       (membershipRecord && membershipRecord.status === "expired");
 
+    let daysRemaining = 0;
+    if (membershipRecord?.endDate) {
+      const diffTime = new Date(membershipRecord.endDate).getTime() - Date.now();
+      daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    }
+
     const memberCard = {
       id: memberRecord.id,
       fullName: memberRecord.fullName,
       phone: memberRecord.phone,
       joinDate: memberRecord.joinDate,
       expiryDate: membershipRecord?.endDate || memberRecord.joinDate,
+      daysRemaining,
       status: isExpired
         ? ("expired" as const)
         : memberRecord.status === "frozen"
@@ -326,6 +373,20 @@ export async function memberSelfScanKioskAction(input: {
     };
 
     if (isExpired) {
+      emitKioskScanEvent({
+        id: crypto.randomUUID(),
+        kioskToken: matchedKioskToken || undefined,
+        tenantId: tokenTenantId!,
+        type: "scan",
+        success: false,
+        expired: true,
+        mode: effectiveMode === "exit" ? "exit" : "entry",
+        message: "Membership Expired. Please renew your pass at the front desk.",
+        memberName: memberRecord.fullName,
+        memberCard,
+        timestamp: Date.now(),
+      });
+
       return {
         success: false,
         expired: true,
@@ -335,6 +396,19 @@ export async function memberSelfScanKioskAction(input: {
     }
 
     if (memberRecord.status !== "active") {
+      emitKioskScanEvent({
+        id: crypto.randomUUID(),
+        kioskToken: matchedKioskToken || undefined,
+        tenantId: tokenTenantId!,
+        type: "scan",
+        success: false,
+        mode: effectiveMode === "exit" ? "exit" : "entry",
+        message: `Account status is ${memberRecord.status.toUpperCase()}.`,
+        memberName: memberRecord.fullName,
+        memberCard,
+        timestamp: Date.now(),
+      });
+
       return {
         success: false,
         memberCard,
@@ -342,7 +416,7 @@ export async function memberSelfScanKioskAction(input: {
       };
     }
 
-    // 4. If mode is "auto", detect if currently inside the gym
+    // 5. If mode is "auto", detect if currently inside the gym
     let finalMode: "entry" | "exit" = effectiveMode === "exit" ? "exit" : "entry";
     if (effectiveMode === "auto") {
       const todayStart = new Date();
@@ -362,8 +436,22 @@ export async function memberSelfScanKioskAction(input: {
 
       if (latestToday && latestToday.method === "kiosk_entry") {
         const timeSinceEntryMs = Date.now() - new Date(latestToday.checkedInAt).getTime();
-        // Debounce: if entry was less than 2 minutes ago, confirm existing check-in rather than prematurely exiting
-        if (timeSinceEntryMs < 2 * 60 * 1000) {
+        // Cooldown debounce: if entry was less than 60 seconds ago, notify already checked in
+        if (timeSinceEntryMs < 60 * 1000) {
+          emitKioskScanEvent({
+            id: crypto.randomUUID(),
+            kioskToken: matchedKioskToken || undefined,
+            tenantId: tokenTenantId!,
+            type: "scan",
+            success: true,
+            duplicate: true,
+            mode: "entry",
+            message: "Already checked in! Have a great workout.",
+            memberName: memberRecord.fullName,
+            memberCard,
+            timestamp: Date.now(),
+          });
+
           return {
             success: true,
             duplicate: true,
@@ -377,8 +465,22 @@ export async function memberSelfScanKioskAction(input: {
         finalMode = "exit";
       } else if (latestToday && latestToday.method === "kiosk_exit") {
         const timeSinceExitMs = Date.now() - new Date(latestToday.checkedInAt).getTime();
-        // Debounce: if exit was less than 1 minute ago, confirm checkout
-        if (timeSinceExitMs < 1 * 60 * 1000) {
+        // Debounce: if exit was less than 60 seconds ago, confirm checkout
+        if (timeSinceExitMs < 60 * 1000) {
+          emitKioskScanEvent({
+            id: crypto.randomUUID(),
+            kioskToken: matchedKioskToken || undefined,
+            tenantId: tokenTenantId!,
+            type: "scan",
+            success: true,
+            duplicate: true,
+            mode: "exit",
+            message: "Check-out already confirmed. See you next time!",
+            memberName: memberRecord.fullName,
+            memberCard,
+            timestamp: Date.now(),
+          });
+
           return {
             success: true,
             duplicate: true,
@@ -396,9 +498,9 @@ export async function memberSelfScanKioskAction(input: {
       }
     }
 
-    // 5. Anti-Passback Check
+    // 6. Anti-Passback Check (60-second cooldown on consecutive entries)
     if (finalMode === "entry") {
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      const cooldownPeriod = new Date(Date.now() - 60 * 1000);
       const [recentEntry] = await tx
         .select()
         .from(attendance)
@@ -406,30 +508,44 @@ export async function memberSelfScanKioskAction(input: {
           and(
             eq(attendance.memberId, memberRecord.id),
             eq(attendance.method, "kiosk_entry"),
-            gte(attendance.checkedInAt, fiveMinutesAgo)
+            gte(attendance.checkedInAt, cooldownPeriod)
           )
         )
         .limit(1);
 
       if (recentEntry) {
+        emitKioskScanEvent({
+          id: crypto.randomUUID(),
+          kioskToken: matchedKioskToken || undefined,
+          tenantId: tokenTenantId!,
+          type: "scan",
+          success: false,
+          duplicate: true,
+          mode: "entry",
+          message: "Scan cooldown: Access was already logged within the last 60 seconds.",
+          memberName: memberRecord.fullName,
+          memberCard,
+          timestamp: Date.now(),
+        });
+
         return {
           success: false,
           duplicate: true,
           memberName: memberRecord.fullName,
           memberCard,
-          message: "You already checked in less than 5 minutes ago. Check-in is already confirmed.",
+          message: "You already checked in less than 60 seconds ago. Access confirmed.",
         };
       }
     }
 
-    // 6. Burn single-use nonce & record attendance
+    // 7. Burn single-use nonce & record attendance
     const [newLog] = await tx
       .insert(attendance)
       .values({
         tenantId: tokenTenantId!,
         memberId: memberRecord.id,
         method: finalMode === "exit" ? "kiosk_exit" : "kiosk_entry",
-        kioskId: verification.nonce ? `qr:${verification.nonce}` : `kiosk-${finalMode}`,
+        kioskId: verification.nonce ? `qr:${verification.nonce}` : (matchedKioskToken ? `kiosk:${matchedKioskToken}` : `kiosk-${finalMode}`),
       })
       .returning();
 
@@ -438,6 +554,25 @@ export async function memberSelfScanKioskAction(input: {
     revalidatePath("/admin/kiosk");
     revalidatePath("/staff");
     revalidatePath("/staff/kiosk");
+
+    const welcomeMsg =
+      finalMode === "exit"
+        ? `Goodbye, ${memberRecord.fullName.split(" ")[0]}! Have a great day.`
+        : `Welcome back, ${memberRecord.fullName.split(" ")[0]}! Have an awesome workout.`;
+
+    // 8. Broadcast live event to zero-touch kiosk display
+    emitKioskScanEvent({
+      id: newLog.id,
+      kioskToken: matchedKioskToken || undefined,
+      tenantId: tokenTenantId!,
+      type: "scan",
+      success: true,
+      mode: finalMode,
+      message: welcomeMsg,
+      memberName: memberRecord.fullName,
+      memberCard,
+      timestamp: Date.now(),
+    });
 
     return {
       success: true,

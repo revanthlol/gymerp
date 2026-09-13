@@ -47,7 +47,7 @@ const staffNavItems = [
   { title: "Front Desk",       href: "/staff",            icon: LayoutDashboard },
   { title: "Member Directory", href: "/staff/members",    icon: Users },
   { title: "Attendance & Floor", href: "/staff/attendance", icon: Inbox },
-  { title: "Class Rosters",    href: "/staff/classes",    icon: Dumbbell },
+  { title: "Classes & Sessions", href: "/staff/classes",    icon: Dumbbell },
   { title: "Physical Kiosk",   href: "/staff/kiosk",      icon: QrCode },
 ];
 
@@ -63,8 +63,8 @@ const PAGE_LABELS: Record<string, string> = {
   "/admin/onboarding": "Facility Onboarding Setup",
   "/staff": "Front Desk Operations",
   "/staff/members": "Member Directory & Check-In",
-  "/staff/attendance": "Live Check-ins & Floor Roster",
-  "/staff/classes": "Class Rosters & Sessions",
+  "/staff/attendance": "Live Check-ins & Active Floor",
+  "/staff/classes": "Classes & Sessions",
   "/staff/kiosk": "Self-Serve Kiosk Terminal",
 };
 

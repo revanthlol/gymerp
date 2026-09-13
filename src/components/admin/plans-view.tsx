@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { AddPlanDialog } from "./add-plan-dialog";
-import { Clock, Users, Sparkles, Trash2 } from "lucide-react";
+import { EditPlanDialog } from "./edit-plan-dialog";
+import { Clock, Users, Sparkles, Trash2, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -34,6 +35,8 @@ export function PlansView({ initialPlans, initialMemberships }: PlansViewProps) 
   const [plans, setPlans] = useState<PlanItem[]>(initialPlans);
   const [memberships, setMemberships] = useState<MembershipItem[]>(initialMemberships);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingPlan, setEditingPlan] = useState<PlanItem | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => { setPlans(initialPlans); }, [initialPlans]);
   useEffect(() => { setMemberships(initialMemberships); }, [initialMemberships]);
@@ -91,28 +94,48 @@ export function PlansView({ initialPlans, initialMemberships }: PlansViewProps) 
             return (
               <div
                 key={p.id}
-                className="relative flex flex-col gap-4 rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors group"
+                className={`relative flex flex-col justify-between gap-4 rounded-xl border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/30 group ${
+                  p.isActive === "false" ? "opacity-70 border-dashed border-border" : "border-border"
+                }`}
               >
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <h3 className="font-semibold text-foreground text-sm truncate">{p.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-foreground text-sm truncate">{p.name}</h3>
+                      {p.isActive === "false" && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-medium">Inactive</span>
+                      )}
+                    </div>
                     <span className="text-xs text-muted-foreground flex items-center gap-1">
                       <Clock className="size-3" />
                       {p.durationDays} days
                     </span>
                   </div>
-                  <button
-                    onClick={() => handleDelete(p.id, p.name)}
-                    disabled={isDeleting}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-                  >
-                    {isDeleting ? (
-                      <Spinner size="sm" variant="current" />
-                    ) : (
-                      <Trash2 className="size-3.5" />
-                    )}
-                  </button>
+                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => {
+                        setEditingPlan(p);
+                        setIsEditOpen(true);
+                      }}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all"
+                      title="Edit Plan"
+                    >
+                      <Pencil className="size-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p.id, p.name)}
+                      disabled={isDeleting}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                      title="Delete Plan"
+                    >
+                      {isDeleting ? (
+                        <Spinner size="sm" variant="current" />
+                      ) : (
+                        <Trash2 className="size-3.5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -138,6 +161,15 @@ export function PlansView({ initialPlans, initialMemberships }: PlansViewProps) 
           })}
         </div>
       )}
+
+      <EditPlanDialog
+        plan={editingPlan}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onPlanUpdated={(updated) => {
+          setPlans((prev) => prev.map((pl) => pl.id === updated.id ? updated : pl));
+        }}
+      />
     </div>
   );
 }

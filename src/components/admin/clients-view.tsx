@@ -13,6 +13,7 @@ import {
 } from "@/lib/api/members";
 import {
   Search, Phone, Mail, Save, CheckCircle2, Trash2, X, UserX,
+  Columns2, TableProperties, ArrowUpDown, ChevronLeft, ChevronRight, Eye, MoreHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -66,8 +67,15 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
   const [noteText, setNoteText] = useState(initialMembers[0]?.notes || "");
   const [isSavingNote, setIsSavingNote] = useState(false);
 
+  const [viewMode, setViewMode] = useState<"split" | "table">("split");
+  const [sortField, setSortField] = useState<"name" | "joinDate" | "status">("name");
+  const [sortAsc, setSortAsc] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
   useEffect(() => { setMembersList(initialMembers); }, [initialMembers]);
   useEffect(() => { if (selectedMember) setNoteText(selectedMember.notes || ""); }, [selectedMember?.id]);
+  useEffect(() => { setCurrentPage(1); }, [search, filterScope]);
 
   useEffect(() => {
     if (selectedMember && activeTab === "activities") {
@@ -85,6 +93,33 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
     const matchesScope = filterScope === "all" || m.status === filterScope;
     return matchesSearch && matchesScope;
   });
+
+  const sortedMembers = [...filteredMembers].sort((a, b) => {
+    let diff = 0;
+    if (sortField === "name") {
+      diff = a.fullName.localeCompare(b.fullName);
+    } else if (sortField === "joinDate") {
+      diff = new Date(a.joinDate).getTime() - new Date(b.joinDate).getTime();
+    } else if (sortField === "status") {
+      diff = a.status.localeCompare(b.status);
+    }
+    return sortAsc ? diff : -diff;
+  });
+
+  const totalPages = Math.ceil(sortedMembers.length / pageSize) || 1;
+  const paginatedMembers = sortedMembers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const toggleSort = (field: "name" | "joinDate" | "status") => {
+    if (sortField === field) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortField(field);
+      setSortAsc(true);
+    }
+  };
 
   const handleSaveNote = async () => {
     if (!selectedMember) return;
@@ -148,34 +183,65 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, phone, email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9 bg-muted/60 border-border text-xs"
-          />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, phone, email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-9 bg-muted/60 border-border text-xs rounded-xl"
+            />
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {(["all", "active", "frozen", "expired"] as const).map((scope) => (
+              <button
+                key={scope}
+                onClick={() => setFilterScope(scope)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${
+                  filterScope === scope
+                    ? "bg-primary/10 text-primary border border-primary/20"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                }`}
+              >
+                {scope}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          {(["all", "active", "frozen", "expired"] as const).map((scope) => (
-            <button
-              key={scope}
-              onClick={() => setFilterScope(scope)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${
-                filterScope === scope
-                  ? "bg-primary/10 text-primary border border-primary/20"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              }`}
-            >
-              {scope}
-            </button>
-          ))}
+
+        {/* View Mode Toggle */}
+        <div className="flex items-center gap-1 p-1 bg-muted/60 border border-border rounded-xl self-start sm:self-auto">
+          <button
+            onClick={() => setViewMode("split")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === "split"
+                ? "bg-card text-foreground shadow-sm border border-border"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Split Cards View"
+          >
+            <Columns2 className="size-3.5" />
+            <span>Split View</span>
+          </button>
+          <button
+            onClick={() => setViewMode("table")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === "table"
+                ? "bg-card text-foreground shadow-sm border border-border"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Structured Table View"
+          >
+            <TableProperties className="size-3.5" />
+            <span>Table View</span>
+          </button>
         </div>
       </div>
 
-      {/* Split panel */}
+      {viewMode === "split" ? (
+      /* Split panel */
       <div className="flex flex-col lg:flex-row gap-4 min-h-[600px]">
         {/* Left — member list */}
         <div className="lg:w-80 xl:w-96 shrink-0 rounded-xl border border-border bg-card overflow-hidden flex flex-col">
@@ -380,6 +446,167 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
           )}
         </AnimatePresence>
       </div>
+      ) : (
+        /* Structured Table View */
+        <div className="space-y-4">
+          <div className="rounded-xl border border-border bg-card overflow-hidden shadow-none">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-border bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="text-xs font-medium text-muted-foreground">
+                      <button
+                        onClick={() => toggleSort("name")}
+                        className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+                      >
+                        <span>Member</span>
+                        <ArrowUpDown className="size-3 text-muted-foreground" />
+                      </button>
+                    </TableHead>
+                    <TableHead className="text-xs font-medium text-muted-foreground">Contact</TableHead>
+                    <TableHead className="text-xs font-medium text-muted-foreground">
+                      <button
+                        onClick={() => toggleSort("status")}
+                        className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+                      >
+                        <span>Status</span>
+                        <ArrowUpDown className="size-3 text-muted-foreground" />
+                      </button>
+                    </TableHead>
+                    <TableHead className="text-xs font-medium text-muted-foreground">
+                      <button
+                        onClick={() => toggleSort("joinDate")}
+                        className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+                      >
+                        <span>Joined Date</span>
+                        <ArrowUpDown className="size-3 text-muted-foreground" />
+                      </button>
+                    </TableHead>
+                    <TableHead className="text-xs font-medium text-muted-foreground">Emergency Contact</TableHead>
+                    <TableHead className="text-right text-xs font-medium text-muted-foreground">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedMembers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-16">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <UserX className="size-6 text-muted-foreground/40" />
+                          <p className="text-sm font-semibold text-foreground">No members found</p>
+                          <p className="text-xs text-muted-foreground">Try adjusting your search query or filter scope.</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedMembers.map((member) => (
+                      <TableRow
+                        key={member.id}
+                        className="border-b border-border hover:bg-muted/40 transition-colors cursor-pointer group"
+                        onClick={() => {
+                          setSelectedMember(member);
+                          setViewMode("split");
+                        }}
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0 group-hover:scale-105 transition-transform">
+                              {getInitials(member.fullName)}
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">{member.fullName}</p>
+                              <p className="text-[11px] text-muted-foreground font-mono">{member.phone}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-xs text-muted-foreground space-y-0.5">
+                            {member.email ? (
+                              <p className="text-foreground">{member.email}</p>
+                            ) : (
+                              <p className="text-muted-foreground italic">No email</p>
+                            )}
+                            <p className="text-[11px] font-mono">{member.phone}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {statusLabel(member.status)}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(member.joinDate).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-muted-foreground font-mono">
+                            {member.emergencyContact || "—"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2.5 text-xs gap-1.5 text-muted-foreground hover:text-foreground rounded-lg"
+                              onClick={() => {
+                                setSelectedMember(member);
+                                setViewMode("split");
+                              }}
+                            >
+                              <Eye className="size-3.5" />
+                              <span>Details</span>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Table Pagination Footer */}
+            {sortedMembers.length > 0 && (
+              <div className="px-4 py-3 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 bg-muted/20">
+                <p className="text-xs text-muted-foreground">
+                  Showing <span className="font-semibold text-foreground">{(currentPage - 1) * pageSize + 1}</span> to{" "}
+                  <span className="font-semibold text-foreground">
+                    {Math.min(currentPage * pageSize, sortedMembers.length)}
+                  </span> of <span className="font-semibold text-foreground">{sortedMembers.length}</span> members
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground mr-1">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    className="h-8 px-2.5 text-xs gap-1 rounded-lg"
+                  >
+                    <ChevronLeft className="size-3.5" />
+                    <span>Prev</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="h-8 px-2.5 text-xs gap-1 rounded-lg"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="size-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

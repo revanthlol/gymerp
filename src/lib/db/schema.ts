@@ -168,11 +168,33 @@ export const attendance = pgTable(
   ]
 );
 
+// 8. Kiosks (Physical turnstiles and monitor stations)
+export const kiosks = pgTable(
+  "kiosks",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }).notNull(),
+    name: text("name").notNull(), // e.g. "Main Entrance", "Exit Turnstile", "Floor 2"
+    slug: text("slug").notNull(),
+    secretToken: text("secret_token").notNull(), // secure zero-touch kiosk monitor token
+    mode: text("mode").default("auto").notNull(), // "auto" | "entry" | "exit"
+    isActive: text("is_active").default("true").notNull(),
+    lastHeartbeatAt: timestamp("last_heartbeat_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("kiosks_tenant_idx").on(table.tenantId),
+    uniqueIndex("kiosks_secret_token_idx").on(table.secretToken),
+  ]
+);
+
 // Relations
 export const tenantsRelations = relations(tenants, ({ many }) => ({
   users: many(users),
   members: many(members),
   plans: many(membershipPlans),
+  kiosks: many(kiosks),
 }));
 
 export const usersRelations = relations(users, ({ one }) => ({

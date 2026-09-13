@@ -219,7 +219,7 @@ export function AdminDashboardView({
         </div>
       </div>
 
-      {/* Chart + Roster Health */}
+      {/* Chart + Member Health */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* 7-Day Bar Chart */}
         <Card className="lg:col-span-8 border border-border bg-card shadow-none">
@@ -272,13 +272,13 @@ export function AdminDashboardView({
           </CardContent>
         </Card>
 
-        {/* Roster Health */}
+        {/* Member Health */}
         <Card className="lg:col-span-4 border border-border bg-card shadow-none">
           <CardHeader className="pb-4 border-b border-border">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Users className="size-4 text-primary" />
-                Roster Health
+                Member Health
               </CardTitle>
               <Link href="/admin/members" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
                 <span>All</span>
@@ -329,7 +329,7 @@ export function AdminDashboardView({
 
             <Button asChild variant="outline" size="sm" className="w-full text-xs h-8 mt-auto">
               <Link href="/admin/members">
-                <span>View full roster</span>
+                <span>View all members</span>
                 <ArrowUpRight className="size-3 ml-1.5" />
               </Link>
             </Button>
