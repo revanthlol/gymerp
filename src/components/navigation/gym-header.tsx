@@ -152,35 +152,35 @@ export function GymHeader({ gymName, userEmail }: GymHeaderProps) {
       <Dialog open={supportOpen} onOpenChange={setSupportOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-primary" />
+            <DialogTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+              <HelpCircle className="size-4 text-primary" />
               <span>GYMERP Platform Support</span>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs text-muted-foreground">
               Direct assistance for gym owners, kiosk operations, and billing.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-2 text-xs text-zinc-300">
-            <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
-              <p className="font-semibold text-white flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <div className="space-y-3 p-6 text-xs text-foreground">
+            <div className="p-3.5 rounded-xl bg-muted/60 border border-border space-y-1">
+              <p className="font-semibold text-foreground flex items-center gap-2">
+                <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Kiosk Terminal Diagnostics</span>
               </p>
-              <p className="text-zinc-400 text-[11px]">
+              <p className="text-muted-foreground text-xs">
                 Camera scanning requires HTTPS in production or localhost in development.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
-              <p className="font-semibold text-white">Data Privacy & Security</p>
-              <p className="text-zinc-400 text-[11px]">
-                All athlete check-ins, financial logs, and member records are encrypted and strictly isolated to <strong className="text-white">{gymName}</strong>.
+            <div className="p-3.5 rounded-xl bg-muted/60 border border-border space-y-1">
+              <p className="font-semibold text-foreground">Data Privacy & Security</p>
+              <p className="text-muted-foreground text-xs">
+                All athlete check-ins, financial logs, and member records are encrypted and strictly isolated to <strong className="text-foreground">{gymName}</strong>.
               </p>
             </div>
 
             <Button
-              className="w-full mt-2"
+              className="w-full mt-2 font-semibold text-xs"
               onClick={() => setSupportOpen(false)}
             >
               Close

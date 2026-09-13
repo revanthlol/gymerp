@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -37,27 +38,21 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
       setQrData(data);
       setRemainingSecs(data.remainingSeconds);
     } catch {
-      toast.error("Failed to load rotating QR token");
+      toast.error("Failed to load QR token");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (open) {
-      fetchQr();
-    }
+    if (open) fetchQr();
   }, [open]);
 
-  // Live countdown
   useEffect(() => {
     if (!open || remainingSecs <= 0) return;
     const interval = setInterval(() => {
       setRemainingSecs((prev) => {
-        if (prev <= 1) {
-          fetchQr();
-          return 0;
-        }
+        if (prev <= 1) { fetchQr(); return 0; }
         return prev - 1;
       });
     }, 1000);
@@ -76,85 +71,82 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
     navigator.clipboard.writeText(qrData.tokenString);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast.success("Check-in pass copied to clipboard");
+    toast.success("Check-in token copied");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 gap-2 border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-xs font-medium rounded-sm"
-          >
-            <QrCode className="w-4 h-4 text-primary" />
-            <span>Check-In QR Pass</span>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+            <QrCode className="size-3.5 text-primary" />
+            Check-In QR
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md bg-[#0c0d10] border-white/[0.08] text-zinc-100 rounded-xl">
-        <DialogHeader className="space-y-1">
-          <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
-            <QrCode className="w-4 h-4 text-primary" />
-            <span>Entrance QR Pass Generator</span>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <QrCode className="size-4 text-primary" />
+            Entrance QR Pass
           </DialogTitle>
-          <DialogDescription className="text-xs text-zinc-400">
-            Secure auto-refreshing pass for gym entrance and kiosk camera scanning.
+          <DialogDescription>
+            Auto-refreshing pass for gym entrance scanning.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col items-center py-4 space-y-4">
+        <DialogBody className="flex flex-col items-center gap-5 py-2">
+          {/* QR Code */}
           {loading || !qrData ? (
-            <div className="w-64 h-64 rounded-xl bg-[#08090a] border border-white/[0.08] flex items-center justify-center text-xs text-zinc-500">
+            <div className="w-56 h-56 rounded-xl bg-muted/60 border border-border flex items-center justify-center">
               <Spinner size="md" />
             </div>
           ) : (
-            <div className="p-4 bg-white rounded-xl shadow-2xl border border-white/20">
+            <div className="p-3 bg-white rounded-xl shadow-sm border border-border">
               <img
                 src={qrData.qrDataUrl}
                 alt="Entrance QR Code"
-                className="w-60 h-60 object-contain"
+                className="w-52 h-52 object-contain"
               />
             </div>
           )}
 
-          {/* Countdown & Refresh */}
+          {/* Countdown */}
           <div className="w-full space-y-2">
-            <div className="flex items-center justify-between px-3.5 py-2 rounded-lg bg-[#08090a] border border-white/[0.07] text-xs font-mono">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <Clock className="w-3.5 h-3.5 text-primary" />
-                <span>Next Rotation:</span>
+            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-muted/60 border border-border text-xs font-mono">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Clock className="size-3.5 text-primary" />
+                <span>Next rotation:</span>
               </div>
-              <span className="text-primary font-bold text-xs">{formatTimer(remainingSecs)}</span>
+              <span className="text-primary font-bold">{formatTimer(remainingSecs)}</span>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-zinc-400 px-1 pt-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
               <div className="flex items-center gap-1.5 text-primary">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Dynamic pass protection active</span>
+                <ShieldCheck className="size-3.5" />
+                <span>Dynamic pass active</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={handleCopy}
-                  className="hover:text-white flex items-center gap-1 transition-colors text-xs"
+                  className="flex items-center gap-1 hover:text-foreground transition-colors"
                 >
-                  {copied ? <Check className="w-3 h-3 text-primary" /> : <Copy className="w-3 h-3" />}
+                  {copied ? <Check className="size-3 text-primary" /> : <Copy className="size-3" />}
                   <span>{copied ? "Copied" : "Copy"}</span>
                 </button>
                 <button
                   onClick={fetchQr}
                   disabled={loading}
-                  className="hover:text-white flex items-center gap-1 transition-colors text-xs"
+                  className="flex items-center gap-1 hover:text-foreground transition-colors"
                 >
-                  <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
+                  <RefreshCw className={`size-3 ${loading ? "animate-spin" : ""}`} />
                   <span>Refresh</span>
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

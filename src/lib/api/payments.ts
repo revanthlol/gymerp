@@ -19,12 +19,12 @@ const manualPaymentSchema = z.object({
 export async function recordManualPaymentAction(rawInput: z.infer<typeof manualPaymentSchema>) {
   const session = await getSession();
   if (!session || !session.tenantId || (session.role !== "admin" && session.role !== "staff")) {
-    return { success: false, message: "Unauthorized. Staff or Admin permissions required." };
+    return { success: false as const, message: "Unauthorized. Staff or Admin permissions required." };
   }
 
   const parsed = manualPaymentSchema.safeParse(rawInput);
   if (!parsed.success) {
-    return { success: false, message: parsed.error.issues[0]?.message || "Invalid input" };
+    return { success: false as const, message: parsed.error.issues[0]?.message || "Invalid input" };
   }
 
   const input = parsed.data;
@@ -44,7 +44,7 @@ export async function recordManualPaymentAction(rawInput: z.infer<typeof manualP
         .limit(1);
 
       if (!member) {
-        return { success: false, message: "Member not found in current gym" };
+        return { success: false as const, message: "Member not found in current gym" };
       }
 
       let createdMembershipId: string | null = null;
@@ -116,16 +116,19 @@ export async function recordManualPaymentAction(rawInput: z.infer<typeof manualP
       revalidatePath("/admin");
 
       return {
-        success: true,
+        success: true as const,
         paymentId: record.id,
+        payment: record,
         message: "Payment collected and recorded successfully",
       };
     });
   } catch (err: any) {
     console.error("Failed to record manual payment:", err);
-    return { success: false, message: err?.message || "Failed to record payment" };
+    return { success: false as const, message: err?.message || "Failed to record payment" };
   }
 }
+
+export const collectOfflinePaymentAction = recordManualPaymentAction;
 
 export async function createOnlinePaymentOrderAction(params: {
   memberId: string;

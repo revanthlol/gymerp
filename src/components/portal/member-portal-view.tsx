@@ -317,7 +317,7 @@ export function MemberPortalView({ data }: MemberPortalProps) {
                   {/* Big Glowing Camera Scan Action */}
                   <Button
                     onClick={() => setScannerOpen(true)}
-                    className="w-full h-11 bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-sm rounded-xl gap-2 shadow-[0_0_24px_rgba(62,207,142,0.4)] cursor-pointer"
+                    className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-xl gap-2 shadow-sm cursor-pointer"
                   >
                     <Camera className="w-4 h-4" />
                     <span>Scan Kiosk QR to Check In</span>
@@ -326,20 +326,20 @@ export function MemberPortalView({ data }: MemberPortalProps) {
                   {/* Secondary Toggle: Show Personal Backup Barcode / QR */}
                   <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
                     <DialogTrigger asChild>
-                      <button className="w-full text-center text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-colors flex items-center justify-center gap-1.5 py-1 cursor-pointer">
+                      <button className="w-full text-center text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1.5 py-1 cursor-pointer">
                         <QrCode className="w-3.5 h-3.5" />
                         <span>Show Front-Desk Scanner Barcode</span>
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-sm bg-[#0c0d12] border-white/[0.1] text-center space-y-4">
+                    <DialogContent className="sm:max-w-sm text-center">
                       <DialogHeader>
-                        <DialogTitle className="text-white text-base">Personal Member Barcode</DialogTitle>
-                        <DialogDescription className="text-xs text-zinc-400">
+                        <DialogTitle className="text-foreground text-base">Personal Member Barcode</DialogTitle>
+                        <DialogDescription className="text-xs text-muted-foreground">
                           For front-desk staff scanning with physical handheld barcode guns.
                         </DialogDescription>
                       </DialogHeader>
 
-                      <div className="p-4 bg-white rounded-2xl mx-auto shadow-2xl">
+                      <div className="p-4 bg-white rounded-xl mx-auto shadow-sm border border-border my-2">
                         <img
                           src={member.passQrUrl}
                           alt="Personal Member Pass QR"
@@ -347,7 +347,7 @@ export function MemberPortalView({ data }: MemberPortalProps) {
                         />
                       </div>
 
-                      <div className="text-xs font-mono text-zinc-400">
+                      <div className="text-xs font-mono text-muted-foreground pb-4">
                         Pass #{member.id.slice(0, 8).toUpperCase()}
                       </div>
                     </DialogContent>

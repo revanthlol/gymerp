@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { TurnstileQrDialog } from "@/components/admin/turnstile-qr-dialog";
 import {
   Table,
@@ -13,9 +12,8 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { RotateCw, UserCheck, Search, QrCode } from "lucide-react";
+import { RotateCw, UserCheck, Search } from "lucide-react";
 import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
 
 interface AttendanceRecord {
   id: string;
@@ -44,15 +42,11 @@ export function AttendanceView({ initialAttendance, members }: AttendanceViewPro
 
   const memberMap = new Map(members.map((m) => [m.id, m]));
 
-  useEffect(() => {
-    setRecords(initialAttendance);
-  }, [initialAttendance]);
+  useEffect(() => { setRecords(initialAttendance); }, [initialAttendance]);
 
-  // Periodic auto-polling every 8 seconds for live front-desk stream
+  // Auto-poll every 8s
   useEffect(() => {
-    const interval = setInterval(() => {
-      router.refresh();
-    }, 8000);
+    const interval = setInterval(() => { router.refresh(); }, 8000);
     return () => clearInterval(interval);
   }, [router]);
 
@@ -61,9 +55,14 @@ export function AttendanceView({ initialAttendance, members }: AttendanceViewPro
     router.refresh();
     setTimeout(() => {
       setIsRefreshing(false);
-      toast.success("Attendance stream refreshed");
+      toast.success("Refreshed");
     }, 600);
   };
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayCount = records.filter(
+    (r) => new Date(r.checkedInAt).toISOString().slice(0, 10) === todayStr
+  ).length;
 
   const filteredRecords = records.filter((r) => {
     const member = memberMap.get(r.memberId);
@@ -78,118 +77,110 @@ export function AttendanceView({ initialAttendance, members }: AttendanceViewPro
   });
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-8 w-full">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <span>Attendance & Check-Ins</span>
-            <span className="text-xs font-mono font-normal px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-              {records.length} today
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">Attendance</h1>
+            {/* Live amber dot */}
+            <span className="relative flex h-2 w-2 mt-0.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
             </span>
-          </h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Real-time feed of athlete kiosk check-ins, mobile QR scans, and front-desk entries.
+            <span className="text-xs text-muted-foreground font-medium">Live</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {todayCount} check-in{todayCount !== 1 ? "s" : ""} today · {records.length} total records
           </p>
         </div>
-
-        <div className="flex items-center gap-3 self-start sm:self-auto flex-wrap">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={handleManualRefresh}
             disabled={isRefreshing}
-            className="border-white/[0.08] bg-white/[0.03] text-zinc-300 hover:text-white text-xs flex items-center gap-1.5"
+            className="h-8 gap-1.5 text-xs"
           >
-            <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-primary" : ""}`} />
-            <span>Refresh</span>
+            <RotateCw className={`size-3.5 ${isRefreshing ? "animate-spin text-primary" : ""}`} />
+            Refresh
           </Button>
-
           <TurnstileQrDialog />
-
-          <div className="text-xs font-mono text-primary bg-primary/10 border border-primary/25 px-2.5 py-1.5 rounded-md flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span>Live Stream (8s)</span>
-          </div>
         </div>
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search by athlete name, phone, terminal..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#0c0d10] border border-white/[0.08] rounded-lg pl-9 pr-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-primary/50"
-          />
-        </div>
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Search member, method, kiosk..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-9 w-full pl-9 pr-3 text-xs rounded-lg bg-muted/60 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+        />
       </div>
 
-      <div className="rounded-2xl border border-white/[0.08] bg-[#0c0d10] overflow-hidden shadow-sm">
+      {/* Table */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-b border-white/[0.08] bg-white/[0.02]">
-              <TableHead className="text-zinc-400 font-medium text-xs">Athlete</TableHead>
-              <TableHead className="text-zinc-400 font-medium text-xs">Scan Method</TableHead>
-              <TableHead className="text-zinc-400 font-medium text-xs">Terminal / Kiosk ID</TableHead>
-              <TableHead className="text-zinc-400 font-medium text-xs">Timestamp</TableHead>
-              <TableHead className="text-right text-zinc-400 font-medium text-xs">Access Status</TableHead>
+            <TableRow className="border-b border-border bg-muted/40 hover:bg-muted/40">
+              <TableHead className="text-xs font-medium text-muted-foreground">Member</TableHead>
+              <TableHead className="text-xs font-medium text-muted-foreground">Method</TableHead>
+              <TableHead className="text-xs font-medium text-muted-foreground">Kiosk / Terminal</TableHead>
+              <TableHead className="text-xs font-medium text-muted-foreground">Time</TableHead>
+              <TableHead className="text-right text-xs font-medium text-muted-foreground">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredRecords.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-zinc-500">
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <UserCheck className="w-6 h-6 text-zinc-600" />
-                    <span>No check-in records matching your query</span>
+                <TableCell colSpan={5} className="text-center py-16">
+                  <div className="flex flex-col items-center gap-2">
+                    <UserCheck className="size-6 text-muted-foreground/40" />
+                    <span className="text-sm text-muted-foreground">No check-in records</span>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
               filteredRecords.map((record) => {
                 const member = memberMap.get(record.memberId);
+                const initial = (member?.fullName || "?").charAt(0).toUpperCase();
                 return (
                   <TableRow
                     key={record.id}
-                    className="border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors"
+                    className="border-b border-border hover:bg-muted/40 transition-colors"
                   >
-                    <TableCell className="font-medium text-white">
+                    <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-xs font-mono">
-                          {(member?.fullName || "A").charAt(0)}
+                        <div className="w-7 h-7 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
+                          {initial}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-zinc-100">
-                            {member?.fullName || "Athlete Account"}
-                          </p>
-                          <p className="text-[11px] font-mono text-zinc-500">{member?.phone}</p>
+                          <p className="text-xs font-medium text-foreground">{member?.fullName || "Unknown"}</p>
+                          <p className="text-[11px] text-muted-foreground font-mono">{member?.phone}</p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-zinc-300">
-                      <span className="bg-white/[0.05] px-2 py-0.5 rounded-md border border-white/[0.08] uppercase text-[10px] tracking-wider text-zinc-300">
-                        {record.method}
-                      </span>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground capitalize">{record.method}</span>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-zinc-400">
-                      {record.kioskId || "kiosk-tablet"}
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground font-mono">{record.kioskId || "—"}</span>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-zinc-400">
-                      {new Date(record.checkedInAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                      })}{" "}
-                      ·{" "}
-                      <span className="text-zinc-600">
-                        {new Date(record.checkedInAt).toLocaleDateString()}
-                      </span>
+                    <TableCell>
+                      <div>
+                        <p className="text-xs font-medium text-foreground">
+                          {new Date(record.checkedInAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {new Date(record.checkedInAt).toLocaleDateString("en-IN")}
+                        </p>
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="success">Access Granted</Badge>
+                      <span className="text-xs font-semibold text-primary">Granted</span>
                     </TableCell>
                   </TableRow>
                 );

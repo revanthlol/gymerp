@@ -45,14 +45,14 @@ export default async function AdminLayout({
 
   if (tenant.status === "suspended") {
     return (
-      <div className="min-h-screen bg-[#171717] flex items-center justify-center p-4">
-        <div className="glass-panel max-w-md p-8 rounded-lg text-center space-y-4">
-          <div className="w-12 h-12 rounded bg-red-950/50 border border-red-800/50 text-red-400 mx-auto flex items-center justify-center font-bold text-lg">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="bg-card max-w-md p-8 rounded-xl border border-border text-center space-y-4 shadow-sm">
+          <div className="w-12 h-12 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive mx-auto flex items-center justify-center font-bold text-lg">
             !
           </div>
-          <h1 className="text-xl font-bold text-white">Tenant Suspended</h1>
-          <p className="text-sm text-zinc-400">
-            Account access for <span className="text-zinc-200">{tenant.name}</span> has been suspended by the platform administrator.
+          <h1 className="text-xl font-bold text-foreground">Tenant Suspended</h1>
+          <p className="text-sm text-muted-foreground">
+            Account access for <span className="text-foreground font-semibold">{tenant.name}</span> has been suspended by the platform administrator.
           </p>
         </div>
       </div>

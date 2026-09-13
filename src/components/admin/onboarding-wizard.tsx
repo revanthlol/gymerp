@@ -168,25 +168,25 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
   };
 
   return (
-    <div className="min-h-screen bg-[#08090a] text-zinc-100 flex flex-col justify-between py-8 px-4 sm:px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-muted/60 text-foreground flex flex-col justify-between py-8 px-4 sm:px-6 relative overflow-hidden">
       {/* Background Ambience */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-primary/10 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Header */}
-      <header className="max-w-4xl mx-auto w-full flex items-center justify-between border-b border-white/[0.08] pb-6">
+      <header className="max-w-4xl mx-auto w-full flex items-center justify-between border-b border-border pb-6">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-primary text-[#08090a] flex items-center justify-center font-black text-sm shadow-[0_0_15px_rgba(62,207,142,0.3)]">
+          <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-sm shadow-sm">
             G
           </div>
           <div>
-            <h1 className="text-base font-bold text-white tracking-tight">GYMERP ONBOARDING</h1>
-            <p className="text-[11px] text-zinc-400 font-mono">
+            <h1 className="text-base font-bold text-foreground tracking-tight">GYMERP ONBOARDING</h1>
+            <p className="text-[11px] text-muted-foreground font-mono">
               First-Time Facility Setup & Verification
             </p>
           </div>
         </div>
 
-        <div className="text-right font-mono text-xs text-zinc-500">
+        <div className="text-right font-mono text-xs text-muted-foreground">
           <span>Step {currentStep} of 5</span>
         </div>
       </header>
@@ -194,7 +194,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
       {/* Main Wizard Form Container */}
       <main className="max-w-3xl mx-auto w-full my-8">
         {/* Step Navigation Bar without scrollbar */}
-        <div className="flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-[#0c0d10]/80 backdrop-blur-xl border border-white/[0.08] mb-8 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-card/80 backdrop-blur-xl border border-border mb-8 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {STEPS.map((s) => {
             const Icon = s.icon;
             const isDone = s.id < currentStep;
@@ -209,10 +209,10 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                 }}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 ${
                   isCurrent
-                    ? "bg-primary text-[#08090a] shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : isDone
-                    ? "text-zinc-300 hover:text-white bg-white/[0.04]"
-                    : "text-zinc-500 cursor-not-allowed"
+                    ? "text-foreground hover:bg-muted/80 bg-muted/60"
+                    : "text-muted-foreground cursor-not-allowed"
                 }`}
               >
                 {isDone ? (
@@ -227,7 +227,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
         </div>
 
         {/* Wizard Step Views */}
-        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-white/[0.08] shadow-2xl relative">
+        <div className="bg-card p-6 sm:p-8 rounded-2xl border border-border shadow-sm relative">
           <AnimatePresence mode="wait">
             {/* STEP 1: FACILITY PROFILE */}
             {currentStep === 1 && (
@@ -242,10 +242,10 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                   <span className="text-[10px] font-mono text-primary uppercase font-bold tracking-widest">
                     STEP 01 // IDENTITY
                   </span>
-                  <h2 className="text-xl font-bold text-white tracking-tight">
+                  <h2 className="text-xl font-bold text-foreground tracking-tight">
                     Facility Identity & Operations
                   </h2>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-muted-foreground">
                     Set up your gym&apos;s physical branding, contact details, and daily open hours.
                   </p>
                 </div>
@@ -253,77 +253,77 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                 <div className="space-y-4 pt-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Gym / Club Name *
                       </label>
                       <Input
                         value={formData.facilityName}
                         onChange={(e) => setFormData({ ...formData, facilityName: e.target.value })}
                         placeholder="e.g. IronPulse Athletic Club"
-                        className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100"
+                        className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Facility Slug / Domain
                       </label>
                       <Input
                         value={formData.slug}
                         disabled
-                        className="bg-[#08090a]/50 border-white/[0.05] text-xs h-10 rounded-xl font-mono text-zinc-500 cursor-not-allowed"
+                        className="bg-muted/40 border-border text-xs h-10 rounded-xl font-mono text-muted-foreground cursor-not-allowed"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Official Phone Number *
                       </label>
                       <Input
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="e.g. +91 98765 43210"
-                        className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100 font-mono"
+                        className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground font-mono"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Member Support Email
                       </label>
                       <Input
                         value={formData.contactEmail}
                         onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
                         placeholder="support@yourgym.com"
-                        className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100"
+                        className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         City / Facility Location
                       </label>
                       <Input
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                         placeholder="e.g. South Delhi"
-                        className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100"
+                        className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Operating Hours
                       </label>
                       <Input
                         value={formData.openingHours}
                         onChange={(e) => setFormData({ ...formData, openingHours: e.target.value })}
                         placeholder="06:00 AM - 10:30 PM"
-                        className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100 font-mono"
+                        className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground font-mono"
                       />
                     </div>
                   </div>
@@ -344,44 +344,44 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                   <span className="text-[10px] font-mono text-primary uppercase font-bold tracking-widest">
                     STEP 02 // ACCESS STATIONS
                   </span>
-                  <h2 className="text-xl font-bold text-white tracking-tight">
+                  <h2 className="text-xl font-bold text-foreground tracking-tight">
                     Check-in Stations & Scanner Gates
                   </h2>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-muted-foreground">
                     Configure entrance and exit front-desk kiosk terminals and member check-in rules.
                   </p>
                 </div>
 
                 <div className="space-y-4 pt-2">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-zinc-300">
+                    <label className="text-xs font-medium text-muted-foreground">
                       Entrance Check-in Station Name
                     </label>
                     <Input
                       value={formData.turnstileEntryLane}
                       onChange={(e) => setFormData({ ...formData, turnstileEntryLane: e.target.value })}
-                      className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100"
+                      className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-zinc-300">
+                    <label className="text-xs font-medium text-muted-foreground">
                       Exit Check-out Station Name
                     </label>
                     <Input
                       value={formData.turnstileExitLane}
                       onChange={(e) => setFormData({ ...formData, turnstileExitLane: e.target.value })}
-                      className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100"
+                      className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground"
                     />
                   </div>
 
                   {/* Security Features Overview */}
-                  <div className="p-4 rounded-2xl bg-[#08090a] border border-white/[0.06] space-y-3">
-                    <h4 className="text-xs font-semibold text-white flex items-center gap-2">
+                  <div className="p-4 rounded-2xl bg-muted/60 border border-border space-y-3">
+                    <h4 className="text-xs font-semibold text-foreground flex items-center gap-2">
                       <ShieldCheck className="w-4 h-4 text-primary" />
                       <span>Check-in Security & Fraud Prevention</span>
                     </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-zinc-400">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-muted-foreground">
                       <div className="flex items-start gap-2">
                         <Check className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
                         <span>Dynamic QR codes rotate automatically every 20 seconds</span>
@@ -418,10 +418,10 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                     <span className="text-[10px] font-mono text-primary uppercase font-bold tracking-widest">
                       STEP 03 // PRICING TIERS
                     </span>
-                    <h2 className="text-xl font-bold text-white tracking-tight">
+                    <h2 className="text-xl font-bold text-foreground tracking-tight">
                       Initial Membership Tiers
                     </h2>
-                    <p className="text-xs text-zinc-400">
+                    <p className="text-xs text-muted-foreground">
                       Set up your core subscription packages. Athletes will be assigned to these plans.
                     </p>
                   </div>
@@ -429,7 +429,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                     type="button"
                     size="sm"
                     onClick={handleAddPlan}
-                    className="bg-white/[0.05] hover:bg-white/[0.1] text-xs text-white border border-white/[0.08] rounded-lg gap-1.5"
+                    className="bg-muted hover:bg-muted/80 text-xs text-foreground border border-border rounded-lg gap-1.5"
                   >
                     <Plus className="w-3.5 h-3.5 text-primary" />
                     <span>Add Plan</span>
@@ -440,38 +440,38 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                   {plans.map((p, idx) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-2xl bg-[#08090a] border border-white/[0.06] space-y-3"
+                      className="p-4 rounded-2xl bg-muted/60 border border-border space-y-3"
                     >
                       <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
                         <div className="sm:col-span-5 space-y-1">
-                          <label className="text-[10px] text-zinc-500 font-mono uppercase">Plan Name</label>
+                          <label className="text-[10px] text-muted-foreground font-mono uppercase">Plan Name</label>
                           <Input
                             value={p.name}
                             onChange={(e) => handleUpdatePlan(idx, "name", e.target.value)}
                             placeholder="e.g. Monthly Standard"
-                            className="bg-[#0c0d10] border-white/[0.08] text-xs h-9 rounded-lg focus:border-primary text-white"
+                            className="bg-card border-border text-xs h-9 rounded-lg focus:border-primary text-foreground"
                           />
                         </div>
 
                         <div className="sm:col-span-3 space-y-1">
-                          <label className="text-[10px] text-zinc-500 font-mono uppercase">Price (₹)</label>
+                          <label className="text-[10px] text-muted-foreground font-mono uppercase">Price (₹)</label>
                           <Input
                             type="number"
                             value={p.price}
                             onChange={(e) => handleUpdatePlan(idx, "price", e.target.value)}
                             placeholder="2499"
-                            className="bg-[#0c0d10] border-white/[0.08] text-xs h-9 rounded-lg focus:border-primary text-white font-mono"
+                            className="bg-card border-border text-xs h-9 rounded-lg focus:border-primary text-foreground font-mono"
                           />
                         </div>
 
                         <div className="sm:col-span-3 space-y-1">
-                          <label className="text-[10px] text-zinc-500 font-mono uppercase">Duration (Days)</label>
+                          <label className="text-[10px] text-muted-foreground font-mono uppercase">Duration (Days)</label>
                           <Input
                             type="number"
                             value={p.durationDays}
                             onChange={(e) => handleUpdatePlan(idx, "durationDays", Number(e.target.value))}
                             placeholder="30"
-                            className="bg-[#0c0d10] border-white/[0.08] text-xs h-9 rounded-lg focus:border-primary text-white font-mono"
+                            className="bg-card border-border text-xs h-9 rounded-lg focus:border-primary text-foreground font-mono"
                           />
                         </div>
 
@@ -479,7 +479,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                           <button
                             type="button"
                             onClick={() => handleRemovePlan(idx)}
-                            className="p-1.5 text-zinc-500 hover:text-red-400 transition-colors"
+                            className="p-1.5 text-muted-foreground hover:text-red-400 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -491,7 +491,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                           value={p.description || ""}
                           onChange={(e) => handleUpdatePlan(idx, "description", e.target.value)}
                           placeholder="Short description or benefits..."
-                          className="bg-[#0c0d10] border-white/[0.04] text-[11px] h-8 rounded-lg text-zinc-400"
+                          className="bg-card border-border text-[11px] h-8 rounded-lg text-foreground placeholder:text-muted-foreground"
                         />
                       </div>
                     </div>
@@ -513,10 +513,10 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                   <span className="text-[10px] font-mono text-primary uppercase font-bold tracking-widest">
                     STEP 04 // TEAM & ROLES
                   </span>
-                  <h2 className="text-xl font-bold text-white tracking-tight">
+                  <h2 className="text-xl font-bold text-foreground tracking-tight">
                     Front-Desk Coach or Staff Account
                   </h2>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-muted-foreground">
                     Optional: Invite your first staff member to operate the check-in desk and monitor floor roster.
                   </p>
                 </div>
@@ -524,28 +524,28 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                 <div className="space-y-4 pt-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-300">Staff Full Name</label>
+                      <label className="text-xs font-medium text-muted-foreground">Staff Full Name</label>
                       <Input
                         value={formData.staffName}
                         onChange={(e) => setFormData({ ...formData, staffName: e.target.value })}
                         placeholder="e.g. Coach David Singh"
-                        className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100"
+                        className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-300">Staff Work Email</label>
+                      <label className="text-xs font-medium text-muted-foreground">Staff Work Email</label>
                       <Input
                         type="email"
                         value={formData.staffEmail}
                         onChange={(e) => setFormData({ ...formData, staffEmail: e.target.value })}
                         placeholder="e.g. david@yourgym.com"
-                        className="bg-[#08090a] border-white/[0.08] text-xs h-10 rounded-xl focus:border-primary text-zinc-100"
+                        className="bg-muted/60 border-border text-xs h-10 rounded-xl focus:border-primary text-foreground"
                       />
                     </div>
                   </div>
 
-                  <p className="text-xs text-zinc-500 italic">
+                  <p className="text-xs text-muted-foreground italic">
                     Note: You can always add more coaches and trainers later from the Staff Management section.
                   </p>
                 </div>
@@ -565,24 +565,24 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                   <span className="text-[10px] font-mono text-primary uppercase font-bold tracking-widest">
                     STEP 05 // SYSTEM AUDIT & VERIFICATION
                   </span>
-                  <h2 className="text-xl font-bold text-white tracking-tight">
+                  <h2 className="text-xl font-bold text-foreground tracking-tight">
                     Facility Readiness Audit
                   </h2>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-muted-foreground">
                     Verify all facility subsystems before activating live operations.
                   </p>
                 </div>
 
                 {/* Audit Checklist */}
                 <div className="space-y-2.5 pt-2">
-                  <div className="p-3.5 rounded-2xl bg-[#08090a] border border-white/[0.06] flex items-center justify-between">
+                  <div className="p-3.5 rounded-2xl bg-muted/60 border border-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                         <Building2 className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-white">{formData.facilityName}</p>
-                        <p className="text-[11px] text-zinc-500 font-mono">
+                        <p className="text-xs font-semibold text-foreground">{formData.facilityName}</p>
+                        <p className="text-[11px] text-muted-foreground font-mono">
                           {formData.city} • {formData.phone}
                         </p>
                       </div>
@@ -593,14 +593,14 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#08090a] border border-white/[0.06] flex items-center justify-between">
+                  <div className="p-3.5 rounded-2xl bg-muted/60 border border-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
                         <QrCode className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-white">Front-Desk Check-in Stations</p>
-                        <p className="text-[11px] text-zinc-500 font-mono">
+                        <p className="text-xs font-semibold text-foreground">Front-Desk Check-in Stations</p>
+                        <p className="text-[11px] text-muted-foreground font-mono">
                           {formData.turnstileEntryLane} & Exit Lane
                         </p>
                       </div>
@@ -611,16 +611,16 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#08090a] border border-white/[0.06] flex items-center justify-between">
+                  <div className="p-3.5 rounded-2xl bg-muted/60 border border-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                         <CreditCard className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-white">
+                        <p className="text-xs font-semibold text-foreground">
                           {plans.length} Membership Plans Configured
                         </p>
-                        <p className="text-[11px] text-zinc-500 font-mono">
+                        <p className="text-[11px] text-muted-foreground font-mono">
                           {plans.map((p) => p.name).join(" • ")}
                         </p>
                       </div>
@@ -631,14 +631,14 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#08090a] border border-white/[0.06] flex items-center justify-between">
+                  <div className="p-3.5 rounded-2xl bg-muted/60 border border-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
                         <ShieldCheck className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-white">PostgreSQL Tenant Isolation</p>
-                        <p className="text-[11px] text-zinc-500 font-mono">
+                        <p className="text-xs font-semibold text-foreground">PostgreSQL Tenant Isolation</p>
+                        <p className="text-[11px] text-muted-foreground font-mono">
                           Tenant UUID: {tenant.id.slice(0, 12)}... (Strict RLS)
                         </p>
                       </div>
@@ -653,7 +653,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                 {completed && (
                   <div className="p-4 rounded-2xl bg-primary/10 border border-primary/30 text-center space-y-1 animate-in fade-in">
                     <p className="text-xs font-bold text-primary">FACILITY VERIFIED & ACTIVE</p>
-                    <p className="text-xs text-zinc-300">
+                    <p className="text-xs text-muted-foreground">
                       Redirecting you to your Live Operations Command Center...
                     </p>
                   </div>
@@ -663,13 +663,13 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
           </AnimatePresence>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between border-t border-white/[0.07] pt-6 mt-8">
+          <div className="flex items-center justify-between border-t border-border pt-6 mt-8">
             <Button
               type="button"
               variant="outline"
               onClick={handleBack}
               disabled={currentStep === 1 || loading || completed}
-              className="text-xs h-10 border-white/[0.08] text-zinc-300 hover:text-white hover:bg-white/[0.04] rounded-xl gap-1.5"
+              className="text-xs h-10 border-border text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl gap-1.5"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -679,7 +679,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
               <Button
                 type="button"
                 onClick={handleNext}
-                className="bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-xs h-10 px-5 rounded-xl gap-1.5"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs h-10 px-5 rounded-xl gap-1.5"
               >
                 <span>Continue</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -689,11 +689,11 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
                 type="button"
                 disabled={loading || completed}
                 onClick={handleFinalSubmit}
-                className="bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-xs h-10 px-6 rounded-xl gap-2 shadow-[0_0_20px_rgba(62,207,142,0.3)]"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs h-10 px-6 rounded-xl gap-2 shadow-sm"
               >
                 {loading ? (
                   <>
-                    <Spinner size="sm" className="mr-1 text-[#08090a]" />
+                    <Spinner size="sm" className="mr-1 text-primary-foreground" />
                     <span>Verifying Subsystems...</span>
                   </>
                 ) : completed ? (
@@ -714,7 +714,7 @@ export function OnboardingWizard({ tenant, existingPlansCount }: OnboardingWizar
       </main>
 
       {/* Footer */}
-      <footer className="text-center text-xs font-mono text-zinc-600">
+      <footer className="text-center text-xs font-mono text-muted-foreground/60">
         <span>GymERP Facility Provisioning Engine • Protected by Row-Level Security</span>
       </footer>
     </div>

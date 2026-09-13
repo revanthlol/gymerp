@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -21,6 +23,9 @@ interface AddClientDialogProps {
   plans: Array<{ id: string; name: string; price: string; durationDays: number }>;
   onMemberAdded?: (member: any) => void;
 }
+
+const fieldClass =
+  "flex h-9 w-full rounded-lg border border-border bg-muted/60 px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors";
 
 export function AddClientDialog({ plans, onMemberAdded }: AddClientDialogProps) {
   const router = useRouter();
@@ -41,15 +46,12 @@ export function AddClientDialog({ plans, onMemberAdded }: AddClientDialogProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const res = await createMemberAction(formData);
       if (res.success) {
-        toast.success(`Athlete "${res.member.fullName}" registered successfully!`);
+        toast.success(`"${res.member.fullName}" registered successfully`);
         setOpen(false);
-        if (onMemberAdded) {
-          onMemberAdded(res.member);
-        }
+        if (onMemberAdded) onMemberAdded(res.member);
         router.refresh();
         setFormData({
           fullName: "",
@@ -63,7 +65,7 @@ export function AddClientDialog({ plans, onMemberAdded }: AddClientDialogProps) 
         });
       }
     } catch (err: any) {
-      toast.error(err.message || "Failed to add athlete");
+      toast.error(err.message || "Failed to add member");
     } finally {
       setLoading(false);
     }
@@ -72,135 +74,136 @@ export function AddClientDialog({ plans, onMemberAdded }: AddClientDialogProps) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          size="sm"
-          className="bg-primary hover:bg-primary-deep text-[#08090a] font-semibold h-9 px-3.5 rounded-lg flex items-center gap-1.5 transition-all text-xs"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>Add Athlete</span>
+        <Button size="sm" className="h-8 gap-1.5 text-xs">
+          <Plus className="size-3.5 stroke-[2.5]" />
+          Add Member
         </Button>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-primary" />
-            <span>Register New Athlete</span>
+          <DialogTitle className="flex items-center gap-2">
+            <UserPlus className="size-4 text-primary" />
+            Register New Member
           </DialogTitle>
-          <DialogDescription className="text-xs text-zinc-400">
-            Add a member to your gym database and issue their digital check-in pass.
+          <DialogDescription>
+            Add a member to your gym and assign their membership plan.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5 py-2">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-300">Athlete Full Name *</label>
-            <Input
-              required
-              placeholder="e.g. Sarah Cole"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              className="bg-[#08090a] border-white/[0.08] text-xs text-zinc-100 focus:border-primary"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Phone Number *</label>
+        <form onSubmit={handleSubmit} id="add-member-form">
+          <DialogBody className="space-y-3.5">
+            {/* Full name */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Full Name *</label>
               <Input
                 required
-                placeholder="+91 98765 43210"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="bg-[#08090a] border-white/[0.08] text-xs font-mono text-zinc-100 focus:border-primary"
+                placeholder="e.g. Sarah Cole"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                className={fieldClass}
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Gender</label>
-              <select
-                value={formData.gender}
-                onChange={(e) =>
-                  setFormData({ ...formData, gender: e.target.value as any })
-                }
-                className="flex h-9 w-full rounded-md border border-white/[0.08] bg-[#08090a] px-3 py-1 text-xs text-zinc-100 focus:border-primary focus:outline-none"
-              >
-                <option value="Female">Female</option>
-                <option value="Male">Male</option>
-                <option value="Other">Other</option>
-                <option value="Unspecified">Unspecified</option>
-              </select>
+            {/* Phone + Gender */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Phone *</label>
+                <Input
+                  required
+                  placeholder="+91 98765 43210"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className={fieldClass + " font-mono"}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Gender</label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value as any })}
+                  className={fieldClass}
+                >
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Other">Other</option>
+                  <option value="Unspecified">Unspecified</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Email (Optional)</label>
+            {/* Email + DOB */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Email</label>
+                <Input
+                  type="email"
+                  placeholder="sarah@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className={fieldClass}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Date of Birth</label>
+                <Input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                  className={fieldClass}
+                />
+              </div>
+            </div>
+
+            {/* Emergency contact */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Emergency Contact</label>
               <Input
-                type="email"
-                placeholder="sarah.cole@example.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="bg-[#08090a] border-white/[0.08] text-xs text-zinc-100 focus:border-primary"
+                placeholder="Name + Phone"
+                value={formData.emergencyContact}
+                onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
+                className={fieldClass}
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Date of Birth</label>
-              <Input
-                type="date"
-                value={formData.dateOfBirth}
-                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                className="bg-[#08090a] border-white/[0.08] text-xs text-zinc-100 focus:border-primary"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-300">Emergency Contact</label>
-            <Input
-              placeholder="e.g. John Cole (+91 91234 56789)"
-              value={formData.emergencyContact}
-              onChange={(e) =>
-                setFormData({ ...formData, emergencyContact: e.target.value })
-              }
-              className="bg-[#08090a] border-white/[0.08] text-xs text-zinc-100 focus:border-primary"
-            />
-          </div>
-
-          {plans.length > 0 && (
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Initial Membership Plan</label>
-              <select
-                value={formData.planId}
-                onChange={(e) => setFormData({ ...formData, planId: e.target.value })}
-                className="flex h-9 w-full rounded-md border border-white/[0.08] bg-[#08090a] px-3 py-1 text-xs text-zinc-100 focus:border-primary focus:outline-none"
-              >
-                {plans.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} — ₹{parseFloat(p.price).toFixed(2)} ({p.durationDays} days)
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="pt-2">
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary hover:bg-primary-deep text-[#08090a] font-semibold text-xs h-9"
-            >
-              {loading ? (
-                <>
-                  <Spinner size="sm" variant="current" className="mr-2" />
-                  <span>Registering...</span>
-                </>
-              ) : (
-                <span>Register Athlete</span>
-              )}
-            </Button>
-          </div>
+            {/* Plan */}
+            {plans.length > 0 && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Membership Plan</label>
+                <select
+                  value={formData.planId}
+                  onChange={(e) => setFormData({ ...formData, planId: e.target.value })}
+                  className={fieldClass}
+                >
+                  {plans.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} — ₹{parseFloat(p.price).toFixed(0)} · {p.durationDays}d
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </DialogBody>
         </form>
+
+        <DialogFooter>
+          <Button
+            type="submit"
+            form="add-member-form"
+            disabled={loading}
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            {loading ? (
+              <>
+                <Spinner size="sm" variant="current" className="mr-2" />
+                Registering...
+              </>
+            ) : (
+              "Register Member"
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

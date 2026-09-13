@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { AddPlanDialog } from "./add-plan-dialog";
-import { Sparkles, Users, Clock, ShieldCheck, Trash2 } from "lucide-react";
+import { Clock, Users, Sparkles, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import { deletePlanAction } from "@/lib/api/plans";
 
 interface PlanItem {
   id: string;
@@ -31,85 +33,104 @@ export function PlansView({ initialPlans, initialMemberships }: PlansViewProps) 
   const router = useRouter();
   const [plans, setPlans] = useState<PlanItem[]>(initialPlans);
   const [memberships, setMemberships] = useState<MembershipItem[]>(initialMemberships);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setPlans(initialPlans);
-  }, [initialPlans]);
+  useEffect(() => { setPlans(initialPlans); }, [initialPlans]);
+  useEffect(() => { setMemberships(initialMemberships); }, [initialMemberships]);
 
-  useEffect(() => {
-    setMemberships(initialMemberships);
-  }, [initialMemberships]);
+  const handleDelete = async (planId: string, planName: string) => {
+    if (!confirm(`Delete plan "${planName}"? This cannot be undone.`)) return;
+    setDeletingId(planId);
+    try {
+      await deletePlanAction(planId);
+      setPlans((prev) => prev.filter((p) => p.id !== planId));
+      toast.success(`Plan "${planName}" deleted`);
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete plan");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-8 w-full">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <span>Membership Plans</span>
-          </h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Configure tiered passes, duration cycles, and recurring billing rates.
+        <div className="flex flex-col gap-0.5">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">Membership Plans</h1>
+          <p className="text-sm text-muted-foreground">
+            {plans.length} plan{plans.length !== 1 ? "s" : ""} configured
           </p>
         </div>
-
-        <AddPlanDialog
-          onPlanCreated={(newPlan) => {
-            setPlans((prev) => [newPlan, ...prev]);
-          }}
-        />
+        <AddPlanDialog onPlanCreated={(newPlan) => setPlans((prev) => [newPlan, ...prev])} />
       </div>
 
+      {/* Plans grid */}
       {plans.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-800 p-12 text-center flex flex-col items-center justify-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
-            <Sparkles className="w-5 h-5" />
+        <div className="rounded-xl border border-dashed border-border p-12 text-center flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground">
+            <Sparkles className="size-4" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-semibold text-white">No membership plans created yet</h3>
-            <p className="text-xs text-zinc-400 max-w-sm">
-              Create your gym's first pass tier (Monthly Unlimited, 10-Class Pack, or Annual VIP) to start enrolling athletes.
+            <h3 className="text-sm font-semibold text-foreground">No plans yet</h3>
+            <p className="text-xs text-muted-foreground max-w-xs">
+              Create your first membership tier to start enrolling members.
             </p>
           </div>
-          <AddPlanDialog
-            onPlanCreated={(newPlan) => {
-              setPlans((prev) => [newPlan, ...prev]);
-            }}
-          />
+          <AddPlanDialog onPlanCreated={(newPlan) => setPlans((prev) => [newPlan, ...prev])} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {plans.map((p) => {
             const subscriberCount = memberships.filter(
               (m) => m.planId === p.id && m.status === "active"
             ).length;
+            const isDeleting = deletingId === p.id;
 
             return (
               <div
                 key={p.id}
-                className="rounded-2xl border border-white/[0.07] bg-[#0c0d10] p-6 space-y-4 relative overflow-hidden shadow-sm hover:border-primary/40 transition-all group"
+                className="relative flex flex-col gap-4 rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors group"
               >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-white text-base tracking-tight">{p.name}</h3>
-                  <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-md border border-primary/20 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    <span>{p.durationDays} Days</span>
-                  </span>
+                {/* Header row */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <h3 className="font-semibold text-foreground text-sm truncate">{p.name}</h3>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Clock className="size-3" />
+                      {p.durationDays} days
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(p.id, p.name)}
+                    disabled={isDeleting}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                  >
+                    {isDeleting ? (
+                      <Spinner size="sm" variant="current" />
+                    ) : (
+                      <Trash2 className="size-3.5" />
+                    )}
+                  </button>
                 </div>
 
-                <p className="text-xs text-zinc-400 min-h-[36px] line-clamp-2 leading-relaxed">
-                  {p.description || "Full gym facility access with dynamic QR check-in pass."}
+                {/* Description */}
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 min-h-[2.5rem]">
+                  {p.description || "Full gym facility access with digital check-in pass."}
                 </p>
 
-                <div className="pt-4 border-t border-white/[0.07] flex items-baseline justify-between">
+                {/* Footer */}
+                <div className="pt-3 border-t border-border flex items-baseline justify-between">
                   <div>
-                    <span className="text-2xl font-bold text-white font-mono">
-                      ₹{parseFloat(p.price).toFixed(2)}
+                    <span className="text-2xl font-bold text-foreground font-mono">
+                      ₹{parseFloat(p.price).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
                     </span>
-                    <span className="text-xs text-zinc-500 ml-1">/ term</span>
+                    <span className="text-xs text-muted-foreground ml-1">/ term</span>
                   </div>
-                  <span className="text-xs font-mono text-zinc-400 flex items-center gap-1 bg-white/[0.03] px-2 py-1 rounded-md border border-white/[0.05]">
-                    <Users className="w-3 h-3 text-zinc-500" />
-                    <span>{subscriberCount} enrolled</span>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Users className="size-3" />
+                    {subscriberCount} active
                   </span>
                 </div>
               </div>

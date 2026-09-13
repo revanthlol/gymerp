@@ -3,7 +3,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Dialog as DialogPrimitive } from "radix-ui"
-
 import { Button } from "@/components/ui/button"
 import { RiCloseLine } from "@remixicon/react"
 
@@ -39,7 +38,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate z-50 bg-black/25 dark:bg-black/50 backdrop-blur-sm duration-200 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className
       )}
       {...props}
@@ -61,7 +60,19 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          // Positioning
+          "fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2",
+          // Sizing — hard cap so forms never clip on small screens
+          "w-full max-w-[calc(100%-2rem)] sm:max-w-md",
+          "max-h-[90dvh] sm:max-h-[90dvh]",
+          // Layout — header/footer pin, body scrolls
+          "flex flex-col overflow-hidden",
+          // Appearance — semantic tokens, works in both light + dark
+          "rounded-2xl bg-background border border-border shadow-2xl shadow-black/10 dark:shadow-black/40",
+          // Animation — smooth slide-up entry
+          "outline-none duration-200",
+          "data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-bottom-4",
+          "data-closed:animate-out data-closed:fade-out-0 data-closed:slide-out-to-bottom-2",
           className
         )}
         {...props}
@@ -71,11 +82,10 @@ function DialogContent({
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
               variant="ghost"
-              className="absolute top-2 right-2"
+              className="absolute top-3 right-3 h-7 w-7 rounded-lg p-0 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
               size="icon-sm"
             >
-              <RiCloseLine
-              />
+              <RiCloseLine className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </Button>
           </DialogPrimitive.Close>
@@ -85,16 +95,21 @@ function DialogContent({
   )
 }
 
+// Pinned header — never scrolls out of view
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn(
+        "shrink-0 flex flex-col gap-1 px-6 pt-5 pb-4 border-b border-border",
+        className
+      )}
       {...props}
     />
   )
 }
 
+// Pinned footer — always visible at the bottom
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -107,7 +122,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "shrink-0 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-6 pt-4 pb-5 border-t border-border bg-transparent",
         className
       )}
       {...props}
@@ -115,7 +130,7 @@ function DialogFooter({
       {children}
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
-          <Button variant="outline">Close</Button>
+          <Button variant="outline" size="sm">Close</Button>
         </DialogPrimitive.Close>
       )}
     </div>
@@ -130,7 +145,7 @@ function DialogTitle({
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn(
-        "font-heading text-base leading-none font-medium",
+        "text-base font-semibold leading-none text-foreground",
         className
       )}
       {...props}
@@ -146,7 +161,7 @@ function DialogDescription({
     <DialogPrimitive.Description
       data-slot="dialog-description"
       className={cn(
-        "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+        "text-xs text-muted-foreground mt-0.5",
         className
       )}
       {...props}
@@ -154,8 +169,20 @@ function DialogDescription({
   )
 }
 
+// Scrollable body — wrap form fields in this inside DialogContent
+function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dialog-body"
+      className={cn("overflow-y-auto flex-1 px-6 py-4", className)}
+      {...props}
+    />
+  )
+}
+
 export {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,

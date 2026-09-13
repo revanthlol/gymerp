@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -21,6 +23,9 @@ interface AddPlanDialogProps {
   onPlanCreated?: (newPlan: any) => void;
 }
 
+const fieldClass =
+  "flex h-9 w-full rounded-lg border border-border bg-muted/60 px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors";
+
 export function AddPlanDialog({ onPlanCreated }: AddPlanDialogProps = {}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -36,7 +41,6 @@ export function AddPlanDialog({ onPlanCreated }: AddPlanDialogProps = {}) {
       toast.error("Please provide plan name and price");
       return;
     }
-
     setLoading(true);
     try {
       const res = await createPlanAction({
@@ -45,12 +49,9 @@ export function AddPlanDialog({ onPlanCreated }: AddPlanDialogProps = {}) {
         price: price.trim(),
         durationDays: parseInt(durationDays, 10) || 30,
       });
-
       if (res.success) {
-        toast.success(`Plan "${name}" created successfully!`);
-        if (res.plan) {
-          onPlanCreated?.(res.plan);
-        }
+        toast.success(`Plan "${name}" created`);
+        if (res.plan) onPlanCreated?.(res.plan);
         router.refresh();
         setOpen(false);
         setName("");
@@ -59,7 +60,7 @@ export function AddPlanDialog({ onPlanCreated }: AddPlanDialogProps = {}) {
         setDurationDays("30");
       }
     } catch (err: any) {
-      toast.error(err?.message || "Failed to create membership plan");
+      toast.error(err?.message || "Failed to create plan");
     } finally {
       setLoading(false);
     }
@@ -68,99 +69,101 @@ export function AddPlanDialog({ onPlanCreated }: AddPlanDialogProps = {}) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-primary-deep text-[#08090a] font-semibold px-4 py-2 rounded-lg shadow-sm flex items-center gap-2 text-xs">
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>Create New Plan</span>
+        <Button size="sm" className="h-8 gap-1.5 text-xs">
+          <Plus className="size-3.5 stroke-[2.5]" />
+          Create Plan
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-primary" />
-            <span>New Membership Plan</span>
+          <DialogTitle className="flex items-center gap-2">
+            <Sliders className="size-4 text-primary" />
+            New Membership Plan
           </DialogTitle>
-          <DialogDescription className="text-xs text-zinc-400">
-            Define pricing, valid duration, and features for this pass tier.
+          <DialogDescription>
+            Set pricing, duration, and features for this pass.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5 mt-2">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-300">Plan Name *</label>
-            <Input
-              required
-              placeholder="e.g. Quarterly Unlimited, Student Pass"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="bg-[#08090a] border-white/[0.08] text-xs text-zinc-100 focus:border-primary"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Price (INR) *</label>
+        <form onSubmit={handleSubmit} id="add-plan-form">
+          <DialogBody className="space-y-3.5">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Plan Name *</label>
               <Input
                 required
-                type="number"
-                step="0.01"
-                placeholder="2499.00"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="bg-[#08090a] border-white/[0.08] text-xs font-mono text-zinc-100 focus:border-primary"
+                placeholder="e.g. Monthly Unlimited"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={fieldClass}
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Duration (Days) *</label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Price (₹) *</label>
+                <Input
+                  required
+                  type="number"
+                  step="0.01"
+                  placeholder="2499"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className={fieldClass + " font-mono"}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Duration (days) *</label>
+                <Input
+                  required
+                  type="number"
+                  min="1"
+                  max="3650"
+                  placeholder="30"
+                  value={durationDays}
+                  onChange={(e) => setDurationDays(e.target.value)}
+                  className={fieldClass + " font-mono"}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Description</label>
               <Input
-                required
-                type="number"
-                min="1"
-                max="3650"
-                placeholder="30"
-                value={durationDays}
-                onChange={(e) => setDurationDays(e.target.value)}
-                className="bg-[#08090a] border-white/[0.08] text-xs font-mono text-zinc-100 focus:border-primary"
+                placeholder="Full gym access, steam room, lockers"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className={fieldClass}
               />
             </div>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-300">Description / Features</label>
-            <Input
-              placeholder="Access to all gym areas, steam room, and lockers"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="bg-[#08090a] border-white/[0.08] text-xs text-zinc-100 focus:border-primary"
-            />
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/[0.08]">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              className="border-white/[0.08] text-xs bg-white/[0.03] text-zinc-300"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="bg-primary hover:bg-primary-deep text-[#08090a] font-semibold text-xs"
-            >
-              {loading ? (
-                <>
-                  <Spinner size="xs" className="mr-1.5 text-[#08090a]" />
-                  <span>Creating...</span>
-                </>
-              ) : (
-                <span>Create Plan</span>
-              )}
-            </Button>
-          </div>
+          </DialogBody>
         </form>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="add-plan-form"
+            disabled={loading}
+            size="sm"
+          >
+            {loading ? (
+              <>
+                <Spinner size="sm" variant="current" className="mr-1.5" />
+                Creating...
+              </>
+            ) : (
+              "Create Plan"
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
