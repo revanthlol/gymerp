@@ -188,9 +188,6 @@ export function PaymentLedger({
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
               Payments & Settlements
             </h1>
-            <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              Live Ledger
-            </span>
           </div>
           <p className="text-sm text-zinc-400 mt-1">
             Real-time financial transactions, physical POS/cash intake, and Razorpay online reconciliations.

@@ -84,9 +84,6 @@ export function KioskShareCard({ gymSlug, initialPassphrase }: KioskShareCardPro
           <div>
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
               <span>Standalone Kiosk Station</span>
-              <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Sharable
-              </span>
             </h2>
             <p className="text-xs text-zinc-400">
               Run this dynamic QR screen on a dedicated front-desk iPad or TV without admin login.

@@ -331,21 +331,6 @@ export function KioskTerminal({
               <span className="font-extrabold text-sm tracking-wider text-white font-mono">
                 GYMERP KIOSK
               </span>
-              <span
-                className={`text-[11px] capitalize font-medium px-2 py-0.5 rounded-md border ${
-                  kioskMode === "exit"
-                    ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                    : kioskMode === "auto"
-                    ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
-                    : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                }`}
-              >
-                {kioskMode === "exit"
-                  ? "Exit Scanner"
-                  : kioskMode === "auto"
-                  ? "Smart Dual Station"
-                  : "Entrance Station"}
-              </span>
             </div>
             <p className="text-xs text-zinc-400">
               Point phone camera at screen to mark attendance
