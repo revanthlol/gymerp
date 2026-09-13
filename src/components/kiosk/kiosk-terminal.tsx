@@ -353,15 +353,11 @@ export function KioskTerminal({
           <div className="flex flex-wrap items-center justify-center gap-2.5">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[11px] text-zinc-300">
               <Smartphone className="w-3.5 h-3.5 text-primary" />
-              <span>1. Open Camera</span>
+              <span>1. Open Members portal</span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[11px] text-zinc-300">
               <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span>2. Scan Screen</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[11px] text-zinc-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-              <span>3. Gate Unlocks</span>
+              <span>2. Scan QR Code for Check-In/Check-Out</span>
             </div>
           </div>
 
@@ -371,26 +367,6 @@ export function KioskTerminal({
           >
             Phone dead or no camera? Check in with Phone Number
           </button>
-        </div>
-      </div>
-
-      {/* Footer Status Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/[0.07] pt-4 text-xs font-mono text-zinc-500">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`w-2 h-2 rounded-full animate-pulse ${
-                isOnline ? "bg-primary" : "bg-amber-400"
-              }`}
-            />
-            <span>{isOnline ? "Cloud Gate Controller Online" : "Offline Storage Active"}</span>
-          </div>
-          <span>•</span>
-          <span>Single-Use Nonce Security</span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] text-zinc-400 font-mono">Smart Auto Mode Active</span>
         </div>
       </div>
 
