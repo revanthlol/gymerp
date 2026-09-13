@@ -154,7 +154,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             if (!isPinned) setIsSidebarHovered(false);
           }}
           className={cn(
-            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-2xl bg-white/80 dark:bg-white/[0.03] backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(130%)] border border-zinc-200/80 dark:border-white/[0.08] shadow-xl shadow-zinc-900/5 dark:shadow-black/40 flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
+            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-2xl bg-white/50 dark:bg-black/40 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(160%)] border border-zinc-200/80 dark:border-white/[0.1] shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.2)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.08)] flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
             isExpanded ? "w-56" : "w-16"
           )}
         >
@@ -398,8 +398,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
               : "lg:left-24 lg:right-6 xl:right-8",
             "h-14 rounded-2xl px-4 sm:px-6 pointer-events-auto",
             isScrolled
-              ? "bg-white/85 dark:bg-[#090a0f]/85 backdrop-blur-2xl border border-zinc-200/80 dark:border-white/[0.12] shadow-xl shadow-zinc-900/5 dark:shadow-black/50"
-              : "bg-white/70 dark:bg-[#090a0f]/60 backdrop-blur-xl border border-zinc-200/70 dark:border-white/[0.08] shadow-md shadow-zinc-900/5 dark:shadow-black/20"
+              ? "bg-white/55 dark:bg-black/55 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(160%)_contrast(105%)] border border-zinc-200/80 dark:border-white/[0.14] shadow-[0_12px_40px_rgba(0,0,0,0.08),inset_0_1px_0_0_rgba(255,255,255,0.25)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.1)]"
+              : "bg-white/40 dark:bg-black/40 backdrop-blur-2xl [backdrop-filter:blur(20px)_saturate(150%)] border border-zinc-200/70 dark:border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.05),inset_0_1px_0_0_rgba(255,255,255,0.2)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           )}
         >
           <div className="flex items-center gap-3">

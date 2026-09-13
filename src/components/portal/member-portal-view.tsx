@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { memberLogoutAction } from "@/lib/api/member-portal";
 import { CameraScannerModal } from "@/components/portal/camera-scanner-modal";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -152,29 +153,29 @@ export function MemberPortalView({ data }: MemberPortalProps) {
       />
 
       {/* Floating Frosted Glass Top Navigation Bar */}
-      <header className="fixed top-3 sm:top-4 left-3 right-3 max-w-5xl md:mx-auto z-40 h-14 rounded-2xl px-4 sm:px-6 bg-[#090a0f]/80 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(130%)] border border-white/[0.08] shadow-2xl shadow-black/40 flex items-center justify-between pointer-events-auto">
+      <header className="fixed top-3 sm:top-4 left-3 right-3 max-w-5xl md:mx-auto z-40 h-14 rounded-2xl px-4 sm:px-6 bg-white/40 dark:bg-black/40 backdrop-blur-2xl [backdrop-filter:blur(20px)_saturate(150%)] border border-zinc-200/70 dark:border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.05),inset_0_1px_0_0_rgba(255,255,255,0.2)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.08)] flex items-center justify-between pointer-events-auto">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-emerald-400 text-[#08090a] flex items-center justify-center font-black text-sm shadow-[0_0_14px_rgba(62,207,142,0.3)]">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-emerald-400 text-primary-foreground flex items-center justify-center font-black text-sm shadow-[0_0_14px_rgba(62,207,142,0.3)]">
             <Dumbbell className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-extrabold text-white text-xs sm:text-sm tracking-wider leading-none block">
+            <span className="font-extrabold text-foreground text-xs sm:text-sm tracking-wider leading-none block">
               GYMERP
             </span>
-            <span className="text-[10px] text-zinc-400 font-mono block leading-tight truncate">
+            <span className="text-[10px] text-muted-foreground font-mono block leading-tight truncate">
               {gym.name}
             </span>
           </div>
         </div>
 
         {/* Desktop Tab Switcher */}
-        <nav className="hidden md:flex items-center gap-1 p-1 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+        <nav className="hidden md:flex items-center gap-1 p-1 bg-muted/50 rounded-xl border border-border">
           <button
             onClick={() => setActiveTab("pass")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === "pass"
-                ? "bg-primary text-[#08090a] shadow-sm"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Athlete Card
@@ -183,8 +184,8 @@ export function MemberPortalView({ data }: MemberPortalProps) {
             onClick={() => setActiveTab("classes")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === "classes"
-                ? "bg-primary text-[#08090a] shadow-sm"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Classes ({bookedClasses.length})
@@ -193,31 +194,33 @@ export function MemberPortalView({ data }: MemberPortalProps) {
             onClick={() => setActiveTab("history")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               activeTab === "history"
-                ? "bg-primary text-[#08090a] shadow-sm"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Workout Log
           </button>
         </nav>
 
-        {/* Top Right: Instant Scan Button + User / Logout */}
-        <div className="flex items-center gap-2.5">
+        {/* Top Right: Instant Scan Button + Theme + User / Logout */}
+        <div className="flex items-center gap-2">
           <Button
             size="sm"
             onClick={() => setScannerOpen(true)}
-            className="h-8 bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-xs rounded-xl shadow-[0_0_16px_rgba(62,207,142,0.35)] gap-1.5 px-3"
+            className="h-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-xl shadow-xs gap-1.5 px-3 cursor-pointer"
           >
             <Camera className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Scan Kiosk</span>
           </Button>
+
+          <ThemeToggle />
 
           <form action={memberLogoutAction}>
             <Button
               type="submit"
               variant="outline"
               size="sm"
-              className="h-8 w-8 p-0 border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-xl"
+              className="h-8 w-8 p-0 border-border text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl cursor-pointer"
               title="Logout"
             >
               <LogOut className="w-3.5 h-3.5" />
