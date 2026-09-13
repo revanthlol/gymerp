@@ -1,8 +1,10 @@
 "use server";
 
 import { withTenantDb } from "@/lib/db/tenant";
+import { db } from "@/lib/db";
 import { gymClasses } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth/session";
+import { getMemberSession } from "@/lib/auth/member-session";
 import { eq, desc, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -119,3 +121,53 @@ export async function adjustClassBookingAction(classId: string, delta: number) {
     return { success: true, gymClass: updated };
   });
 }
+
+export async function getMemberClassesAction() {
+  const session = await getMemberSession();
+  if (!session) {
+    throw new Error("Unauthorized: Member login required");
+  }
+
+  const list = await db
+    .select()
+    .from(gymClasses)
+    .where(and(eq(gymClasses.tenantId, session.tenantId), eq(gymClasses.isActive, "true")))
+    .orderBy(desc(gymClasses.createdAt));
+
+  return list;
+}
+
+export async function rsvpMemberClassAction(classId: string, action: "book" | "cancel") {
+  const session = await getMemberSession();
+  if (!session) {
+    throw new Error("Unauthorized: Member login required");
+  }
+
+  const [existing] = await db
+    .select()
+    .from(gymClasses)
+    .where(and(eq(gymClasses.id, classId), eq(gymClasses.tenantId, session.tenantId)))
+    .limit(1);
+
+  if (!existing) {
+    throw new Error("Class not found");
+  }
+
+  const delta = action === "book" ? 1 : -1;
+  const newCount = Math.max(0, Math.min(existing.capacity, existing.bookedCount + delta));
+
+  const [updated] = await db
+    .update(gymClasses)
+    .set({
+      bookedCount: newCount,
+      updatedAt: new Date(),
+    })
+    .where(eq(gymClasses.id, classId))
+    .returning();
+
+  revalidatePath("/portal/classes");
+  revalidatePath("/portal");
+
+  return { success: true, gymClass: updated };
+}
+

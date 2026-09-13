@@ -2,11 +2,10 @@
 
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { members, memberships, membershipPlans, tenants, attendance, payments } from "@/lib/db/schema";
+import { members, memberships, membershipPlans, tenants, attendance, payments, gymClasses } from "@/lib/db/schema";
 import { eq, and, desc, sql, or } from "drizzle-orm";
 import { signMemberToken, getMemberSession, MemberSession } from "@/lib/auth/member-session";
 import { redirect } from "next/navigation";
-import QRCode from "qrcode";
 
 export async function memberLoginAction(input: {
   identifier: string; // phone number or email
@@ -92,8 +91,8 @@ export async function getMemberPortalDataAction() {
     redirect("/portal/login");
   }
 
-  // Fetch Member, Tenant, Memberships, Attendance, and Payments
-  const [memberRows, tenantRows, membershipRows, attendanceRows, paymentRows] =
+  // Fetch Member, Tenant, Memberships, Attendance, Payments, and Classes
+  const [memberRows, tenantRows, membershipRows, attendanceRows, paymentRows, classRows] =
     await Promise.all([
       db
         .select()
@@ -138,7 +137,7 @@ export async function getMemberPortalDataAction() {
         .from(attendance)
         .where(eq(attendance.memberId, session.memberId))
         .orderBy(desc(attendance.checkedInAt))
-        .limit(30),
+        .limit(50),
 
       db
         .select({
@@ -154,6 +153,13 @@ export async function getMemberPortalDataAction() {
         .where(eq(payments.memberId, session.memberId))
         .orderBy(desc(payments.createdAt))
         .limit(10),
+
+      db
+        .select()
+        .from(gymClasses)
+        .where(and(eq(gymClasses.tenantId, session.tenantId), eq(gymClasses.isActive, "true")))
+        .orderBy(desc(gymClasses.createdAt))
+        .limit(6),
     ]);
 
   const member = memberRows[0];
@@ -167,16 +173,6 @@ export async function getMemberPortalDataAction() {
   if (!member) {
     redirect("/portal/login");
   }
-
-  // Generate crisp QR Data URL for member's pass
-  const passQrUrl = await QRCode.toDataURL(member.qrToken, {
-    margin: 2,
-    width: 320,
-    color: {
-      dark: "#000000",
-      light: "#ffffff",
-    },
-  });
 
   // Calculate membership active status and days remaining
   const activeMembership = membershipRows.find((m) => m.status === "active") || membershipRows[0] || null;
@@ -197,6 +193,37 @@ export async function getMemberPortalDataAction() {
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
   }).length;
 
+  // Calculate consecutive day streak
+  let currentStreak = 0;
+  if (attendanceRows.length > 0) {
+    const dates = Array.from(
+      new Set(
+        attendanceRows.map((a) => {
+          const d = new Date(a.checkedInAt);
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        })
+      )
+    ).sort().reverse();
+
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+
+    if (dates[0] === todayStr || dates[0] === yesterdayStr) {
+      let checkDate = new Date(dates[0]);
+      for (const dStr of dates) {
+        const expected = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, "0")}-${String(checkDate.getDate()).padStart(2, "0")}`;
+        if (dStr === expected) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
   return {
     member: {
       id: member.id,
@@ -206,7 +233,6 @@ export async function getMemberPortalDataAction() {
       status: member.status,
       joinDate: member.joinDate,
       qrToken: member.qrToken,
-      passQrUrl,
     },
     gym: tenant,
     activeMembership: activeMembership
@@ -218,9 +244,11 @@ export async function getMemberPortalDataAction() {
     memberships: membershipRows,
     recentAttendance: attendanceRows,
     recentPayments: paymentRows,
+    upcomingClasses: classRows,
     stats: {
       totalWorkouts: attendanceRows.length,
       workoutsThisMonth,
+      currentStreak,
       daysRemaining,
     },
   };

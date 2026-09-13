@@ -43,15 +43,24 @@ export function verifyMemberToken(token: string): MemberSession | null {
   }
 }
 
-export const getMemberSession = cache(async function getMemberSession(): Promise<MemberSession | null> {
-  const cookieStore = cookies();
-  const token = cookieStore.get("__member_session")?.value;
+const cacheSafe = typeof cache === "function" ? cache : <T extends (...args: any[]) => any>(fn: T): T => fn;
+
+export const getMemberSession = cacheSafe(async function getMemberSession(): Promise<MemberSession | null> {
+  let token: string | undefined;
+  let cookieStore: any;
+  try {
+    cookieStore = cookies();
+    token = cookieStore.get("__member_session")?.value;
+  } catch {
+    return null;
+  }
+
   if (!token) return null;
 
   const session = verifyMemberToken(token);
   if (!session) {
     try {
-      cookieStore.set("__member_session", "", { path: "/", maxAge: 0 });
+      cookieStore?.set("__member_session", "", { path: "/", maxAge: 0 });
     } catch {}
     return null;
   }

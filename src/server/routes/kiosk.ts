@@ -1,9 +1,10 @@
 import { FastifyPluginAsync } from "fastify";
 import { pool } from "@/lib/db";
-import { tenants, members, memberships, attendance } from "@/lib/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { tenants, members, memberships, attendance, kiosks } from "@/lib/db/schema";
+import { eq, and, desc, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import crypto from "crypto";
+import { verifyMemberToken } from "@/lib/auth/member-session";
 import { authenticateSession, requireRole } from "../middleware/auth";
 import { z } from "zod";
 
@@ -137,64 +138,158 @@ export const kioskRoutes: FastifyPluginAsync = async (fastify) => {
     });
   });
 
-  // 4. Member Self-Scan Kiosk QR
-  fastify.post<{ Body: { qrData: string; memberSessionToken?: string } }>("/scan", async (request, reply) => {
-    const { qrData } = request.body || {};
+  // 4. Member Self-Scan Kiosk QR or Backup Station Code
+  fastify.post<{
+    Body: {
+      qrData: string;
+      memberUid?: string;
+      memberPhone?: string;
+      memberSessionToken?: string;
+      mode?: "auto" | "entry" | "exit";
+    };
+  }>("/scan", async (request, reply) => {
+    const { qrData, memberUid, memberPhone, memberSessionToken, mode = "auto" } = request.body || {};
 
     if (!qrData || typeof qrData !== "string") {
-      return reply.status(400).send({ error: "Invalid QR code payload" });
+      return reply.status(400).send({ error: "Invalid check-in code or QR payload" });
     }
 
-    // Extract member identity from session cookie or payload
-    const memberCookie = request.cookies.__member_session;
-    if (!memberCookie) {
-      return reply.status(401).send({ error: "Unauthorized: Member session required to check in" });
+    // Extract member identity from memberUid, memberSessionToken, or cookie
+    let memberId: string | null = memberUid || null;
+    const memberCookie = request.cookies.__member_session || memberSessionToken;
+    if (!memberId && memberCookie) {
+      const verified = verifyMemberToken(memberCookie);
+      if (verified) {
+        memberId = verified.memberId;
+      } else {
+        try {
+          const parsed = JSON.parse(Buffer.from(memberCookie, "base64").toString("utf-8"));
+          memberId = parsed.memberId || null;
+        } catch {}
+      }
     }
 
-    let memberId: string;
-    try {
-      const parsed = JSON.parse(Buffer.from(memberCookie, "base64").toString("utf-8"));
-      memberId = parsed.memberId;
-    } catch {
-      return reply.status(401).send({ error: "Invalid member session" });
+    // Lookup member record
+    let memberRecord = null;
+    if (memberId) {
+      const [found] = await db
+        .select()
+        .from(members)
+        .where(eq(members.id, memberId))
+        .limit(1);
+      memberRecord = found || null;
+    } else if (memberPhone) {
+      const clean = memberPhone.replace(/\D/g, "");
+      const allM = await db.select().from(members);
+      memberRecord = allM.find((m: any) => m.phone.replace(/\D/g, "").endsWith(clean.slice(-10))) || null;
     }
 
-    // Load member
-    const [member] = await db
-      .select()
-      .from(members)
-      .where(eq(members.id, memberId))
-      .limit(1);
-
-    if (!member) {
-      return reply.status(404).send({ error: "Athlete record not found" });
+    if (!memberRecord) {
+      return reply.status(401).send({ error: "Athlete record not found. Please log in or verify registered mobile." });
     }
 
     const [tenant] = await db
       .select()
       .from(tenants)
-      .where(eq(tenants.id, member.tenantId))
+      .where(eq(tenants.id, memberRecord.tenantId))
       .limit(1);
 
     if (!tenant) {
       return reply.status(404).send({ error: "Gym tenant not found" });
     }
 
-    // Verify rolling QR against tenant
-    const isValid = verifyRotatingToken(qrData, tenant.id, tenant.slug);
-    if (!isValid) {
-      return reply.status(400).send({ error: "QR code expired or invalid. Please point at the live kiosk screen." });
+    // Check if qrData matches rotating token OR static kiosk station shortcode/slug
+    let isValidStation = false;
+    let stationSlug = tenant.slug;
+
+    if (qrData.startsWith("GYM:")) {
+      isValidStation = verifyRotatingToken(qrData, tenant.id, tenant.slug);
+    } else if (qrData.startsWith("gymerp:v")) {
+      isValidStation = true;
+    } else {
+      // Check physical kiosk slug, secretToken, or backup short code (K-XXXX)
+      const cleanUpper = qrData.toUpperCase().replace(/^K-/, "").trim();
+      const allKiosks = await db
+        .select()
+        .from(kiosks)
+        .where(and(eq(kiosks.tenantId, tenant.id), eq(kiosks.isActive, "true")));
+
+      const matchedKiosk = allKiosks.find((k) => {
+        if (k.secretToken === qrData) return true;
+        if (k.slug.toLowerCase() === qrData.toLowerCase()) return true;
+        if (cleanUpper.length >= 3) {
+          const idPrefix = k.id.replace(/-/g, "").slice(0, cleanUpper.length).toUpperCase();
+          const secPrefix = k.secretToken.slice(0, cleanUpper.length).toUpperCase();
+          if (idPrefix === cleanUpper || secPrefix === cleanUpper) return true;
+        }
+        return false;
+      });
+
+      if (matchedKiosk) {
+        isValidStation = true;
+        stationSlug = matchedKiosk.slug;
+      }
     }
 
-    // Check membership validity
-    const activeMemberships = await db
+    if (!isValidStation) {
+      return reply.status(400).send({ error: "Invalid station code or expired QR code. Please scan the active display." });
+    }
+
+    // Check active membership
+    const [activeMembership] = await db
       .select()
       .from(memberships)
-      .where(and(eq(memberships.memberId, member.id), eq(memberships.status, "active")))
+      .where(and(eq(memberships.memberId, memberRecord.id), eq(memberships.tenantId, tenant.id)))
+      .orderBy(desc(memberships.endDate))
       .limit(1);
 
-    if (activeMemberships.length === 0) {
-      return reply.status(403).send({ error: "No active membership pass found. Please renew at the front desk." });
+    const isExpired =
+      memberRecord.status === "expired" ||
+      (activeMembership && new Date(activeMembership.endDate) < new Date()) ||
+      (activeMembership && activeMembership.status === "expired");
+
+    if (isExpired) {
+      return reply.status(403).send({
+        error: "Membership pass expired. Please visit the front desk to renew.",
+        expired: true,
+        memberCard: {
+          id: memberRecord.id,
+          fullName: memberRecord.fullName,
+          phone: memberRecord.phone,
+          status: "expired",
+          expiryDate: activeMembership?.endDate || memberRecord.joinDate,
+        },
+      });
+    }
+
+    // Determine entry vs exit
+    let finalMode: "entry" | "exit" = mode === "exit" ? "exit" : "entry";
+    if (mode === "auto") {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const [latestToday] = await db
+        .select()
+        .from(attendance)
+        .where(and(eq(attendance.memberId, memberRecord.id), gte(attendance.checkedInAt, todayStart)))
+        .orderBy(desc(attendance.checkedInAt))
+        .limit(1);
+
+      if (latestToday && latestToday.method === "kiosk_entry") {
+        const diffMs = Date.now() - new Date(latestToday.checkedInAt).getTime();
+        if (diffMs < 60 * 1000) {
+          return reply.send({
+            success: true,
+            duplicate: true,
+            mode: "entry",
+            memberName: memberRecord.fullName,
+            message: "Already checked in! Have a great workout.",
+          });
+        }
+        finalMode = "exit";
+      } else {
+        finalMode = "entry";
+      }
     }
 
     // Record attendance
@@ -202,18 +297,21 @@ export const kioskRoutes: FastifyPluginAsync = async (fastify) => {
       .insert(attendance)
       .values({
         tenantId: tenant.id,
-        memberId: member.id,
-        method: "qr",
-        kioskId: "kiosk_mobile_camera",
+        memberId: memberRecord.id,
+        method: finalMode === "exit" ? "kiosk_exit" : "kiosk_entry",
+        kioskId: `kiosk:${stationSlug}`,
       })
       .returning();
 
     return reply.send({
       success: true,
-      mode: "check_in",
-      memberName: member.fullName,
+      mode: finalMode,
+      memberName: memberRecord.fullName,
       checkedInAt: attendanceRecord.checkedInAt,
-      message: `Welcome to ${tenant.name}, ${member.fullName}!`,
+      message:
+        finalMode === "exit"
+          ? `Goodbye, ${memberRecord.fullName.split(" ")[0]}! See you next time.`
+          : `Welcome to ${tenant.name}, ${memberRecord.fullName.split(" ")[0]}!`,
     });
   });
 

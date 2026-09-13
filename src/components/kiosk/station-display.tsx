@@ -340,19 +340,36 @@ export function StationDisplay({
             <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-primary rounded-bl-lg" />
             <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-primary rounded-br-lg" />
 
-            {/* Inset White Container */}
-            <div className="bg-white p-5 md:p-6 rounded-2xl shadow-inner flex items-center justify-center">
+            {/* Inset White Container with dynamic pulse frame */}
+            <div className="relative bg-white p-5 md:p-6 rounded-2xl shadow-inner flex items-center justify-center overflow-hidden">
               <img
                 src={qrDataUrl}
                 alt="Station QR Check-In"
                 className="w-64 h-64 md:w-80 md:h-80 object-contain select-none"
               />
+              {/* Subtle scanning beam */}
+              <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-70 animate-pulse pointer-events-none" />
             </div>
 
-            {/* Live radar scanner pulse animation */}
+            {/* Live station status & Pre-rotation pulse indicator */}
             <div className="mt-4 flex items-center gap-2 text-xs font-mono text-zinc-400">
-              <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-              <span className="text-zinc-300">Station Active & Listening</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-zinc-200 font-semibold">Station Live &bull; Auto-Refreshes</span>
+            </div>
+
+            {/* Backup Manual Station Code */}
+            <div className="mt-4 w-full max-w-xs p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex flex-col items-center gap-1.5 text-center">
+              <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">
+                Camera Not Working? Backup Code:
+              </span>
+              <div className="px-4 py-1 rounded-xl bg-primary/15 border border-primary/30 text-primary font-mono font-black text-lg tracking-widest">
+                {kiosk.slug.toUpperCase().startsWith("K-")
+                  ? kiosk.slug.toUpperCase()
+                  : `K-${kiosk.id.replace(/-/g, "").slice(0, 4).toUpperCase()}`}
+              </div>
+              <span className="text-[10px] text-zinc-400">
+                Enter code in your Member Portal to check in
+              </span>
             </div>
           </div>
 
@@ -363,8 +380,8 @@ export function StationDisplay({
               <div className="text-[11px] text-zinc-400">Any iOS or Android phone camera</div>
             </div>
             <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs">
-              <div className="font-bold text-white mb-0.5">2. Tap Link</div>
-              <div className="text-[11px] text-zinc-400">Instant check-in without app install</div>
+              <div className="font-bold text-white mb-0.5">2. Tap Link or Code</div>
+              <div className="text-[11px] text-zinc-400">Scan QR or enter backup code</div>
             </div>
             <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs">
               <div className="font-bold text-white mb-0.5">3. Walk Through</div>

@@ -11,6 +11,12 @@ import { eq, desc, and, gte, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import crypto from "crypto";
 
+function safeRevalidatePath(path: string) {
+  try {
+    revalidatePath(path);
+  } catch {}
+}
+
 export async function getRotatingQrAction(mode: KioskMode = "auto") {
   const session = await getSession();
   if (!session || !session.tenantId) {
@@ -175,11 +181,11 @@ export async function recordAttendanceScanAction(
       })
       .returning();
 
-    revalidatePath("/admin/attendance");
-    revalidatePath("/admin");
-    revalidatePath("/admin/kiosk");
-    revalidatePath("/staff");
-    revalidatePath("/staff/kiosk");
+    safeRevalidatePath("/admin/attendance");
+    safeRevalidatePath("/admin");
+    safeRevalidatePath("/admin/kiosk");
+    safeRevalidatePath("/staff");
+    safeRevalidatePath("/staff/kiosk");
 
     return {
       success: true,
@@ -202,6 +208,7 @@ export async function recordAttendanceScanAction(
 export async function memberSelfScanKioskAction(input: {
   qrToken: string;
   memberPhone?: string;
+  memberUid?: string;
   overrideMode?: KioskMode;
   kioskToken?: string;
 }) {
@@ -226,19 +233,32 @@ export async function memberSelfScanKioskAction(input: {
     }
   }
 
-  // 1. Check if token or kioskToken matches a physical kiosk station in database
-  const checkToken = parsedToken || input.kioskToken || "";
-  if (checkToken && !checkToken.startsWith("gymerp:")) {
-    const [kioskMatch] = await db
+  // 1. Check if token or kioskToken matches a physical kiosk station in database (by token, slug, or backup short code)
+  const checkToken = (parsedToken || input.kioskToken || "").trim();
+  if (checkToken && !checkToken.startsWith("gymerp:v")) {
+    const cleanShort = checkToken.toUpperCase().replace(/^K-/, "").trim();
+
+    const allKiosks = await db
       .select({
         id: kiosks.id,
         tenantId: kiosks.tenantId,
         secretToken: kiosks.secretToken,
         mode: kiosks.mode,
+        slug: kiosks.slug,
       })
       .from(kiosks)
-      .where(or(eq(kiosks.secretToken, checkToken), eq(kiosks.slug, checkToken)))
-      .limit(1);
+      .where(eq(kiosks.isActive, "true"));
+
+    const kioskMatch = allKiosks.find((k) => {
+      if (k.secretToken === checkToken) return true;
+      if (k.slug.toLowerCase() === checkToken.toLowerCase()) return true;
+      if (cleanShort.length >= 3) {
+        const idPrefix = k.id.replace(/-/g, "").slice(0, cleanShort.length).toUpperCase();
+        const secretPrefix = k.secretToken.slice(0, cleanShort.length).toUpperCase();
+        if (idPrefix === cleanShort || secretPrefix === cleanShort) return true;
+      }
+      return false;
+    });
 
     if (kioskMatch) {
       tokenTenantId = kioskMatch.tenantId;
@@ -309,26 +329,42 @@ export async function memberSelfScanKioskAction(input: {
       }
     }
 
-    // 4. Match athlete: by member session or by clean phone number
+    // 4. Match athlete: by memberUid, by member session, or by phone
     let memberRecord = null;
-    if (memberSession?.memberId) {
+    const targetUid = input.memberUid || memberSession?.memberId;
+    if (targetUid) {
       const [foundById] = await tx
         .select()
         .from(members)
-        .where(and(eq(members.id, memberSession.memberId), eq(members.tenantId, tokenTenantId!)))
+        .where(and(eq(members.id, targetUid), eq(members.tenantId, tokenTenantId!)))
         .limit(1);
       memberRecord = foundById || null;
-    } else if (input.memberPhone && input.memberPhone.trim()) {
-      const cleanPhone = input.memberPhone.replace(/\D/g, "");
-      const allMembers = await tx
-        .select()
-        .from(members)
-        .where(eq(members.tenantId, tokenTenantId!));
+    }
+    
+    if (!memberRecord && input.memberPhone && input.memberPhone.trim()) {
+      const trimmedPhone = input.memberPhone.trim();
+      // If input looks like UUID, match directly
+      if (/^[0-9a-fA-F-]{36}$/.test(trimmedPhone)) {
+        const [foundByPhoneAsUid] = await tx
+          .select()
+          .from(members)
+          .where(and(eq(members.id, trimmedPhone), eq(members.tenantId, tokenTenantId!)))
+          .limit(1);
+        memberRecord = foundByPhoneAsUid || null;
+      }
 
-      memberRecord =
-        allMembers.find((m: any) =>
-          m.phone.replace(/\D/g, "").endsWith(cleanPhone.slice(-10))
-        ) || null;
+      if (!memberRecord) {
+        const cleanPhone = trimmedPhone.replace(/\D/g, "");
+        const allMembers = await tx
+          .select()
+          .from(members)
+          .where(eq(members.tenantId, tokenTenantId!));
+
+        memberRecord =
+          allMembers.find((m: any) =>
+            m.phone.replace(/\D/g, "").endsWith(cleanPhone.slice(-10))
+          ) || null;
+      }
     }
 
     if (!memberRecord) {
@@ -549,11 +585,11 @@ export async function memberSelfScanKioskAction(input: {
       })
       .returning();
 
-    revalidatePath("/admin/attendance");
-    revalidatePath("/admin");
-    revalidatePath("/admin/kiosk");
-    revalidatePath("/staff");
-    revalidatePath("/staff/kiosk");
+    safeRevalidatePath("/admin/attendance");
+    safeRevalidatePath("/admin");
+    safeRevalidatePath("/admin/kiosk");
+    safeRevalidatePath("/staff");
+    safeRevalidatePath("/staff/kiosk");
 
     const welcomeMsg =
       finalMode === "exit"
@@ -718,11 +754,11 @@ export async function kioskPassOrPhoneCheckInAction(input: {
       })
       .returning();
 
-    revalidatePath("/admin/attendance");
-    revalidatePath("/admin");
-    revalidatePath("/admin/kiosk");
-    revalidatePath("/staff");
-    revalidatePath("/staff/kiosk");
+    safeRevalidatePath("/admin/attendance");
+    safeRevalidatePath("/admin");
+    safeRevalidatePath("/admin/kiosk");
+    safeRevalidatePath("/staff");
+    safeRevalidatePath("/staff/kiosk");
 
     return {
       success: true,
@@ -824,10 +860,10 @@ export async function staffManualCheckInAction(
       })
       .returning();
 
-    revalidatePath("/admin/attendance");
-    revalidatePath("/admin");
-    revalidatePath("/staff");
-    revalidatePath("/staff/kiosk");
+    safeRevalidatePath("/admin/attendance");
+    safeRevalidatePath("/admin");
+    safeRevalidatePath("/staff");
+    safeRevalidatePath("/staff/kiosk");
 
     return {
       success: true,
