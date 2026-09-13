@@ -2,7 +2,7 @@
 
 > **CRITICAL ARCHITECTURAL DIRECTIVE:**
 > **DO NOT ASSUME THIS PROJECT IS IN "PHASE 2".**
-> The files under `docs/phase-*.md` are historical planning specs.
+> The files under `docs/phases/` are historical planning specs.
 > **ALL PHASES (0 to 5) AND EXTENSIONS ARE 100% COMPLETE AND DEPLOYED IN PRODUCTION.**
 > Detailed system status, route matrix, and database design are documented in [CONTEXT.md](./CONTEXT.md).
 

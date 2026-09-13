@@ -26,6 +26,3 @@ next-env.d.ts
 .neon
 .vercel
 .env*
-
-# Reference documents
-docs/

@@ -2,7 +2,7 @@
 
 > **CRITICAL DIRECTIVE FOR AI ASSISTANTS (CLAUDE / CODEX / CHATGPT):**
 > **DO NOT ASSUME THIS PROJECT IS IN "PHASE 2".**
-> The markdown files located in `docs/phase-*.md` are **historical planning specifications**.
+> The markdown files located in `docs/phases/` are **historical planning specifications**.
 > **ALL PHASES (Phase 0 through Phase 5) AND EXTENSIONS ARE 100% COMPLETE, INTEGRATED, AND DEPLOYED TO PRODUCTION.**
 > Always review this document and inspect existing code in `src/` before proposing architecture or claiming a feature is missing.
 

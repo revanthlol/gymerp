@@ -1,142 +1,54 @@
-# GymERP — Tech Stack Reference
+# GymERP — Technical Stack & Architecture Reference
 
-> **Architecture Model:**
-> - **Application & UI:** Next.js 14+ (App Router) deployed permanently to Vercel (or Node container on VM).
-> - **Identity & Access:** Firebase Auth with HTTP-only Session Cookies (`__session`) and custom user claims (`role`, `tenant_id`).
-> - **Database:** PostgreSQL 16 managed via Docker Compose locally and deployed on a dedicated Linux VPS (EC2/Hetzner/Oracle) with automated daily backups.
-> - **Data Access & Schema:** Drizzle ORM + Drizzle Kit with type-safe schema declarations.
-> - **Multi-Tenant Security:** Defense-in-depth: Application-layer tenant scoping via Drizzle repository wrappers + PostgreSQL Row-Level Security (RLS) policies enforcing `SET LOCAL app.current_tenant_id`.
-> - **File Storage:** Firebase Storage with security rules enforcing tenant boundaries for member avatars and gym branding assets.
+This document provides the authoritative technical stack reference for GymERP, outlining choices, library versions, and architectural boundaries.
 
 ---
 
-## Frontend
+## 1. Core Stack Matrix
 
-| Concern | Choice | Notes |
-|---|---|---|
-| Framework | **Next.js 14+ (App Router)** | RSC for data-heavy dashboard pages, streaming/Suspense, PWA-compatible |
-| UI primitives | **shadcn/ui** (installed via CLI) | Full customization control; components added incrementally |
-| Styling | **Tailwind CSS v4** | CSS variables for theme tokens; glassmorphism/glow via CSS, not a lib |
-| State (client) | **Zustand** | Auth context (role, tenant_id, user), accent theme, sidebar state |
-| Data tables | **TanStack Table v8** + shadcn `<Table>` | Sortable, filterable, paginated — one reusable `<DataTable>` built in Phase 1 |
-| Forms | **react-hook-form + Zod** + shadcn `<Form>` | One form pattern built in Phase 1, reused everywhere |
-| PWA | **Serwist** (`@serwist/next`) | Service worker caches **app shell only** (JS/CSS/fonts/icons). Never caches API/database responses |
-| Font | **Inter** (primary) + **JetBrains Mono** (metrics, IDs, prices) | Loaded via `next/font/google` |
-| Icons | **Lucide React** | Consistent, sharp SVG vector icon set |
-| QR scanning | **html5-qrcode** or **zxing-js/browser** | Browser-camera QR decode on `/staff/checkin` and `/staff/kiosk` |
-| Hosting | **Vercel** (permanent) | Edge-optimized, zero config for Next.js, stays here even with VM database |
-
----
-
-## Backend & API
-
-All server-side logic lives in **Next.js Server Actions** and **Route Handlers**, structured into clean modular services in `src/lib/api/`.
-
-| Concern | Choice | Notes |
-|---|---|---|
-| API layer | Next.js Server Actions (mutations) + Drizzle ORM (queries) | High developer velocity, type-safe RPC |
-| Modular services | `src/lib/api/` modules | Pure business logic functions decoupled from Next.js request objects |
-| Webhook handler | Next.js Route Handler (`/api/webhooks/payments`) | Verifies provider HMAC signature before executing mutations |
-| Optional Standalone API | **Hono** (Bun / Node 22+) | Optional future containerized microservice; consumes existing `src/lib/api/` modules |
-| Reverse proxy | **Nginx** | TLS termination for PostgreSQL VPS or standalone API server |
+| Layer | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Web Framework** | [Next.js (App Router)](https://nextjs.org/) | `14.2.x` | React Server Components, Server Actions, route handlers |
+| **API Server** | [Fastify](https://fastify.dev/) | `4.x` | Persistent standalone Node.js server for sub-50ms turnstile verification |
+| **Database** | [Neon PostgreSQL](https://neon.tech/) | PostgreSQL 16 | Serverless multi-tenant database with connection pooling |
+| **ORM** | [Drizzle ORM](https://orm.drizzle.team/) | `0.38.x` | Type-safe SQL-like queries with declarative schema migrations |
+| **Authentication** | [Firebase Auth](https://firebase.google.com/) | Client SDK `11.x` + Admin `13.x` | JWT custom claims (`role`, `tenant_id`) and secure HTTP-only cookies |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) | `3.4.x` | Utility classes with CSS custom properties for dual light/dark themes |
+| **UI Primitives** | [shadcn/ui](https://ui.shadcn.com/) / [Radix UI](https://www.radix-ui.com/) | Latest | Accessible unstyled primitives customized with semantic tokens |
+| **Icons** | [Lucide React](https://lucide.dev/) | Latest | Clean vector SVG icon library |
+| **Motion** | [Framer Motion](https://www.framer.com/motion/) | Latest | Fluid micro-interactions, modal transitions, and scanner laser sweep |
+| **PWA & Offline** | Serwist / Service Worker | Latest | App shell caching, standalone display mode on tablets |
 
 ---
 
-## Database & Multi-Tenancy
+## 2. Multi-Tenant Data Isolation Strategy
 
-| Concern | Choice | Notes |
-|---|---|---|
-| Database Engine | **PostgreSQL 16** | Running in Docker Compose locally (`postgres:16-alpine`) and on dedicated Linux VPS |
-| ORM / Query Layer | **Drizzle ORM** | Zero-overhead, type-safe SQL-like queries with Drizzle schema relations |
-| Migrations Tooling | **Drizzle Kit** | Generates SQL migrations; executes migrations via `pnpm db:migrate` |
-| Multi-Tenant Layer 1 | **Drizzle Repository Wrapper** | Injects `where: eq(table.tenantId, tenantId)` on all tenant queries |
-| Multi-Tenant Layer 2 | **PostgreSQL RLS** | Enforces `tenant_id = current_setting('app.current_tenant_id', true)::uuid` via `SET LOCAL` |
-| Storage | **Firebase Storage** | Tenant-scoped security rules for member photos and gym logos |
+GymERP implements a **defense-in-depth** multi-tenancy model across three independent layers:
 
-### Core Schema (Entities)
-`tenants`, `users`, `members`, `membership_plans`, `memberships`, `payments`, `attendance`
+1. **Application Layer (Drizzle Queries)**:
+   - All tenant-specific data queries in `src/lib/api/` and `src/server/` mandate an explicit `where: eq(table.tenantId, tenantId)` filter.
+   - Cross-tenant data leakage is prevented at the compile level with TypeScript typing.
 
-### RLS Hard Rule
-> Platform Superadmin role has **zero** RLS path to `members`, `payments`, `attendance`, `memberships`, `membership_plans`. Enforced at the PostgreSQL engine level — never dependent on UI filtering alone.
+2. **Database Layer (PostgreSQL Row-Level Security)**:
+   - Tables include RLS policies evaluating `tenant_id = current_setting('app.current_tenant_id', true)::uuid`.
+   - The Platform Superadmin has zero RLS access to member PII, attendance, or payment records.
 
----
-
-## Auth & Access Control
-
-| Tier | Role | Scope | Database Access |
-|---|---|---|---|
-| Platform Superadmin | `platform` | Global | CRUD on `tenants` table only. Cannot query member PII or financial rows. |
-| Gym Admin | `admin` | Single Tenant | Full CRUD within assigned `tenant_id`. |
-| Front-Desk Staff | `staff` | Single Tenant | Member CRUD, check-in kiosk operations, manual payments. Cannot modify membership plan pricing. |
-| Gym Member | End User | Single Tenant | Unauthenticated database entity with unique `qr_token` for kiosk scanning. |
-
-- **Identity Provider:** Firebase Auth (Email/Password).
-- **Custom Claims:** Injected via Firebase Admin SDK upon account provisioning:
-  ```json
-  {
-    "role": "platform" | "admin" | "staff",
-    "tenant_id": "uuid-string" | null
-  }
-  ```
-- **Session Strategy:** Next.js Route Handler `/api/auth/session` exchanges Firebase ID token for an HTTP-only, secure, `sameSite: 'lax'` session cookie (`__session`). Server Components read verified claims directly without client roundtrips.
+3. **Identity Layer (Firebase Claims)**:
+   - Roles (`platform`, `admin`, `staff`, `member`) and associated `tenant_id` are cryptographically signed into Firebase session cookies.
+   - Next.js Edge Middleware validates permissions before route rendering.
 
 ---
 
-## Payments
+## 3. High-Performance Turnstile & Attendance Engine
 
-| Concern | Choice | Notes |
-|---|---|---|
-| Payment gateway | **Abstracted** behind a `PaymentProvider` interface | Razorpay default implementation; swappable to Stripe |
-| Webhook handling | Next.js Route Handler (`/api/webhooks/payments`) | Verifies cryptographic HMAC-SHA256 signature |
-| Payment records | Stored in `payments` table | Includes provider payment ID, order ID, amount, method, status |
-| Subscription billing | Modeled in `memberships` table | Tracks `start_date`, `end_date`, `status` (`active`, `expired`, `cancelled`) |
-
-> **`PaymentProvider` Interface:**
-> `createOrder(params: CreateOrderParams): Promise<PaymentOrder>`
-> `verifyWebhook(payload: string, signature: string): boolean`
-> `refund(paymentId: string, amount: number): Promise<RefundResult>`
-
----
-
-## Notifications
-
-| Concern | Choice | Notes |
-|---|---|---|
-| Member notifications | **WhatsApp Business API** | High engagement in gym & fitness market |
-| Provider | **Twilio / Gupshup / Wati** | Abstracted behind `NotificationProvider` interface |
-| Triggers | Membership expiration alerts, renewal receipts, welcome QR codes | Triggered via background worker / cron runner |
-| In-App Alerts | Toast notifications & live badges | Sonner / shadcn toast components |
-
----
-
-## Testing & Quality Assurance
-
-| Type | Tooling | Scope |
-|---|---|---|
-| Unit & Integration | **Vitest** + **React Testing Library** | Business logic services, tenant repository wrappers, UI components |
-| Multi-Tenant Boundary Tests | **Custom Vitest PostgreSQL Suite** | Verifies RLS blocks cross-tenant access and platform role leakage |
-| E2E Testing | **Playwright** | Critical user journeys: login redirect, QR check-in, member creation, webhook handling |
-| Static Analysis | **TypeScript strict** + **ESLint** + **Zod** | Type validation at all network and database boundaries |
-
----
-
-## Monitoring & Observability
-
-| Concern | Choice |
-|---|---|
-| Error Tracking | **Sentry** (Next.js SDK) |
-| Performance Monitoring | Vercel Analytics + Core Web Vitals |
-| Database Metrics | PostgreSQL `pg_stat_statements` + container healthchecks |
-| Container Logs | Docker Compose journal / Vector to cloud log aggregator |
-
----
-
-## CI/CD Pipeline
-
-| Pipeline Stage | Implementation |
-|---|---|
-| Version Control | GitHub Repository with branch protection rules |
-| Lint & Typecheck | GitHub Actions workflow on pull requests (`pnpm lint`, `pnpm typecheck`) |
-| DB Migration Test | GitHub Actions runs test PostgreSQL container and executes `pnpm db:migrate` |
-| Frontend Deployment | Vercel auto-deploy on push to `main` |
-| VPS DB Deployment | Automated SSH runner applying `docker compose pull && pnpm db:migrate` |
+To prevent doorway bottlenecks and gym rush-hour latency:
+- **Fastify Dedicated Server (`src/server/index.ts`)**:
+  - Eliminates serverless cold starts.
+  - Maintains pre-warmed database connection pool (`pg.Pool`).
+  - Processes attendance QR verification in **under 50 milliseconds**.
+- **Dynamic Rotating Anti-Proxy Token**:
+  - Generates single-use nonces rotating every 20 seconds.
+  - Prevents athletes from screenshotting passes to sneak unregistered friends in.
+- **Dead-Phone Keypad Fallback**:
+  - Touch-friendly on-screen numeric pad for members whose phones ran out of battery.
+  - Front desk verifies photo avatar and status on instant lookup.
