@@ -136,12 +136,12 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
     "Dashboard";
 
   return (
-    <div className="min-h-screen bg-[#090a0f] text-zinc-100 flex relative selection:bg-white/20 selection:text-white">
+    <div className="min-h-screen bg-background text-foreground flex relative selection:bg-primary/20 selection:text-foreground">
       {/* Subtle Ambient Glows to enrich frosted glass refraction */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-[12%] left-[8%] w-[500px] h-[500px] rounded-full bg-indigo-500/[0.025] blur-[140px]" />
-        <div className="absolute top-[35%] -left-[10%] w-[450px] h-[450px] rounded-full bg-sky-500/[0.02] blur-[140px]" />
-        <div className="absolute -bottom-[10%] right-[5%] w-[600px] h-[600px] rounded-full bg-violet-500/[0.02] blur-[150px]" />
+        <div className="absolute -top-[12%] left-[8%] w-[500px] h-[500px] rounded-full bg-amber-500/[0.04] dark:bg-amber-500/[0.025] blur-[140px]" />
+        <div className="absolute top-[35%] -left-[10%] w-[450px] h-[450px] rounded-full bg-orange-400/[0.03] dark:bg-orange-400/[0.02] blur-[140px]" />
+        <div className="absolute -bottom-[10%] right-[5%] w-[600px] h-[600px] rounded-full bg-amber-600/[0.03] dark:bg-amber-600/[0.02] blur-[150px]" />
       </div>
 
       {/* 1. Desktop Floating Frosted Glass Sidebar (matching navbar rounded-2xl) */}
@@ -154,12 +154,12 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             if (!isPinned) setIsSidebarHovered(false);
           }}
           className={cn(
-            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-2xl bg-white/50 dark:bg-black/40 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(160%)] border border-zinc-200/80 dark:border-white/[0.1] shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.2)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.08)] flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
+            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-2xl bg-white/70 dark:bg-black/50 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(160%)] border border-stone-200/70 dark:border-white/[0.1] shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.6)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.08)] flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
             isExpanded ? "w-56" : "w-16"
           )}
         >
           {/* Top Logo Block */}
-          <div className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200/60 dark:border-white/[0.06] px-3 py-2.5">
+          <div className="flex h-14 shrink-0 items-center justify-between border-b border-stone-200/60 dark:border-white/[0.06] px-3 py-2.5">
             <Link href={isStaff ? "/staff" : "/admin"} className="flex items-center gap-2.5 overflow-hidden group">
               <div className="w-8 h-8 rounded-xl bg-zinc-900 dark:bg-gradient-to-br dark:from-white/12 dark:to-white/[0.02] text-white border border-zinc-700 dark:border-white/15 flex items-center justify-center font-bold text-xs tracking-tight shrink-0 shadow-sm group-hover:border-zinc-500 dark:group-hover:border-white/30 transition-all">
                 G
@@ -192,7 +192,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
           </div>
 
           {/* User Info Block under Header */}
-          <div className="p-2.5 border-b border-zinc-200/60 dark:border-white/[0.06]">
+          <div className="p-2.5 border-b border-stone-200/60 dark:border-white/[0.06]">
             <div className={cn("flex items-center", isExpanded ? "gap-2.5" : "justify-center")}>
               <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/[0.06] border border-zinc-200 dark:border-white/10 text-zinc-800 dark:text-white flex items-center justify-center font-mono text-[11px] font-semibold shrink-0">
                 {initials}
@@ -226,8 +226,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                   className={cn(
                     "flex items-center rounded-xl transition-colors duration-150 text-xs font-medium relative h-9 group overflow-hidden",
                     isActive
-                      ? "bg-zinc-100 dark:bg-white/[0.08] text-zinc-900 dark:text-white font-semibold border border-zinc-200 dark:border-white/[0.1] shadow-xs"
-                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-white/[0.04] hover:text-zinc-900 dark:hover:text-white border border-transparent"
+                      ? "bg-primary/10 dark:bg-white/[0.08] text-primary dark:text-white font-semibold border border-primary/20 dark:border-white/[0.1] shadow-xs"
+                      : "text-stone-600 dark:text-zinc-400 hover:bg-stone-100/80 dark:hover:bg-white/[0.04] hover:text-stone-900 dark:hover:text-white border border-transparent"
                   )}
                 >
                   {/* Stable fixed icon slot — never moves or twitches */}
@@ -235,7 +235,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                     <item.icon
                       className={cn(
                         "w-4 h-4 transition-colors duration-150",
-                        isActive ? "text-primary dark:text-white" : "text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-200"
+                        isActive ? "text-primary" : "text-stone-400 dark:text-zinc-400 group-hover:text-stone-700 dark:group-hover:text-zinc-200"
                       )}
                     />
                   </div>
@@ -255,7 +255,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
           </nav>
 
           {/* Footer Logout Block */}
-          <div className="p-2 border-t border-zinc-200/60 dark:border-white/[0.06]">
+          <div className="p-2 border-t border-stone-200/60 dark:border-white/[0.06]">
             <button
               onClick={logout}
               title="Sign out"
@@ -282,42 +282,42 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
 
           <div
             className={cn(
-              "fixed left-3 top-3 bottom-3 z-50 w-72 rounded-2xl bg-zinc-950/90 backdrop-blur-2xl border border-white/[0.08] shadow-2xl shadow-black/50 flex flex-col justify-between transition-transform duration-300 ease-out overflow-hidden",
+              "fixed left-3 top-3 bottom-3 z-50 w-72 rounded-2xl bg-white/85 dark:bg-zinc-950/90 backdrop-blur-2xl border border-stone-200/80 dark:border-white/[0.08] shadow-2xl shadow-black/10 dark:shadow-black/50 flex flex-col justify-between transition-transform duration-300 ease-out overflow-hidden",
               isMobileOpen ? "translate-x-0" : "-translate-x-full"
             )}
           >
             {/* Mobile Header */}
-            <div className="flex h-16 items-center justify-between border-b border-white/[0.06] px-5">
+            <div className="flex h-16 items-center justify-between border-b border-stone-200/60 dark:border-white/[0.06] px-5">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-white/12 to-white/[0.02] text-white border border-white/15 flex items-center justify-center font-bold text-xs shadow-md">
                   G
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-sm text-white tracking-tight leading-none">GYMERP</span>
-                  <span className="text-[10px] text-zinc-400 font-medium truncate max-w-[130px] mt-1">
+                  <span className="font-bold text-sm text-stone-900 dark:text-white tracking-tight leading-none">GYMERP</span>
+                  <span className="text-[10px] text-stone-500 dark:text-zinc-400 font-medium truncate max-w-[130px] mt-1">
                     {gymName}
                   </span>
                 </div>
               </div>
               <button
                 onClick={() => setIsMobileOpen(false)}
-                className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+                className="p-2 rounded-xl text-stone-400 dark:text-zinc-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/[0.06] transition-colors"
               >
                 ✕
               </button>
             </div>
 
             {/* User Info Block in Mobile */}
-            <div className="p-4 border-b border-white/[0.06] bg-white/[0.01]">
+            <div className="p-4 border-b border-stone-200/60 dark:border-white/[0.06] bg-stone-50/50 dark:bg-white/[0.01]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/10 text-white flex items-center justify-center font-mono text-xs font-semibold shrink-0">
+                <div className="w-9 h-9 rounded-full bg-stone-100 dark:bg-white/[0.06] border border-stone-200 dark:border-white/10 text-stone-800 dark:text-white flex items-center justify-center font-mono text-xs font-semibold shrink-0">
                   {initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-white truncate text-xs leading-tight">
+                  <p className="font-medium text-stone-900 dark:text-white truncate text-xs leading-tight">
                     {displayName}
                   </p>
-                  <p className="text-[10px] text-zinc-400 truncate font-mono mt-0.5">
+                  <p className="text-[10px] text-stone-500 dark:text-zinc-400 truncate font-mono mt-0.5">
                     {userEmail}
                   </p>
                 </div>
@@ -335,12 +335,12 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                     className={cn(
                       "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all",
                       isActive
-                        ? "bg-white/[0.08] text-white font-semibold border border-white/[0.1]"
-                        : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
+                        ? "bg-primary/10 dark:bg-white/[0.08] text-primary dark:text-white font-semibold border border-primary/20 dark:border-white/[0.1]"
+                        : "text-stone-500 dark:text-zinc-400 hover:bg-stone-100 dark:hover:bg-white/[0.04] hover:text-stone-900 dark:hover:text-white"
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-zinc-400")} />
+                      <item.icon className={cn("w-4 h-4", isActive ? "text-primary dark:text-white" : "text-stone-400 dark:text-zinc-400")} />
                       <span>{item.title}</span>
                     </div>
                   </Link>
@@ -349,7 +349,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             </nav>
 
             {/* Mobile Footer */}
-            <div className="p-3.5 border-t border-white/[0.06]">
+            <div className="p-3.5 border-t border-stone-200/60 dark:border-white/[0.06]">
               <button
                 onClick={logout}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium"

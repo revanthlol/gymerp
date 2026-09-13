@@ -1,20 +1,12 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { withTenantDb } from "@/lib/db/tenant";
-import { members, membershipPlans, attendance, payments, tenants } from "@/lib/db/schema";
+import { members, membershipPlans, attendance, payments, tenants, memberships } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { Reveal } from "@/components/Reveal";
 import { AdminDashboardView } from "@/components/admin/admin-dashboard-view";
 
 export const dynamic = "force-dynamic";
-
-interface AdminDashboardData {
-  gymName: string;
-  members: Array<typeof members.$inferSelect>;
-  plans: Array<typeof membershipPlans.$inferSelect>;
-  attendance: Array<typeof attendance.$inferSelect>;
-  payments: Array<typeof payments.$inferSelect>;
-}
 
 export default async function AdminDashboardPage() {
   const session = await getSession();
@@ -22,15 +14,15 @@ export default async function AdminDashboardPage() {
     redirect("/login");
   }
 
-  // Query tenant-scoped operational data via withTenantDb in parallel
-  const data: AdminDashboardData = await withTenantDb(session, async (tx) => {
-    const [tenantRecords, tenantMembers, tenantPlans, tenantAttendance, tenantPayments] =
+  const data = await withTenantDb(session, async (tx) => {
+    const [tenantRecords, tenantMembers, tenantPlans, tenantAttendance, tenantPayments, tenantMemberships] =
       await Promise.all([
         tx.select({ name: tenants.name }).from(tenants).where(eq(tenants.id, session.tenantId!)).limit(1),
         tx.select().from(members),
         tx.select().from(membershipPlans),
         tx.select().from(attendance),
         tx.select().from(payments),
+        tx.select().from(memberships),
       ]);
 
     return {
@@ -39,6 +31,7 @@ export default async function AdminDashboardPage() {
       plans: tenantPlans,
       attendance: tenantAttendance,
       payments: tenantPayments,
+      memberships: tenantMemberships,
     };
   });
 
@@ -56,6 +49,7 @@ export default async function AdminDashboardPage() {
         plansList={data.plans}
         attendanceList={data.attendance}
         paymentsList={data.payments}
+        membershipsList={data.memberships}
       />
     </Reveal>
   );
