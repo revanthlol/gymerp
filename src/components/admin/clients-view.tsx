@@ -222,11 +222,6 @@ export function ClientsView({ initialMembers, plans }: ClientsViewProps) {
               Direct roster, real-time subscription lifecycle, and coaching dossiers.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-zinc-400 bg-white/[0.04] px-2.5 py-1 rounded-md border border-white/[0.08]">
-              {membersList.length} Total Athletes
-            </span>
-          </div>
 
           <div className="flex items-center gap-2">
             <AddClientDialog

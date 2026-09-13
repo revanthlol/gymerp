@@ -23,7 +23,7 @@ export interface UniqueQrData {
  */
 export async function generateGymRotatingQr(
   tenantId: string,
-  mode: KioskMode = "entry"
+  mode: KioskMode = "auto"
 ): Promise<UniqueQrData> {
   const nonce = crypto.randomUUID();
   const now = Date.now();

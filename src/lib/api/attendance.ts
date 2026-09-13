@@ -8,7 +8,7 @@ import { generateGymRotatingQr, verifyGymRotatingQr, KioskMode } from "@/lib/att
 import { eq, desc, and, gte, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getRotatingQrAction(mode: KioskMode = "entry") {
+export async function getRotatingQrAction(mode: KioskMode = "auto") {
   const session = await getSession();
   if (!session || !session.tenantId) {
     throw new Error("Unauthorized: Active session required");
@@ -36,7 +36,7 @@ export async function recordAttendanceScanAction(
     };
   }
 
-  const effectiveMode = requestedMode || verification.mode || "entry";
+  const effectiveMode = requestedMode || verification.mode || "auto";
 
   return await withTenantDb(session, async (tx) => {
     // 2. Single-Use Replay Protection: ensure nonce has not been consumed
@@ -79,8 +79,65 @@ export async function recordAttendanceScanAction(
       };
     }
 
-    // 4. Anti-Passback Check for entry (prevent double-entry within 5 minutes)
-    if (effectiveMode === "entry") {
+    // 4. Resolve entry vs exit (auto mode with double-tap debounce & first-scan default)
+    let finalMode: "entry" | "exit" = "entry";
+    if (effectiveMode === "exit") {
+      finalMode = "exit";
+    } else if (effectiveMode === "entry") {
+      finalMode = "entry";
+    } else {
+      // Auto mode: check today's latest activity
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const [latestToday] = await tx
+        .select()
+        .from(attendance)
+        .where(
+          and(
+            eq(attendance.memberId, member.id),
+            gte(attendance.checkedInAt, todayStart)
+          )
+        )
+        .orderBy(desc(attendance.checkedInAt))
+        .limit(1);
+
+      if (latestToday && latestToday.method === "kiosk_entry") {
+        const timeSinceEntryMs = Date.now() - new Date(latestToday.checkedInAt).getTime();
+        // Debounce: if entry was less than 2 minutes ago, don't immediately check them out
+        if (timeSinceEntryMs < 2 * 60 * 1000) {
+          return {
+            success: true,
+            duplicate: true,
+            memberName: member.fullName,
+            mode: "entry",
+            checkedInAt: latestToday.checkedInAt,
+            message: "Already checked in! Have a great workout.",
+          };
+        }
+        finalMode = "exit";
+      } else if (latestToday && latestToday.method === "kiosk_exit") {
+        const timeSinceExitMs = Date.now() - new Date(latestToday.checkedInAt).getTime();
+        // Debounce: if exit was less than 1 minute ago, confirm checkout
+        if (timeSinceExitMs < 1 * 60 * 1000) {
+          return {
+            success: true,
+            duplicate: true,
+            memberName: member.fullName,
+            mode: "exit",
+            checkedInAt: latestToday.checkedInAt,
+            message: "Check-out already confirmed. See you next time!",
+          };
+        }
+        finalMode = "entry";
+      } else {
+        // First scan of the day or new workout session
+        finalMode = "entry";
+      }
+    }
+
+    // 5. Anti-Passback Check for explicit entry
+    if (finalMode === "entry") {
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
       const recentCheckIns = await tx
         .select()
@@ -104,14 +161,14 @@ export async function recordAttendanceScanAction(
       }
     }
 
-    // 5. Burn single-use nonce & record attendance entry
+    // 6. Burn single-use nonce & record attendance entry
     const [newCheckIn] = await tx
       .insert(attendance)
       .values({
         tenantId: session.tenantId!,
         memberId: member.id,
-        method: effectiveMode === "exit" ? "kiosk_exit" : "kiosk_entry",
-        kioskId: verification.nonce ? `qr:${verification.nonce}` : `kiosk-${effectiveMode}`,
+        method: finalMode === "exit" ? "kiosk_exit" : "kiosk_entry",
+        kioskId: verification.nonce ? `qr:${verification.nonce}` : `kiosk-${finalMode}`,
       })
       .returning();
 
@@ -124,10 +181,10 @@ export async function recordAttendanceScanAction(
     return {
       success: true,
       memberName: member.fullName,
-      mode: effectiveMode,
+      mode: finalMode,
       checkedInAt: newCheckIn.checkedInAt,
       message:
-        effectiveMode === "exit"
+        finalMode === "exit"
           ? "Check-Out Confirmed · Great workout!"
           : "Access Granted · Welcome!",
     };
@@ -304,8 +361,37 @@ export async function memberSelfScanKioskAction(input: {
         .limit(1);
 
       if (latestToday && latestToday.method === "kiosk_entry") {
+        const timeSinceEntryMs = Date.now() - new Date(latestToday.checkedInAt).getTime();
+        // Debounce: if entry was less than 2 minutes ago, confirm existing check-in rather than prematurely exiting
+        if (timeSinceEntryMs < 2 * 60 * 1000) {
+          return {
+            success: true,
+            duplicate: true,
+            memberName: memberRecord.fullName,
+            memberCard,
+            mode: "entry",
+            checkedInAt: latestToday.checkedInAt,
+            message: "Already checked in! Have a great workout.",
+          };
+        }
         finalMode = "exit";
+      } else if (latestToday && latestToday.method === "kiosk_exit") {
+        const timeSinceExitMs = Date.now() - new Date(latestToday.checkedInAt).getTime();
+        // Debounce: if exit was less than 1 minute ago, confirm checkout
+        if (timeSinceExitMs < 1 * 60 * 1000) {
+          return {
+            success: true,
+            duplicate: true,
+            memberName: memberRecord.fullName,
+            memberCard,
+            mode: "exit",
+            checkedInAt: latestToday.checkedInAt,
+            message: "Check-out already confirmed. See you next time!",
+          };
+        }
+        finalMode = "entry";
       } else {
+        // First scan of the day
         finalMode = "entry";
       }
     }
@@ -519,7 +605,7 @@ export async function kioskPassOrPhoneCheckInAction(input: {
 
 export async function staffManualCheckInAction(
   memberId: string,
-  mode: "entry" | "exit" = "entry"
+  mode: "entry" | "exit" | "auto" = "auto"
 ) {
   const session = await getSession();
   if (!session || !session.tenantId || (session.role !== "admin" && session.role !== "staff")) {
@@ -565,12 +651,40 @@ export async function staffManualCheckInAction(
       };
     }
 
+    let finalMode: "entry" | "exit" = "entry";
+    if (mode === "exit") {
+      finalMode = "exit";
+    } else if (mode === "entry") {
+      finalMode = "entry";
+    } else {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const [latestToday] = await tx
+        .select()
+        .from(attendance)
+        .where(
+          and(
+            eq(attendance.memberId, member.id),
+            gte(attendance.checkedInAt, todayStart)
+          )
+        )
+        .orderBy(desc(attendance.checkedInAt))
+        .limit(1);
+
+      if (latestToday && latestToday.method === "kiosk_entry") {
+        finalMode = "exit";
+      } else {
+        finalMode = "entry";
+      }
+    }
+
     const [newCheckIn] = await tx
       .insert(attendance)
       .values({
         tenantId: session.tenantId!,
         memberId: member.id,
-        method: mode === "exit" ? "kiosk_exit" : "kiosk_entry",
+        method: finalMode === "exit" ? "kiosk_exit" : "kiosk_entry",
         kioskId: "front-desk-manual",
       })
       .returning();
@@ -583,9 +697,9 @@ export async function staffManualCheckInAction(
     return {
       success: true,
       memberName: member.fullName,
-      mode,
+      mode: finalMode,
       checkedInAt: newCheckIn.checkedInAt,
-      message: mode === "exit" ? "Manual Check-Out Recorded" : "Manual Check-In Confirmed",
+      message: finalMode === "exit" ? "Manual Check-Out Recorded" : "Manual Check-In Confirmed",
     };
   });
 }

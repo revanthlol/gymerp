@@ -9,20 +9,14 @@ import { KioskShareCard } from "@/components/kiosk/kiosk-share-card";
 
 export const dynamic = "force-dynamic";
 
-interface StaffKioskPageProps {
-  searchParams: { mode?: "entry" | "exit" | "auto" };
-}
-
-export default async function KioskPage({ searchParams }: StaffKioskPageProps) {
+export default async function StaffKioskPage() {
   const session = await getSession();
   if (!session || !session.tenantId) {
     redirect("/login");
   }
 
-  const mode = searchParams.mode || "entry";
-
-  // 1. Generate live dynamic rotating QR code with mode
-  const initialQr = await generateGymRotatingQr(session.tenantId, mode);
+  // 1. Generate live dynamic rotating QR code with auto mode
+  const initialQr = await generateGymRotatingQr(session.tenantId, "auto");
 
   // 2. Fetch live tenant members, recent turnstile check-ins, and tenant settings
   const data = await withTenantDb(session, async (tx) => {
@@ -63,7 +57,6 @@ export default async function KioskPage({ searchParams }: StaffKioskPageProps) {
         initialQr={initialQr}
         members={data.members}
         recentAttendance={data.attendance}
-        defaultMode={mode}
       />
     </div>
   );

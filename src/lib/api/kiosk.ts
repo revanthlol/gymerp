@@ -148,7 +148,7 @@ export async function isKioskUnlocked(slug: string): Promise<boolean> {
 /**
  * 5. Public: Fetch public kiosk terminal data
  */
-export async function getPublicKioskDataAction(slug: string, mode: KioskMode = "entry") {
+export async function getPublicKioskDataAction(slug: string, mode: KioskMode = "auto") {
   const [tenant] = await db
     .select({
       id: tenants.id,
@@ -196,7 +196,7 @@ export async function getPublicKioskDataAction(slug: string, mode: KioskMode = "
  */
 export async function getPublicKioskRotatingQrAction(
   slug: string,
-  mode: KioskMode = "entry"
+  mode: KioskMode = "auto"
 ): Promise<{ success: boolean; qr?: UniqueQrData; error?: string }> {
   const unlocked = await isKioskUnlocked(slug);
   if (!unlocked) {

@@ -14,20 +14,14 @@ export const metadata = {
   description: "Live gym front-desk check-in kiosk with rotating QR codes and scan verification.",
 };
 
-interface AdminKioskPageProps {
-  searchParams: { mode?: "entry" | "exit" | "auto" };
-}
-
-export default async function AdminKioskPage({ searchParams }: AdminKioskPageProps) {
+export default async function AdminKioskPage() {
   const session = await getSession();
   if (!session || !session.tenantId) {
     redirect("/login");
   }
 
-  const mode = searchParams.mode || "entry";
-
-  // 1. Generate live dynamic rotating QR code with mode
-  const initialQr = await generateGymRotatingQr(session.tenantId, mode);
+  // 1. Generate live dynamic rotating QR code with auto mode
+  const initialQr = await generateGymRotatingQr(session.tenantId, "auto");
 
   // 2. Fetch live tenant members, recent turnstile check-ins, and tenant settings
   const data = await withTenantDb(session, async (tx) => {
@@ -68,7 +62,6 @@ export default async function AdminKioskPage({ searchParams }: AdminKioskPagePro
         initialQr={initialQr}
         members={data.members}
         recentAttendance={data.attendance}
-        defaultMode={mode}
       />
     </div>
   );

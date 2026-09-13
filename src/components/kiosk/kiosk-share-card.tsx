@@ -78,7 +78,7 @@ export function KioskShareCard({ gymSlug, initialPassphrase }: KioskShareCardPro
     <div className="glass-panel p-5 rounded-2xl border border-white/[0.08] bg-gradient-to-r from-[#0c0e12] via-[#0f1117] to-[#0c0e12] shadow-xl space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold">
             <Share2 className="w-5 h-5" />
           </div>
           <div>
@@ -96,7 +96,7 @@ export function KioskShareCard({ gymSlug, initialPassphrase }: KioskShareCardPro
             size="sm"
             onClick={handleCopyLink}
             variant="outline"
-            className="h-8 border-white/[0.08] text-xs text-zinc-200 hover:text-white bg-white/[0.03] gap-1.5"
+            className="h-8 border-white/[0.08] text-xs text-zinc-200 hover:text-white bg-white/[0.03] gap-1.5 rounded-lg"
           >
             {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             <span>Copy Kiosk Link</span>
@@ -105,7 +105,7 @@ export function KioskShareCard({ gymSlug, initialPassphrase }: KioskShareCardPro
           <a href={`/kiosk/${gymSlug}`} target="_blank" rel="noreferrer">
             <Button
               size="sm"
-              className="h-8 bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-xs gap-1.5"
+              className="h-8 bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-xs gap-1.5 rounded-lg"
             >
               <span>Launch Station</span>
               <ExternalLink className="w-3.5 h-3.5" />
