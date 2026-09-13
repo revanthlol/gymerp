@@ -62,24 +62,30 @@ if (!admin.apps.length) {
 
   // Strategy 2: Service Account JSON file path (Local development)
   if (!admin.apps.length) {
-    const serviceAccountPath =
+    const rawPath =
       process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
       process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
-    if (serviceAccountPath && fs.existsSync(serviceAccountPath)) {
-      try {
-        const serviceAccount = JSON.parse(
-          fs.readFileSync(serviceAccountPath, "utf8")
-        );
-        admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
-          storageBucket:
-            process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-            `${serviceAccount.project_id}.firebasestorage.app`,
-        });
-        console.log("✓ Firebase Admin initialized via service account file");
-      } catch (err) {
-        console.error("❌ Failed to read service account file:", err);
+    if (rawPath) {
+      const serviceAccountPath = path.isAbsolute(rawPath)
+        ? rawPath
+        : path.resolve(process.cwd(), rawPath);
+
+      if (fs.existsSync(serviceAccountPath)) {
+        try {
+          const serviceAccount = JSON.parse(
+            fs.readFileSync(serviceAccountPath, "utf8")
+          );
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            storageBucket:
+              process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+              `${serviceAccount.project_id}.firebasestorage.app`,
+          });
+          console.log("✓ Firebase Admin initialized via service account file");
+        } catch (err) {
+          console.error("❌ Failed to read service account file:", err);
+        }
       }
     }
   }

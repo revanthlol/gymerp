@@ -83,6 +83,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pillTouchStartX = useRef<number>(0);
 
   // Auto-detect mobile screen
@@ -92,6 +93,15 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Scroll detection for floating navbar glassmorphism
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Sync pinned preference from localStorage
@@ -125,8 +135,15 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
     "Dashboard";
 
   return (
-    <div className="min-h-screen bg-[#08090a] text-zinc-100 flex relative overflow-x-clip selection:bg-primary/20 selection:text-primary">
-      {/* 1. Desktop Sidebar */}
+    <div className="min-h-screen bg-[#090a0f] text-zinc-100 flex relative selection:bg-white/20 selection:text-white">
+      {/* Subtle Ambient Glows to enrich frosted glass refraction */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute -top-[12%] left-[8%] w-[500px] h-[500px] rounded-full bg-indigo-500/[0.025] blur-[140px]" />
+        <div className="absolute top-[35%] -left-[10%] w-[450px] h-[450px] rounded-full bg-sky-500/[0.02] blur-[140px]" />
+        <div className="absolute -bottom-[10%] right-[5%] w-[600px] h-[600px] rounded-full bg-violet-500/[0.02] blur-[150px]" />
+      </div>
+
+      {/* 1. Desktop Floating Frosted Glass Sidebar (leprint Style) */}
       {!isMobile && (
         <aside
           onMouseEnter={() => {
@@ -136,22 +153,22 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             if (!isPinned) setIsSidebarHovered(false);
           }}
           className={cn(
-            "fixed left-0 top-0 z-40 h-full shrink-0 border-r border-white/[0.07] bg-[#0a0b0e]/95 backdrop-blur-xl transition-[width] duration-250 ease-out flex flex-col justify-between select-none shadow-[4px_0_30px_rgba(0,0,0,0.5)]",
-            isExpanded ? "w-64" : "w-16"
+            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-3xl bg-white/[0.03] backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(130%)] border border-white/[0.08] shadow-2xl shadow-black/40 flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
+            isExpanded ? "w-64" : "w-20"
           )}
         >
-          {/* Header */}
-          <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.07] px-3.5">
+          {/* Top Logo Block */}
+          <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/[0.06] px-4 py-3">
             <Link href={isStaff ? "/staff" : "/admin"} className="flex items-center gap-3 overflow-hidden group">
-              <div className="w-8 h-8 rounded-lg bg-primary text-[#08090a] flex items-center justify-center font-bold text-sm tracking-tight shrink-0 shadow-[0_0_12px_rgba(62,207,142,0.3)]">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-white/12 to-white/[0.02] text-white border border-white/15 flex items-center justify-center font-bold text-sm tracking-tight shrink-0 shadow-lg shadow-black/20 group-hover:border-white/30 transition-all">
                 G
               </div>
               {isExpanded && (
-                <div className="flex flex-col overflow-hidden animate-in fade-in duration-150">
+                <div className="flex flex-col overflow-hidden animate-in fade-in duration-200">
                   <span className="font-bold text-white text-sm tracking-tight leading-none">
                     GYMERP
                   </span>
-                  <span className="text-[11px] text-zinc-400 font-medium truncate max-w-[130px] mt-1">
+                  <span className="text-[11px] text-zinc-400 font-medium truncate max-w-[125px] mt-1.5">
                     {gymName}
                   </span>
                 </div>
@@ -162,19 +179,38 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
               <button
                 onClick={togglePin}
                 title={isPinned ? "Collapse sidebar" : "Pin sidebar"}
-                className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition-colors"
+                className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-transparent hover:border-white/[0.06] transition-all"
               >
                 {isPinned ? (
-                  <PanelLeftClose className="w-4 h-4 text-zinc-400 hover:text-white" />
+                  <PanelLeftClose className="w-4 h-4" />
                 ) : (
-                  <PanelLeft className="w-4 h-4 text-primary" />
+                  <PanelLeft className="w-4 h-4 text-sky-400" />
                 )}
               </button>
             )}
           </div>
 
-          {/* Nav List */}
-          <div className="flex-1 px-2 py-3 overflow-y-auto overflow-x-hidden space-y-1">
+          {/* User Info Block under Header (matching leprint) */}
+          <div className="p-3.5 border-b border-white/[0.06]">
+            <div className={cn("flex items-center", isExpanded ? "gap-3" : "justify-center")}>
+              <div className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/10 text-white flex items-center justify-center font-mono text-xs font-semibold shrink-0 shadow-inner">
+                {initials}
+              </div>
+              {isExpanded && (
+                <div className="flex-1 min-w-0 animate-in fade-in duration-150">
+                  <p className="font-medium text-white truncate text-xs leading-tight">
+                    {displayName}
+                  </p>
+                  <p className="text-[10px] text-zinc-400 truncate font-mono mt-0.5">
+                    {isStaff ? "Staff Member" : "Administrator"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="flex-1 px-3 py-3.5 overflow-y-auto overflow-x-hidden space-y-1.5">
             {navItems.map((item) => {
               const isActive =
                 item.href === "/admin"
@@ -187,29 +223,30 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                   href={item.href}
                   title={!isExpanded ? item.title : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-sm transition-all duration-150 relative text-xs font-medium h-9",
-                    isExpanded ? "px-3 py-2" : "justify-center px-0",
+                    "flex items-center rounded-xl transition-all duration-200 text-xs font-medium relative h-10 group",
+                    isExpanded ? "px-3.5 gap-3" : "justify-center px-0",
                     isActive
-                      ? "bg-white/[0.08] text-white font-semibold border border-white/[0.08]"
-                      : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
+                      ? "bg-white/[0.08] text-white font-semibold border border-white/[0.1] shadow-sm shadow-black/20"
+                      : "text-zinc-400 hover:bg-white/[0.04] hover:text-white border border-transparent"
                   )}
                 >
                   {isActive && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-sm shadow-[0_0_8px_rgba(62,207,142,0.8)]" />
+                    <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 bg-gradient-to-b from-sky-400 to-indigo-500 rounded-full shadow-[0_0_10px_rgba(56,189,248,0.5)]" />
                   )}
 
                   <item.icon
                     className={cn(
-                      "shrink-0 transition-colors w-4 h-4",
-                      isActive ? "text-primary" : "text-zinc-400"
+                      "shrink-0 transition-transform duration-200 group-hover:scale-105 w-4 h-4",
+                      isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
                     )}
                   />
 
                   {isExpanded && (
-                    <div className="flex items-center justify-between flex-1 overflow-hidden">
+                    <div className="flex items-center justify-between flex-1 overflow-hidden ml-1">
                       <span className="truncate">{item.title}</span>
                       {item.badge && (
-                        <span className="px-1.5 py-0.5 text-[9px] font-mono uppercase rounded bg-primary/10 text-primary border border-primary/20">
+                        <span className="flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
                           {item.badge}
                         </span>
                       )}
@@ -218,84 +255,81 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                 </Link>
               );
             })}
-          </div>
+          </nav>
 
-          {/* Footer */}
-          <div className="border-t border-white/[0.07] p-2 bg-[#0a0b0e]">
-            <div className="flex items-center justify-between px-2 py-1.5 h-11 rounded-md bg-white/[0.02] border border-white/[0.05]">
-              <div className={cn("flex items-center min-w-0", isExpanded ? "gap-2.5" : "gap-0 justify-center flex-1")}>
-                <div className="w-7 h-7 rounded-md bg-[#16181d] border border-white/[0.08] text-zinc-200 flex items-center justify-center font-bold text-xs shrink-0 font-mono">
-                  {initials}
-                </div>
-                {isExpanded && (
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="truncate text-xs font-medium text-zinc-200 leading-tight">
-                      {displayName}
-                    </span>
-                    <span className="text-[10px] text-zinc-500 font-mono leading-none">
-                      Administrator
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {isExpanded && (
-                <button
-                  onClick={logout}
-                  title="Sign out"
-                  className="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
+          {/* Footer Logout Block (matching leprint) */}
+          <div className="p-3 border-t border-white/[0.06]">
+            <button
+              onClick={logout}
+              title="Sign out"
+              className={cn(
+                "w-full flex items-center rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all text-xs font-medium",
+                isExpanded ? "gap-3 px-3.5 py-2.5" : "justify-center h-10 px-0"
               )}
-            </div>
-            {!isExpanded && (
-              <button
-                onClick={logout}
-                title="Sign out"
-                className="w-full mt-1 h-9 rounded-md flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            )}
+            >
+              <LogOut className="w-4 h-4 shrink-0" />
+              {isExpanded && <span>Sign Out</span>}
+            </button>
           </div>
         </aside>
       )}
 
-      {/* 2. Mobile Drawer */}
+      {/* 2. Mobile Frosted Glass Drawer */}
       {isMobile && (
         <>
           {isMobileOpen && (
             <div
-              className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
               onClick={() => setIsMobileOpen(false)}
             />
           )}
 
           <div
             className={cn(
-              "fixed left-0 top-0 z-50 h-full w-64 bg-[#0a0b0e] border-r border-white/[0.08] flex flex-col justify-between transition-transform duration-250 ease-out",
+              "fixed left-3 top-3 bottom-3 z-50 w-72 rounded-3xl bg-zinc-950/90 backdrop-blur-2xl border border-white/[0.08] shadow-2xl shadow-black/50 flex flex-col justify-between transition-transform duration-300 ease-out overflow-hidden",
               isMobileOpen ? "translate-x-0" : "-translate-x-full"
             )}
           >
             {/* Mobile Header */}
-            <div className="flex h-14 items-center justify-between border-b border-white/[0.08] px-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-md bg-primary text-[#08090a] flex items-center justify-center font-bold text-xs">
+            <div className="flex h-16 items-center justify-between border-b border-white/[0.06] px-5">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-white/12 to-white/[0.02] text-white border border-white/15 flex items-center justify-center font-bold text-xs shadow-md">
                   G
                 </div>
-                <span className="font-semibold text-sm text-white">GYMERP</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-sm text-white tracking-tight leading-none">GYMERP</span>
+                  <span className="text-[10px] text-zinc-400 font-medium truncate max-w-[130px] mt-1">
+                    {gymName}
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => setIsMobileOpen(false)}
-                className="p-1 rounded text-zinc-400 hover:text-white"
+                className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors"
               >
                 ✕
               </button>
             </div>
 
+            {/* User Info Block in Mobile */}
+            <div className="p-4 border-b border-white/[0.06] bg-white/[0.01]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/10 text-white flex items-center justify-center font-mono text-xs font-semibold shrink-0">
+                  {initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-white truncate text-xs leading-tight">
+                    {displayName}
+                  </p>
+                  <p className="text-[10px] text-zinc-400 truncate font-mono mt-0.5">
+                    {userEmail}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Mobile Nav Links */}
-            <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <nav className="flex-1 px-3.5 py-4 space-y-1.5 overflow-y-auto">
               {navItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                 return (
@@ -303,28 +337,35 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-medium transition-colors",
+                      "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all",
                       isActive
-                        ? "bg-primary/10 text-primary border border-primary/20"
-                        : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
+                        ? "bg-white/[0.08] text-white font-semibold border border-white/[0.1]"
+                        : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
                     )}
                   >
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.title}</span>
+                    <div className="flex items-center gap-3">
+                      <item.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-zinc-400")} />
+                      <span>{item.title}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
-            </div>
+            </nav>
 
             {/* Mobile Footer */}
-            <div className="p-3 border-t border-white/[0.08] flex items-center justify-between">
-              <span className="text-xs text-zinc-400 truncate">{userEmail}</span>
+            <div className="p-3.5 border-t border-white/[0.06]">
               <button
                 onClick={logout}
-                className="text-xs text-red-400 hover:underline flex items-center gap-1"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                Sign Out
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
               </button>
             </div>
           </div>
@@ -340,10 +381,10 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                 if (dx > 30) setIsMobileOpen(true);
               }}
               onClick={() => setIsMobileOpen(true)}
-              className="fixed left-0 top-1/2 -translate-y-1/2 z-40 w-3 h-32 rounded-r bg-white/10 hover:bg-primary/40 cursor-pointer flex items-center justify-center transition-colors"
+              className="fixed left-0 top-1/2 -translate-y-1/2 z-40 w-3 h-28 rounded-r-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-l-0 border-white/10 cursor-pointer flex items-center justify-center transition-colors"
               title="Open Navigation"
             >
-              <div className="w-0.5 h-6 rounded-full bg-white/30" />
+              <div className="w-0.5 h-6 rounded-full bg-white/40" />
             </div>
           )}
         </>
@@ -352,17 +393,30 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
       {/* 3. Main Content Container */}
       <div
         className={cn(
-          "flex-1 flex flex-col min-w-0 transition-[padding] duration-250 ease-out",
-          isMobile ? "pl-0" : isPinned ? "pl-64" : "pl-16"
+          "flex-1 flex flex-col min-w-0 relative z-10 transition-[padding] duration-300 ease-out",
+          isMobile ? "pl-0" : isPinned ? "lg:pl-72" : "lg:pl-28"
         )}
       >
-        {/* Sticky Top Bar Pinned to Top */}
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#08090a]/80 backdrop-blur-2xl px-4 lg:px-6 shadow-[0_4px_24px_rgba(0,0,0,0.4),inset_0_-1px_0_rgba(255,255,255,0.04)]">
+        {/* Floating Frosted Glass Navbar — Stays fixed on top when scrolled */}
+        <header
+          className={cn(
+            "fixed top-3 sm:top-4 z-30 transition-all duration-300 ease-out flex items-center justify-between",
+            isMobile
+              ? "left-3 right-3 sm:left-4 sm:right-4"
+              : isPinned
+              ? "lg:left-72 lg:right-6 xl:right-8"
+              : "lg:left-28 lg:right-6 xl:right-8",
+            "h-14 rounded-2xl px-4 sm:px-6 pointer-events-auto",
+            isScrolled
+              ? "bg-[#090a0f]/85 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(140%)_contrast(105%)] border border-white/[0.12] shadow-2xl shadow-black/50"
+              : "bg-[#090a0f]/60 backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(130%)] border border-white/[0.08] shadow-lg shadow-black/20"
+          )}
+        >
           <div className="flex items-center gap-3">
             {isMobile && (
               <button
                 onClick={() => setIsMobileOpen(true)}
-                className="p-1.5 rounded-md bg-white/[0.05] border border-white/[0.08] text-zinc-300"
+                className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-all"
               >
                 <Menu className="w-4 h-4" />
               </button>
@@ -378,34 +432,34 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
 
           {/* Right Header Utilities */}
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-xs text-zinc-500 font-medium">
+            <span className="hidden sm:inline text-xs text-zinc-400 font-medium">
               {gymName}
             </span>
 
             <div className="h-4 w-px bg-white/[0.08] hidden sm:block" />
 
             <Link
-              href="/admin/kiosk"
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-zinc-300 bg-white/[0.04] border border-white/[0.08] hover:border-primary/40 hover:text-primary transition-all"
+              href={isStaff ? "/staff/kiosk" : "/admin/kiosk"}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-300 bg-white/[0.04] border border-white/[0.08] hover:border-white/20 hover:text-white hover:bg-white/[0.08] transition-all"
             >
-              <QrCode className="w-3.5 h-3.5 text-primary" />
+              <QrCode className="w-3.5 h-3.5 text-sky-400" />
               <span>Kiosk</span>
             </Link>
 
             <button
               title="Notifications"
-              className="relative p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.06] transition-colors"
+              className="relative p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-transparent hover:border-white/[0.06] transition-all"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-primary ring-1 ring-[#08090a]" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 ring-2 ring-[#090a0f]" />
             </button>
           </div>
         </header>
 
-        {/* Page Main Content with Snappy Native-feel Entrance */}
+        {/* Page Main Content with proper top clearance for fixed floating navbar */}
         <main
           key={pathname}
-          className="flex-1 min-w-0 max-w-[1600px] w-full mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in-50 duration-200"
+          className="flex-1 min-w-0 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 animate-in fade-in-50 duration-200"
         >
           {children}
         </main>
