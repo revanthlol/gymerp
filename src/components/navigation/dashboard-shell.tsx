@@ -39,7 +39,7 @@ const adminNavItems = [
   { title: "Plans",       href: "/admin/plans",       icon: Sliders },
   { title: "Payments",    href: "/admin/payments",    icon: CreditCard },
   { title: "Analytics",   href: "/admin/analytics",   icon: BarChart3 },
-  { title: "Check-in Kiosk", href: "/admin/kiosk",    icon: QrCode, badge: "Live" },
+  { title: "Check-in Kiosk", href: "/admin/kiosk",    icon: QrCode },
 ];
 
 const staffNavItems = [
@@ -47,7 +47,7 @@ const staffNavItems = [
   { title: "Member Directory", href: "/staff/members",    icon: Users },
   { title: "Attendance & Floor", href: "/staff/attendance", icon: Inbox },
   { title: "Class Rosters",    href: "/staff/classes",    icon: Dumbbell },
-  { title: "Physical Kiosk",   href: "/staff/kiosk",      icon: QrCode, badge: "Live" },
+  { title: "Physical Kiosk",   href: "/staff/kiosk",      icon: QrCode },
 ];
 
 const PAGE_LABELS: Record<string, string> = {
@@ -143,7 +143,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
         <div className="absolute -bottom-[10%] right-[5%] w-[600px] h-[600px] rounded-full bg-violet-500/[0.02] blur-[150px]" />
       </div>
 
-      {/* 1. Desktop Floating Frosted Glass Sidebar (leprint Style) */}
+      {/* 1. Desktop Floating Frosted Glass Sidebar (matching navbar rounded-2xl) */}
       {!isMobile && (
         <aside
           onMouseEnter={() => {
@@ -153,22 +153,22 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             if (!isPinned) setIsSidebarHovered(false);
           }}
           className={cn(
-            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-3xl bg-white/[0.03] backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(130%)] border border-white/[0.08] shadow-2xl shadow-black/40 flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
-            isExpanded ? "w-64" : "w-20"
+            "fixed top-4 left-4 bottom-4 z-40 shrink-0 rounded-2xl bg-white/[0.03] backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(130%)] border border-white/[0.08] shadow-2xl shadow-black/40 flex flex-col justify-between select-none transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden",
+            isExpanded ? "w-56" : "w-16"
           )}
         >
           {/* Top Logo Block */}
-          <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/[0.06] px-4 py-3">
-            <Link href={isStaff ? "/staff" : "/admin"} className="flex items-center gap-3 overflow-hidden group">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-white/12 to-white/[0.02] text-white border border-white/15 flex items-center justify-center font-bold text-sm tracking-tight shrink-0 shadow-lg shadow-black/20 group-hover:border-white/30 transition-all">
+          <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.06] px-3 py-2.5">
+            <Link href={isStaff ? "/staff" : "/admin"} className="flex items-center gap-2.5 overflow-hidden group">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-white/12 to-white/[0.02] text-white border border-white/15 flex items-center justify-center font-bold text-xs tracking-tight shrink-0 shadow-lg shadow-black/20 group-hover:border-white/30 transition-all">
                 G
               </div>
               {isExpanded && (
-                <div className="flex flex-col overflow-hidden animate-in fade-in duration-200">
-                  <span className="font-bold text-white text-sm tracking-tight leading-none">
+                <div className="flex flex-col overflow-hidden animate-in fade-in duration-150">
+                  <span className="font-bold text-white text-xs tracking-tight leading-none">
                     GYMERP
                   </span>
-                  <span className="text-[11px] text-zinc-400 font-medium truncate max-w-[125px] mt-1.5">
+                  <span className="text-[10px] text-zinc-400 font-medium truncate max-w-[110px] mt-1">
                     {gymName}
                   </span>
                 </div>
@@ -179,21 +179,21 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
               <button
                 onClick={togglePin}
                 title={isPinned ? "Collapse sidebar" : "Pin sidebar"}
-                className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-transparent hover:border-white/[0.06] transition-all"
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-transparent hover:border-white/[0.06] transition-all"
               >
                 {isPinned ? (
-                  <PanelLeftClose className="w-4 h-4" />
+                  <PanelLeftClose className="w-3.5 h-3.5" />
                 ) : (
-                  <PanelLeft className="w-4 h-4 text-sky-400" />
+                  <PanelLeft className="w-3.5 h-3.5 text-sky-400" />
                 )}
               </button>
             )}
           </div>
 
-          {/* User Info Block under Header (matching leprint) */}
-          <div className="p-3.5 border-b border-white/[0.06]">
-            <div className={cn("flex items-center", isExpanded ? "gap-3" : "justify-center")}>
-              <div className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/10 text-white flex items-center justify-center font-mono text-xs font-semibold shrink-0 shadow-inner">
+          {/* User Info Block under Header */}
+          <div className="p-2.5 border-b border-white/[0.06]">
+            <div className={cn("flex items-center", isExpanded ? "gap-2.5" : "justify-center")}>
+              <div className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 text-white flex items-center justify-center font-mono text-[11px] font-semibold shrink-0 shadow-inner">
                 {initials}
               </div>
               {isExpanded && (
@@ -209,8 +209,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="flex-1 px-3 py-3.5 overflow-y-auto overflow-x-hidden space-y-1.5">
+          {/* Navigation Links with stable, non-wobbling icon slots */}
+          <nav className="flex-1 px-2 py-3 overflow-y-auto overflow-x-hidden space-y-1">
             {navItems.map((item) => {
               const isActive =
                 item.href === "/admin"
@@ -223,52 +223,47 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                   href={item.href}
                   title={!isExpanded ? item.title : undefined}
                   className={cn(
-                    "flex items-center rounded-xl transition-all duration-200 text-xs font-medium relative h-10 group",
-                    isExpanded ? "px-3.5 gap-3" : "justify-center px-0",
+                    "flex items-center rounded-xl transition-colors duration-150 text-xs font-medium relative h-9 group overflow-hidden",
                     isActive
                       ? "bg-white/[0.08] text-white font-semibold border border-white/[0.1] shadow-sm shadow-black/20"
                       : "text-zinc-400 hover:bg-white/[0.04] hover:text-white border border-transparent"
                   )}
                 >
-                  {isActive && (
-                    <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 bg-gradient-to-b from-sky-400 to-indigo-500 rounded-full shadow-[0_0_10px_rgba(56,189,248,0.5)]" />
-                  )}
-
-                  <item.icon
-                    className={cn(
-                      "shrink-0 transition-transform duration-200 group-hover:scale-105 w-4 h-4",
-                      isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
-                    )}
-                  />
-
-                  {isExpanded && (
-                    <div className="flex items-center justify-between flex-1 overflow-hidden ml-1">
-                      <span className="truncate">{item.title}</span>
-                      {item.badge && (
-                        <span className="flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
-                          {item.badge}
-                        </span>
+                  {/* Stable fixed icon slot — never moves or twitches */}
+                  <div className="w-11 h-9 shrink-0 flex items-center justify-center">
+                    <item.icon
+                      className={cn(
+                        "w-4 h-4 transition-colors duration-150",
+                        isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-200"
                       )}
-                    </div>
-                  )}
+                    />
+                  </div>
+
+                  {/* Label smoothly fades in without shifting icon */}
+                  <span
+                    className={cn(
+                      "truncate transition-opacity duration-200",
+                      isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
+                    )}
+                  >
+                    {item.title}
+                  </span>
                 </Link>
               );
             })}
           </nav>
 
-          {/* Footer Logout Block (matching leprint) */}
-          <div className="p-3 border-t border-white/[0.06]">
+          {/* Footer Logout Block */}
+          <div className="p-2 border-t border-white/[0.06]">
             <button
               onClick={logout}
               title="Sign out"
-              className={cn(
-                "w-full flex items-center rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all text-xs font-medium",
-                isExpanded ? "gap-3 px-3.5 py-2.5" : "justify-center h-10 px-0"
-              )}
+              className="w-full flex items-center h-9 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium overflow-hidden"
             >
-              <LogOut className="w-4 h-4 shrink-0" />
-              {isExpanded && <span>Sign Out</span>}
+              <div className="w-11 h-9 shrink-0 flex items-center justify-center">
+                <LogOut className="w-4 h-4" />
+              </div>
+              {isExpanded && <span className="truncate">Sign Out</span>}
             </button>
           </div>
         </aside>
@@ -286,7 +281,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
 
           <div
             className={cn(
-              "fixed left-3 top-3 bottom-3 z-50 w-72 rounded-3xl bg-zinc-950/90 backdrop-blur-2xl border border-white/[0.08] shadow-2xl shadow-black/50 flex flex-col justify-between transition-transform duration-300 ease-out overflow-hidden",
+              "fixed left-3 top-3 bottom-3 z-50 w-72 rounded-2xl bg-zinc-950/90 backdrop-blur-2xl border border-white/[0.08] shadow-2xl shadow-black/50 flex flex-col justify-between transition-transform duration-300 ease-out overflow-hidden",
               isMobileOpen ? "translate-x-0" : "-translate-x-full"
             )}
           >
@@ -347,12 +342,6 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
                       <item.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-zinc-400")} />
                       <span>{item.title}</span>
                     </div>
-                    {item.badge && (
-                      <span className="flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/20">
-                        <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
-                        {item.badge}
-                      </span>
-                    )}
                   </Link>
                 );
               })}
@@ -394,7 +383,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
       <div
         className={cn(
           "flex-1 flex flex-col min-w-0 relative z-10 transition-[padding] duration-300 ease-out",
-          isMobile ? "pl-0" : isPinned ? "lg:pl-72" : "lg:pl-28"
+          isMobile ? "pl-0" : isPinned ? "lg:pl-64" : "lg:pl-24"
         )}
       >
         {/* Floating Frosted Glass Navbar — Stays fixed on top when scrolled */}
@@ -404,8 +393,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             isMobile
               ? "left-3 right-3 sm:left-4 sm:right-4"
               : isPinned
-              ? "lg:left-72 lg:right-6 xl:right-8"
-              : "lg:left-28 lg:right-6 xl:right-8",
+              ? "lg:left-64 lg:right-6 xl:right-8"
+              : "lg:left-24 lg:right-6 xl:right-8",
             "h-14 rounded-2xl px-4 sm:px-6 pointer-events-auto",
             isScrolled
               ? "bg-[#090a0f]/85 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(140%)_contrast(105%)] border border-white/[0.12] shadow-2xl shadow-black/50"

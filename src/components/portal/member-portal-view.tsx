@@ -151,85 +151,83 @@ export function MemberPortalView({ data }: MemberPortalProps) {
         }}
       />
 
-      {/* Pinned Top Navigation Bar */}
-      <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-[#07080a]/80 backdrop-blur-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4),inset_0_-1px_0_rgba(255,255,255,0.04)]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-emerald-400 text-[#08090a] flex items-center justify-center font-black text-sm shadow-[0_0_14px_rgba(62,207,142,0.3)]">
-              <Dumbbell className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="font-extrabold text-white text-sm tracking-wider leading-none block">
-                GYMERP
-              </span>
-              <span className="text-[10px] text-zinc-400 font-mono block leading-tight truncate">
-                {gym.name}
-              </span>
-            </div>
+      {/* Floating Frosted Glass Top Navigation Bar */}
+      <header className="fixed top-3 sm:top-4 left-3 right-3 max-w-5xl md:mx-auto z-40 h-14 rounded-2xl px-4 sm:px-6 bg-[#090a0f]/80 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(130%)] border border-white/[0.08] shadow-2xl shadow-black/40 flex items-center justify-between pointer-events-auto">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-emerald-400 text-[#08090a] flex items-center justify-center font-black text-sm shadow-[0_0_14px_rgba(62,207,142,0.3)]">
+            <Dumbbell className="w-4 h-4" />
           </div>
+          <div>
+            <span className="font-extrabold text-white text-xs sm:text-sm tracking-wider leading-none block">
+              GYMERP
+            </span>
+            <span className="text-[10px] text-zinc-400 font-mono block leading-tight truncate">
+              {gym.name}
+            </span>
+          </div>
+        </div>
 
-          {/* Desktop Tab Switcher */}
-          <nav className="hidden md:flex items-center gap-1 p-1 bg-white/[0.04] rounded-xl border border-white/[0.08]">
-            <button
-              onClick={() => setActiveTab("pass")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === "pass"
-                  ? "bg-primary text-[#08090a] shadow-sm"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              Athlete Card
-            </button>
-            <button
-              onClick={() => setActiveTab("classes")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === "classes"
-                  ? "bg-primary text-[#08090a] shadow-sm"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              Classes ({bookedClasses.length})
-            </button>
-            <button
-              onClick={() => setActiveTab("history")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === "history"
-                  ? "bg-primary text-[#08090a] shadow-sm"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              Workout Log
-            </button>
-          </nav>
+        {/* Desktop Tab Switcher */}
+        <nav className="hidden md:flex items-center gap-1 p-1 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+          <button
+            onClick={() => setActiveTab("pass")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              activeTab === "pass"
+                ? "bg-primary text-[#08090a] shadow-sm"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Athlete Card
+          </button>
+          <button
+            onClick={() => setActiveTab("classes")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              activeTab === "classes"
+                ? "bg-primary text-[#08090a] shadow-sm"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Classes ({bookedClasses.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              activeTab === "history"
+                ? "bg-primary text-[#08090a] shadow-sm"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Workout Log
+          </button>
+        </nav>
 
-          {/* Top Right: Instant Scan Button + User / Logout */}
-          <div className="flex items-center gap-2.5">
+        {/* Top Right: Instant Scan Button + User / Logout */}
+        <div className="flex items-center gap-2.5">
+          <Button
+            size="sm"
+            onClick={() => setScannerOpen(true)}
+            className="h-8 bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-xs rounded-xl shadow-[0_0_16px_rgba(62,207,142,0.35)] gap-1.5 px-3"
+          >
+            <Camera className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Scan Kiosk</span>
+          </Button>
+
+          <form action={memberLogoutAction}>
             <Button
+              type="submit"
+              variant="outline"
               size="sm"
-              onClick={() => setScannerOpen(true)}
-              className="h-8 bg-primary hover:bg-primary-deep text-[#08090a] font-bold text-xs rounded-xl shadow-[0_0_16px_rgba(62,207,142,0.35)] gap-1.5 px-3"
+              className="h-8 w-8 p-0 border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-xl"
+              title="Logout"
             >
-              <Camera className="w-3.5 h-3.5" />
-              <span>Scan Kiosk</span>
+              <LogOut className="w-3.5 h-3.5" />
             </Button>
-
-            <form action={memberLogoutAction}>
-              <Button
-                type="submit"
-                variant="outline"
-                size="sm"
-                className="h-8 w-8 p-0 border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.05] rounded-xl"
-                title="Logout"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </Button>
-            </form>
-          </div>
+          </form>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 space-y-6">
         {/* Athlete Header Greeting */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
