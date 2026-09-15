@@ -282,8 +282,8 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
 
           <div
             className={cn(
-              "fixed left-3 top-3 bottom-3 z-50 w-72 rounded-2xl bg-white/85 dark:bg-zinc-950/90 backdrop-blur-2xl border border-stone-200/80 dark:border-white/[0.08] shadow-2xl shadow-black/10 dark:shadow-black/50 flex flex-col justify-between transition-transform duration-300 ease-out overflow-hidden",
-              isMobileOpen ? "translate-x-0" : "-translate-x-full"
+              "fixed left-3 top-3 bottom-3 z-50 w-72 rounded-2xl bg-white/85 dark:bg-zinc-950/90 backdrop-blur-2xl border border-stone-200/80 dark:border-white/[0.08] shadow-2xl shadow-black/10 dark:shadow-black/50 flex flex-col justify-between transition-transform duration-300 ease-out overflow-clip",
+              isMobileOpen ? "translate-x-0" : "-translate-x-[calc(100%+16px)]"
             )}
           >
             {/* Mobile Header */}

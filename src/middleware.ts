@@ -25,7 +25,6 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute =
     pathname === "/" ||
     pathname === "/login" ||
-    pathname === "/platform/login" ||
     pathname === "/portal/login" ||
     pathname.startsWith("/portal/scan") ||
     pathname.startsWith("/kiosk") ||
@@ -54,8 +53,7 @@ export async function middleware(request: NextRequest) {
 
   // Protected route requires staff/admin/platform session cookie
   if (!sessionCookie) {
-    const target = pathname.startsWith("/platform") ? "/platform/login" : "/login";
-    const loginUrl = new URL(target, request.url);
+    const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -64,8 +62,7 @@ export async function middleware(request: NextRequest) {
 
   // Check token expiration
   if (!payload || !payload.exp || payload.exp * 1000 <= Date.now()) {
-    const target = pathname.startsWith("/platform") ? "/platform/login" : "/login";
-    const response = NextResponse.redirect(new URL(target, request.url));
+    const response = NextResponse.redirect(new URL("/login", request.url));
     response.cookies.delete("__session");
     return response;
   }

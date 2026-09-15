@@ -45,9 +45,13 @@ body {
   height: 45vw;
   max-width: 600px;
   max-height: 600px;
-  background: radial-gradient(circle, rgba(217, 119, 6, 0.06) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.05) 0%, transparent 65%);
   filter: blur(140px);
   border-radius: 9999px;
+}
+
+.dark .ambient-glow-mesh::before {
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.06) 0%, transparent 65%);
 }
 
 .ambient-glow-mesh::after {
@@ -59,9 +63,13 @@ body {
   height: 40vw;
   max-width: 500px;
   max-height: 500px;
-  background: radial-gradient(circle, rgba(120, 113, 108, 0.04) 0%, transparent 60%);
+  background: radial-gradient(circle, rgba(120, 113, 108, 0.03) 0%, transparent 60%);
   filter: blur(120px);
   border-radius: 9999px;
+}
+
+.dark .ambient-glow-mesh::after {
+  background: radial-gradient(circle, rgba(120, 113, 108, 0.04) 0%, transparent 60%);
 }
 
 /* Premium Frosted Glass Containers — dual mode */

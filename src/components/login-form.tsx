@@ -96,10 +96,10 @@ export function LoginForm({
   return (
     <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
       <div className="flex flex-col gap-1.5">
-        <h1 className="text-2xl font-semibold tracking-tight text-white">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Sign in to your account
         </h1>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-muted-foreground">
           Enter your email and password to access the workspace
         </p>
       </div>
@@ -118,7 +118,7 @@ export function LoginForm({
 
       <div className="flex flex-col gap-4">
         <div className="space-y-1.5">
-          <label htmlFor="email" className="text-xs font-medium text-zinc-300">
+          <label htmlFor="email" className="text-xs font-medium text-foreground">
             Email
           </label>
           <Input
@@ -129,20 +129,20 @@ export function LoginForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
-            className="h-10 bg-zinc-900/60 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 rounded-lg focus-visible:ring-1 focus-visible:ring-zinc-400"
+            className="h-10 bg-muted/60 border-input text-foreground placeholder:text-muted-foreground rounded-lg focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label htmlFor="password" className="text-xs font-medium text-zinc-300">
+            <label htmlFor="password" className="text-xs font-medium text-foreground">
               Password
             </label>
             <button
               type="button"
               onClick={handleResetPassword}
               disabled={resetLoading || loading}
-              className="text-xs text-zinc-400 hover:text-white transition-colors"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               {resetLoading ? "Sending..." : "Forgot password?"}
             </button>
@@ -156,12 +156,12 @@ export function LoginForm({
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
               placeholder="••••••••"
-              className="h-10 pr-9 bg-zinc-900/60 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 rounded-lg focus-visible:ring-1 focus-visible:ring-zinc-400"
+              className="h-10 pr-9 bg-muted/60 border-input text-foreground placeholder:text-muted-foreground rounded-lg focus-visible:ring-1 focus-visible:ring-ring"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -172,7 +172,7 @@ export function LoginForm({
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-10 bg-white text-zinc-950 hover:bg-zinc-200 font-medium rounded-lg transition-colors mt-1"
+          className="w-full h-10 font-medium rounded-lg transition-colors mt-1"
         >
           {loading ? (
             <>
@@ -185,9 +185,9 @@ export function LoginForm({
         </Button>
       </div>
 
-      <div className="pt-2 text-center text-xs text-zinc-400">
+      <div className="pt-2 text-center text-xs text-muted-foreground">
         Looking for member pass?{" "}
-        <Link href="/portal/login" className="text-white hover:underline underline-offset-4 font-medium">
+        <Link href="/portal/login" className="text-foreground hover:underline underline-offset-4 font-medium">
           Member portal &rarr;
         </Link>
       </div>

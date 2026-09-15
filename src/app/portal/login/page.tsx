@@ -9,11 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AuthImageSlideshow } from "@/components/auth-slideshow";
 import { memberLoginAction } from "@/lib/api/member-portal";
-import { useSecretPlatformAccess } from "@/hooks/use-secret-access";
 
 export default function MemberLoginPage() {
   const router = useRouter();
-  const { handleSecretClick } = useSecretPlatformAccess();
   const [isPending, startTransition] = useTransition();
   const [loginMethod, setLoginMethod] = useState<"phone" | "email">("phone");
   const [identifier, setIdentifier] = useState("");
@@ -45,7 +43,7 @@ export default function MemberLoginPage() {
   };
 
   return (
-    <div className="grid min-h-svh lg:grid-cols-2 bg-[#090a0f] text-zinc-100">
+    <div className="grid min-h-svh lg:grid-cols-2 bg-background text-foreground">
       {/* Form Column */}
       <motion.div
         initial={{ opacity: 0, x: -12 }}
@@ -54,19 +52,16 @@ export default function MemberLoginPage() {
         className="flex flex-col justify-between p-6 sm:p-10 lg:p-12"
       >
         <div className="flex items-center justify-between">
-          <div
-            onClick={handleSecretClick}
-            className="flex items-center gap-2.5 font-medium cursor-pointer select-none group"
-          >
-            <div className="flex size-7 items-center justify-center rounded-lg bg-white text-zinc-950 font-bold text-sm transition-transform active:scale-95">
+          <Link href="/" className="flex items-center gap-2.5 font-medium group">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm transition-transform group-hover:scale-105">
               G
             </div>
-            <span className="font-semibold text-white tracking-tight text-base">
+            <span className="font-semibold text-foreground tracking-tight text-base">
               GymERP
             </span>
-          </div>
+          </Link>
 
-          <span className="text-xs text-zinc-500 font-mono uppercase tracking-wider">
+          <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
             Member Access
           </span>
         </div>
@@ -74,16 +69,16 @@ export default function MemberLoginPage() {
         <div className="flex flex-1 items-center justify-center py-12">
           <div className="w-full max-w-sm space-y-6">
             <div className="space-y-1.5">
-              <h1 className="text-2xl font-semibold tracking-tight text-white">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 Member Pass
               </h1>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 Access your digital gym pass and membership status
               </p>
             </div>
 
             {/* Seamless Method Selector Tabs */}
-            <div className="grid grid-cols-2 p-1 bg-zinc-900/80 border border-zinc-800 rounded-lg relative">
+            <div className="grid grid-cols-2 p-1 bg-muted border border-border rounded-lg relative">
               <button
                 type="button"
                 onClick={() => {
@@ -91,13 +86,13 @@ export default function MemberLoginPage() {
                   setErrorMsg(null);
                 }}
                 className={`relative flex items-center justify-center gap-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  loginMethod === "phone" ? "text-white" : "text-zinc-400 hover:text-zinc-200"
+                  loginMethod === "phone" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {loginMethod === "phone" && (
                   <motion.div
                     layoutId="active-tab"
-                    className="absolute inset-0 bg-zinc-800 rounded-md shadow-sm"
+                    className="absolute inset-0 bg-card rounded-md shadow-sm border border-border"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                   />
                 )}
@@ -112,13 +107,13 @@ export default function MemberLoginPage() {
                   setErrorMsg(null);
                 }}
                 className={`relative flex items-center justify-center gap-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  loginMethod === "email" ? "text-white" : "text-zinc-400 hover:text-zinc-200"
+                  loginMethod === "email" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {loginMethod === "email" && (
                   <motion.div
                     layoutId="active-tab"
-                    className="absolute inset-0 bg-zinc-800 rounded-md shadow-sm"
+                    className="absolute inset-0 bg-card rounded-md shadow-sm border border-border"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                   />
                 )}
@@ -158,10 +153,10 @@ export default function MemberLoginPage() {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     disabled={isPending}
-                    className="h-10 bg-zinc-900/60 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 rounded-lg focus-visible:ring-1 focus-visible:ring-zinc-400"
+                  className="h-10 bg-muted/60 border-input text-foreground placeholder:text-muted-foreground rounded-lg focus-visible:ring-1 focus-visible:ring-ring"
                   />
                 </div>
-                <p className="text-[11px] text-zinc-500">
+                <p className="text-[11px] text-muted-foreground">
                   Enter the contact registered with your gym reception.
                 </p>
               </div>
@@ -169,7 +164,7 @@ export default function MemberLoginPage() {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full h-10 bg-white text-zinc-950 hover:bg-zinc-200 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 group"
+                className="w-full h-10 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 group"
               >
                 {isPending ? (
                   <>
@@ -185,11 +180,11 @@ export default function MemberLoginPage() {
               </Button>
             </form>
 
-            <div className="pt-2 text-center text-xs text-zinc-400">
+            <div className="pt-2 text-center text-xs text-muted-foreground">
               Gym staff or administrator?{" "}
               <Link
                 href="/login"
-                className="text-white hover:underline underline-offset-4 font-medium"
+                className="text-foreground hover:underline underline-offset-4 font-medium"
               >
                 Staff sign in &rarr;
               </Link>
@@ -197,7 +192,7 @@ export default function MemberLoginPage() {
           </div>
         </div>
 
-        <div className="text-xs text-zinc-500">
+        <div className="text-xs text-muted-foreground">
           &copy; {new Date().getFullYear()} GymERP. All rights reserved.
         </div>
       </motion.div>

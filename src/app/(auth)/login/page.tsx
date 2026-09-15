@@ -6,13 +6,9 @@ import { LoginForm } from "@/components/login-form";
 import { AuthImageSlideshow } from "@/components/auth-slideshow";
 import { motion } from "framer-motion";
 
-import { useSecretPlatformAccess } from "@/hooks/use-secret-access";
-
 export default function LoginPage() {
-  const { handleSecretClick } = useSecretPlatformAccess();
-
   return (
-    <div className="grid min-h-svh lg:grid-cols-2 bg-[#090a0f] text-zinc-100">
+    <div className="grid min-h-svh lg:grid-cols-2 bg-background text-foreground">
       {/* Form Column */}
       <motion.div
         initial={{ opacity: 0, x: -12 }}
@@ -21,17 +17,14 @@ export default function LoginPage() {
         className="flex flex-col justify-between p-6 sm:p-10 lg:p-12"
       >
         <div className="flex items-center gap-2">
-          <div
-            onClick={handleSecretClick}
-            className="flex items-center gap-2.5 font-medium cursor-pointer select-none group"
-          >
-            <div className="flex size-7 items-center justify-center rounded-lg bg-white text-zinc-950 font-bold text-sm transition-transform active:scale-95">
+          <Link href="/" className="flex items-center gap-2.5 font-medium group">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm transition-transform group-hover:scale-105">
               G
             </div>
-            <span className="font-semibold text-white tracking-tight text-base">
+            <span className="font-semibold tracking-tight text-base text-foreground">
               GymERP
             </span>
-          </div>
+          </Link>
         </div>
 
         <div className="flex flex-1 items-center justify-center py-12">
@@ -40,7 +33,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="text-xs text-zinc-500">
+        <div className="text-xs text-muted-foreground">
           &copy; {new Date().getFullYear()} GymERP. All rights reserved.
         </div>
       </motion.div>

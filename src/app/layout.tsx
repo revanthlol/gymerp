@@ -38,8 +38,8 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={cn(inter.variable, jetbrainsMono.variable)}>
       <body className="font-sans bg-background text-foreground antialiased relative min-h-screen">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <div className="ambient-glow-mesh dark:block hidden" aria-hidden="true" />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <div className="ambient-glow-mesh" aria-hidden="true" />
           <Suspense fallback={null}>
             <NavigationProgress />
           </Suspense>
