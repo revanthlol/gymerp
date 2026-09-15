@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { memberLogoutAction } from "@/lib/api/member-portal";
 import { KioskScannerModal } from "@/components/portal/kiosk-scanner-modal";
+import { SignOutConfirmModal } from "@/components/auth/sign-out-confirm-modal";
 
 // ── Custom QR Scan Icon ─────────────────────────────────────────────────────
 function QrScanIcon({ className }: { className?: string }) {
@@ -69,17 +70,17 @@ interface PortalShellProps {
 }
 
 const memberNavItems = [
-  { title: "Overview",           href: "/portal",            icon: LayoutDashboard },
-  { title: "Workouts & Streaks", href: "/portal/attendance", icon: Flame },
-  { title: "Classes",            href: "/portal/classes",    icon: Dumbbell },
-  { title: "Membership",         href: "/portal/membership", icon: CreditCard },
+  { title: "Overview",           href: "/member",            icon: LayoutDashboard },
+  { title: "Workouts & Streaks", href: "/member/attendance", icon: Flame },
+  { title: "Classes",            href: "/member/classes",    icon: Dumbbell },
+  { title: "Membership",         href: "/member/membership", icon: CreditCard },
 ];
 
 const PAGE_LABELS: Record<string, string> = {
-  "/portal":            "Member Overview",
-  "/portal/attendance": "Workouts & Streaks",
-  "/portal/classes":    "Group Fitness Classes",
-  "/portal/membership": "Membership & Invoices",
+  "/member":            "Member Overview",
+  "/member/attendance": "Workouts & Streaks",
+  "/member/classes":    "Group Fitness Classes",
+  "/member/membership": "Membership & Invoices",
 };
 
 export function PortalShell({ member, gym, children }: PortalShellProps) {
@@ -115,6 +116,8 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const [signOutOpen, setSignOutOpen] = useState(false);
+
   const togglePin = () => {
     const next = !isPinned;
     setIsPinned(next);
@@ -138,7 +141,7 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
     if (window.history.length > 1) {
       router.back();
     } else {
-      router.push("/portal");
+      router.push("/member");
     }
   };
 
@@ -198,6 +201,25 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
             )}
           </div>
 
+          {/* User Info Block under Header - matching Admin portal layout */}
+          <div className="p-2.5 border-b border-stone-200/60 dark:border-white/[0.06]">
+            <div className={cn("flex items-center", isExpanded ? "gap-2.5 px-1" : "justify-center")}>
+              <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/[0.06] border border-zinc-200 dark:border-white/10 text-zinc-800 dark:text-white flex items-center justify-center font-mono text-[11px] font-semibold shrink-0">
+                {initials}
+              </div>
+              {isExpanded && (
+                <div className="flex-1 min-w-0 animate-in fade-in duration-150">
+                  <p className="font-medium text-zinc-900 dark:text-white truncate text-xs leading-tight">
+                    {member.fullName}
+                  </p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono truncate mt-0.5">
+                    UID: #{member.id.slice(0, 8)}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Quick Check-In Button */}
           <div className="p-2.5 border-b border-stone-200/60 dark:border-white/[0.06]">
             <button
@@ -215,8 +237,8 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
           <nav className="flex-1 px-2 py-3 overflow-y-auto overflow-x-hidden space-y-1">
             {memberNavItems.map((item) => {
               const isActive =
-                item.href === "/portal"
-                  ? pathname === "/portal"
+                item.href === "/member"
+                  ? pathname === "/member"
                   : pathname === item.href || pathname.startsWith(item.href + "/");
               const Icon = item.icon;
 
@@ -249,35 +271,19 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
             })}
           </nav>
 
-          {/* Footer: User Info + Logout */}
+          {/* Footer: Sign Out */}
           <div className="p-2 border-t border-stone-200/60 dark:border-white/[0.06]">
-            <div className={cn("flex items-center mb-2", isExpanded ? "gap-2.5 px-1" : "justify-center")}>
-              <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/[0.06] border border-zinc-200 dark:border-white/10 text-zinc-800 dark:text-white flex items-center justify-center font-mono text-[11px] font-semibold shrink-0">
-                {initials}
+            <button
+              onClick={() => setSignOutOpen(true)}
+              type="button"
+              title="Sign out"
+              className="w-full flex items-center h-9 rounded-xl text-red-500/80 hover:text-red-600 dark:text-red-400/80 dark:hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium overflow-hidden cursor-pointer"
+            >
+              <div className="w-11 h-9 shrink-0 flex items-center justify-center">
+                <LogOut className="w-4 h-4" />
               </div>
-              {isExpanded && (
-                <div className="flex-1 min-w-0 animate-in fade-in duration-150">
-                  <p className="font-medium text-zinc-900 dark:text-white truncate text-xs leading-tight">
-                    {member.fullName}
-                  </p>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono truncate mt-0.5">
-                    UID: #{member.id.slice(0, 8)}
-                  </p>
-                </div>
-              )}
-            </div>
-            <form action={memberLogoutAction}>
-              <button
-                type="submit"
-                title="Sign out"
-                className="w-full flex items-center h-9 rounded-xl text-red-500/80 hover:text-red-600 dark:text-red-400/80 dark:hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium overflow-hidden"
-              >
-                <div className="w-11 h-9 shrink-0 flex items-center justify-center">
-                  <LogOut className="w-4 h-4" />
-                </div>
-                {isExpanded && <span className="truncate">Sign Out</span>}
-              </button>
-            </form>
+              {isExpanded && <span className="truncate">Sign Out</span>}
+            </button>
           </div>
         </aside>
       )}
@@ -352,15 +358,14 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
             <ThemeToggle />
 
             {isMobile && (
-              <form action={memberLogoutAction}>
-                <button
-                  type="submit"
-                  title="Sign out"
-                  className="p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </form>
+              <button
+                type="button"
+                onClick={() => setSignOutOpen(true)}
+                title="Sign out"
+                className="p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             )}
           </div>
         </header>
@@ -371,15 +376,15 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
         </main>
       </div>
 
-      {/* ── MOBILE FLOATING BOTTOM NAV (\u003clg) ─────────────────────────────── */}
+      {/* ── MOBILE FLOATING BOTTOM NAV (<lg) ─────────────────────────────── */}
       <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 rounded-2xl bg-white/80 dark:bg-black/60 backdrop-blur-2xl [backdrop-filter:blur(24px)_saturate(160%)] border border-stone-200/70 dark:border-white/[0.1] shadow-[0_-4px_24px_rgba(0,0,0,0.1),0_8px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.3),0_8px_32px_rgba(0,0,0,0.5)] px-3 py-2">
         <div className="flex items-center justify-around relative">
 
           <Link
-            href="/portal"
+            href="/member"
             className={cn(
               "flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all min-w-[52px]",
-              pathname === "/portal"
+              pathname === "/member"
                 ? "text-primary"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
             )}
@@ -389,10 +394,10 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
           </Link>
 
           <Link
-            href="/portal/attendance"
+            href="/member/attendance"
             className={cn(
               "flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all min-w-[52px]",
-              pathname === "/portal/attendance"
+              pathname === "/member/attendance"
                 ? "text-primary"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
             )}
@@ -413,10 +418,10 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
           </button>
 
           <Link
-            href="/portal/classes"
+            href="/member/classes"
             className={cn(
               "flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all min-w-[52px]",
-              pathname === "/portal/classes"
+              pathname === "/member/classes"
                 ? "text-primary"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
             )}
@@ -426,10 +431,10 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
           </Link>
 
           <Link
-            href="/portal/membership"
+            href="/member/membership"
             className={cn(
               "flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all min-w-[52px]",
-              pathname === "/portal/membership"
+              pathname === "/member/membership"
                 ? "text-primary"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
             )}
@@ -445,6 +450,17 @@ export function PortalShell({ member, gym, children }: PortalShellProps) {
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
         memberUid={member.id}
+      />
+
+      {/* Sign Out Confirmation Modal */}
+      <SignOutConfirmModal
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        onConfirm={async () => {
+          await memberLogoutAction();
+        }}
+        title="Sign Out of Member Portal"
+        description="Are you sure you want to end your member session? You will need to sign in again to access your pass."
       />
     </div>
   );

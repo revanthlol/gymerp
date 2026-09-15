@@ -172,7 +172,7 @@ export function AdminDashboardView({
         <div className="flex items-center gap-2">
           <TurnstileQrDialog />
           <Link href="/admin/members">
-            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 rounded-xl">
               <Users className="size-3.5" />
               Members
             </Button>

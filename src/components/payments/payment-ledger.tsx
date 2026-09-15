@@ -217,7 +217,7 @@ export function PaymentLedger({
           <Button
             onClick={() => setIsModalOpen(true)}
             size="sm"
-            className="font-semibold text-xs gap-1.5"
+            className="font-semibold text-xs gap-1.5 rounded-xl"
           >
             <Plus className="size-4" />
             <span>Record Payment</span>

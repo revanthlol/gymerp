@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SignOutConfirmModal } from "@/components/auth/sign-out-confirm-modal";
 
 interface DashboardShellProps {
   gymName: string;
@@ -71,6 +72,7 @@ const PAGE_LABELS: Record<string, string> = {
 export function DashboardShell({ gymName, userEmail, children }: DashboardShellProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
 
   // Full-screen Onboarding Wizard bypass
   if (pathname === "/admin/onboarding") {
@@ -257,7 +259,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
           {/* Footer Logout Block */}
           <div className="p-2 border-t border-stone-200/60 dark:border-white/[0.06]">
             <button
-              onClick={logout}
+              onClick={() => setShowSignOutModal(true)}
               title="Sign out"
               className="w-full flex items-center h-9 rounded-xl text-red-500/80 hover:text-red-600 dark:text-red-400/80 dark:hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium overflow-hidden"
             >
@@ -351,7 +353,7 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
             {/* Mobile Footer */}
             <div className="p-3.5 border-t border-stone-200/60 dark:border-white/[0.06]">
               <button
-                onClick={logout}
+                onClick={() => setShowSignOutModal(true)}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors text-xs font-medium"
               >
                 <LogOut className="w-4 h-4" />
@@ -456,6 +458,12 @@ export function DashboardShell({ gymName, userEmail, children }: DashboardShellP
           {children}
         </main>
       </div>
+
+      <SignOutConfirmModal
+        open={showSignOutModal}
+        onOpenChange={setShowSignOutModal}
+        onConfirm={logout}
+      />
     </div>
   );
 }

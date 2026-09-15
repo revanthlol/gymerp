@@ -66,19 +66,19 @@ export function NavigationProgress() {
               scaleX: { duration: 0.8, ease: "easeOut" },
               opacity: { duration: 0.2 },
             }}
-            className="fixed top-0 left-0 right-0 h-[2px] bg-white origin-left z-[100] pointer-events-none"
+            className="fixed top-0 left-0 right-0 h-[2px] bg-primary origin-left z-[100] pointer-events-none"
           />
 
-          {/* Top-right subtle spinner */}
+          {/* Centered screen loading indicator */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.85 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.15 }}
-            className="fixed top-4 right-4 z-[100] flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800 text-xs text-zinc-300 backdrop-blur-md shadow-lg pointer-events-none"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-card/90 dark:bg-zinc-900/90 border border-border/80 text-foreground dark:text-zinc-200 backdrop-blur-xl shadow-2xl pointer-events-none"
           >
-            <Spinner size="xs" className="text-white" />
-            <span className="font-mono text-[11px]">Loading...</span>
+            <Spinner size="sm" className="text-primary" />
+            <span className="font-mono text-xs font-medium tracking-tight">Loading...</span>
           </motion.div>
         </>
       )}

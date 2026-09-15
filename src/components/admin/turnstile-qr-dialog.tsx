@@ -78,7 +78,7 @@ export function TurnstileQrDialog({ trigger }: TurnstileQrDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs rounded-xl">
             <QrCode className="size-3.5 text-primary" />
             Check-In QR
           </Button>

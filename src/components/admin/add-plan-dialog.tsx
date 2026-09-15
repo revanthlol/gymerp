@@ -69,7 +69,7 @@ export function AddPlanDialog({ onPlanCreated }: AddPlanDialogProps = {}) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="h-8 gap-1.5 text-xs">
+        <Button size="sm" className="h-8 gap-1.5 text-xs rounded-xl">
           <Plus className="size-3.5 stroke-[2.5]" />
           Create Plan
         </Button>

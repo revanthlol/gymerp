@@ -44,6 +44,20 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/portal",
+        destination: "/member",
+        permanent: true,
+      },
+      {
+        source: "/portal/:path*",
+        destination: "/member/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

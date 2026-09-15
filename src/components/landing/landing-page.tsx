@@ -175,7 +175,7 @@ export function LandingPage({ session }: LandingPageProps) {
       audience: "Gym Members & Athletes",
       description: "Instant mobile access pass, attendance streak records, and membership status right on their phone.",
       icon: Smartphone,
-      href: "/portal/login",
+      href: "/member/login",
       actionLabel: "Launch Member Pass",
       primary: true,
     },
@@ -242,7 +242,7 @@ export function LandingPage({ session }: LandingPageProps) {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {session ? (
-              <Link href={session.role === "admin" ? "/admin" : session.role === "staff" ? "/staff" : "/portal"}>
+              <Link href={session.role === "admin" ? "/admin" : session.role === "staff" ? "/staff" : "/member"}>
                 <Button
                   size="sm"
                   className="relative overflow-hidden rounded-full h-9 px-4 font-semibold text-xs bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 group"
@@ -300,7 +300,7 @@ export function LandingPage({ session }: LandingPageProps) {
               variants={itemVariants}
               className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 w-full max-w-md"
             >
-              <Link href="/portal/login" className="w-full sm:w-auto">
+              <Link href="/member/login" className="w-full sm:w-auto">
                 <Button
                   size="lg"
                   className="w-full sm:w-auto h-11 px-6 font-semibold text-sm rounded-xl gap-2 shadow-sm"
@@ -676,7 +676,7 @@ export function LandingPage({ session }: LandingPageProps) {
           </div>
 
           <div className="flex items-center gap-6 text-xs text-muted-foreground font-medium">
-            <Link href="/portal/login" className="hover:text-foreground transition-colors text-primary font-semibold">
+            <Link href="/member/login" className="hover:text-foreground transition-colors text-primary font-semibold">
               Member Pass
             </Link>
             <Link href="/login" className="hover:text-foreground transition-colors">

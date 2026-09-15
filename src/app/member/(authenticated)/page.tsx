@@ -112,7 +112,7 @@ export default async function MemberOverviewPage() {
             </div>
           </div>
           <Link
-            href="/portal/membership"
+            href="/member/membership"
             className="mt-4 pt-3 border-t border-border/60 text-[11px] font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
           >
             <span>View plan details</span>
@@ -139,7 +139,7 @@ export default async function MemberOverviewPage() {
             </p>
           </div>
           <Link
-            href="/portal/attendance"
+            href="/member/attendance"
             className="mt-4 pt-3 border-t border-border/60 text-[11px] font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
           >
             <span>View streak history</span>
@@ -164,7 +164,7 @@ export default async function MemberOverviewPage() {
             </p>
           </div>
           <Link
-            href="/portal/attendance"
+            href="/member/attendance"
             className="mt-4 pt-3 border-t border-border/60 text-[11px] font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
           >
             <span>View monthly ledger</span>
@@ -220,7 +220,7 @@ export default async function MemberOverviewPage() {
               </p>
             </div>
             <Link
-              href="/portal/classes"
+              href="/member/classes"
               className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
             >
               <span>Full timetable</span>
@@ -239,7 +239,7 @@ export default async function MemberOverviewPage() {
                   Check back soon or view the weekly timetable for upcoming sessions.
                 </p>
               </div>
-              <Link href="/portal/classes">
+              <Link href="/member/classes">
                 <button className="text-xs font-semibold px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-colors">
                   Browse Timetable
                 </button>
@@ -300,7 +300,7 @@ export default async function MemberOverviewPage() {
               </p>
             </div>
             <Link
-              href="/portal/attendance"
+              href="/member/attendance"
               className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
             >
               <span>View all</span>

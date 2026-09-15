@@ -675,7 +675,7 @@ export function KioskManagementView({
                   {/* Dynamic render image */}
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-                      `${typeof window !== "undefined" ? window.location.origin : "https://gymerp-liard.vercel.app"}/portal/scan?kiosk=${printKiosk.slug}&token=${printKiosk.secretToken}&mode=${printKiosk.mode}`
+                      `${typeof window !== "undefined" ? window.location.origin : "https://gymerp-liard.vercel.app"}/member/scan?kiosk=${printKiosk.slug}&token=${printKiosk.secretToken}&mode=${printKiosk.mode}`
                     )}`}
                     alt={printKiosk.name}
                     className="w-48 h-48 mx-auto object-contain"

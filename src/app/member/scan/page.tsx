@@ -203,7 +203,7 @@ function ScanProcessor() {
             </div>
 
             <div className="pt-2">
-              <Link href="/portal/login">
+              <Link href="/member/login">
                 <Button className="w-full h-10 bg-red-600 hover:bg-red-500 text-white font-semibold text-xs rounded-lg flex items-center justify-center gap-2">
                   <span>Sign into Member Portal</span>
                   <ArrowRight className="w-4 h-4" />
@@ -257,7 +257,7 @@ function ScanProcessor() {
             </div>
 
             <div className="pt-2">
-              <Link href="/portal">
+              <Link href="/member">
                 <Button className="w-full h-10 bg-primary hover:bg-primary-deep text-[#08090a] font-semibold text-xs rounded-lg flex items-center justify-center gap-2">
                   <span>Open Member Pass</span>
                   <ArrowRight className="w-4 h-4" />
@@ -316,7 +316,7 @@ function ScanProcessor() {
 
             <div className="pt-2 text-center">
               <Link
-                href="/portal/login"
+                href="/member/login"
                 className="text-xs text-zinc-400 hover:text-white inline-flex items-center gap-1 transition-colors"
               >
                 <LogIn className="w-3.5 h-3.5" />

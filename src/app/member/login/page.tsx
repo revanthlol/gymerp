@@ -36,7 +36,7 @@ export default function MemberLoginPage() {
       if (!res.success) {
         setErrorMsg(res.message || "Failed to locate member account");
       } else {
-        router.push("/portal");
+        router.push("/member");
         router.refresh();
       }
     });
@@ -137,7 +137,7 @@ export default function MemberLoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-1.5">
-                <label htmlFor="identifier" className="text-xs font-medium text-zinc-300">
+                <label htmlFor="identifier" className="text-xs font-medium text-foreground">
                   {loginMethod === "phone" ? "Mobile Phone" : "Email Address"}
                 </label>
                 <div className="relative">

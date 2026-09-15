@@ -18,11 +18,12 @@ export default async function PlatformLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#090a0f] text-zinc-100 flex flex-col relative selection:bg-white/20 selection:text-white">
+    <div className="min-h-screen bg-background text-foreground flex flex-col relative selection:bg-primary/20 selection:text-foreground">
       {/* Subtle Ambient Glows to enrich frosted glass refraction */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-[12%] left-[12%] w-[500px] h-[500px] rounded-full bg-purple-500/[0.03] blur-[140px]" />
-        <div className="absolute top-[35%] -right-[10%] w-[450px] h-[450px] rounded-full bg-sky-500/[0.02] blur-[140px]" />
+        <div className="absolute -top-[12%] left-[8%] w-[500px] h-[500px] rounded-full bg-amber-500/[0.04] dark:bg-amber-500/[0.025] blur-[140px]" />
+        <div className="absolute top-[35%] -left-[10%] w-[450px] h-[450px] rounded-full bg-orange-400/[0.03] dark:bg-orange-400/[0.02] blur-[140px]" />
+        <div className="absolute -bottom-[10%] right-[5%] w-[600px] h-[600px] rounded-full bg-amber-600/[0.03] dark:bg-amber-600/[0.02] blur-[150px]" />
       </div>
 
       <PlatformNav userEmail={session.email} />

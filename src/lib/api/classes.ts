@@ -165,8 +165,8 @@ export async function rsvpMemberClassAction(classId: string, action: "book" | "c
     .where(eq(gymClasses.id, classId))
     .returning();
 
-  revalidatePath("/portal/classes");
-  revalidatePath("/portal");
+  revalidatePath("/member/classes");
+  revalidatePath("/member");
 
   return { success: true, gymClass: updated };
 }

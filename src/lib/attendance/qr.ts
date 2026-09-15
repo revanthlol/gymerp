@@ -44,7 +44,7 @@ export async function generateGymRotatingQr(
     process.env.APP_URL ||
     (typeof window !== "undefined" ? window.location.origin : "https://gymerp-liard.vercel.app");
   
-  const scanUrl = `${baseUrl}/portal/scan?token=${encodeURIComponent(tokenString)}&mode=${mode}`;
+  const scanUrl = `${baseUrl}/member/scan?token=${encodeURIComponent(tokenString)}&mode=${mode}`;
 
   // High-contrast clean QR for instant camera & scanner detection
   // We encode the full scanUrl so pointing any iPhone/Android camera immediately triggers check-in
@@ -221,7 +221,7 @@ export async function generateKioskStationQr(
     process.env.APP_URL ||
     "https://gymerp-liard.vercel.app";
 
-  const scanUrl = `${origin}/portal/scan?kiosk=${encodeURIComponent(kioskSlug)}&token=${encodeURIComponent(secretToken)}&mode=${mode}`;
+  const scanUrl = `${origin}/member/scan?kiosk=${encodeURIComponent(kioskSlug)}&token=${encodeURIComponent(secretToken)}&mode=${mode}`;
 
   const qrDataUrl = await QRCode.toDataURL(scanUrl, {
     width: 600,

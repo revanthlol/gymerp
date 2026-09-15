@@ -107,17 +107,17 @@ export function CreateTenantDialog({ onTenantCreated }: CreateTenantDialogProps 
       }}
     >
       <DialogTrigger asChild>
-        <Button className="glow-bottom gap-2 font-medium shadow-[0_0_20px_rgba(255,94,30,0.3)]">
+        <Button className="rounded-xl gap-2 font-medium shadow-sm">
           <Plus className="w-4 h-4" />
           <span>Provision New Gym</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg max-h-[88vh] overflow-y-auto pr-6">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-white">
+      <DialogContent className="sm:max-w-lg max-h-[88vh] overflow-y-auto rounded-2xl bg-card/95 backdrop-blur-2xl border border-border/80 text-foreground p-6 shadow-2xl">
+        <DialogHeader className="p-0 border-none">
+          <DialogTitle className="text-lg font-bold text-foreground">
             {result ? "Tenant Provisioned" : "Provision New Gym Account"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground mt-1">
             {result
               ? "The gym and its primary administrator account have been created."
               : "Set up a new isolated gym workspace and generate its primary admin credentials."}
@@ -126,66 +126,66 @@ export function CreateTenantDialog({ onTenantCreated }: CreateTenantDialogProps 
 
         {result ? (
           <div className="space-y-4 py-3">
-            <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-800/50 space-y-2">
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-2">
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
                 <CheckCircle2 className="w-5 h-5" />
                 <span>Gym Workspace & Admin Account Created</span>
               </div>
-              <p className="text-xs text-zinc-300">
-                Gym: <strong className="text-white">{result.tenant.name}</strong> ({result.tenant.slug})
+              <p className="text-xs text-muted-foreground">
+                Gym: <strong className="text-foreground">{result.tenant.name}</strong> ({result.tenant.slug})
               </p>
             </div>
 
             {/* Credentials Card */}
-            <div className="p-4 rounded-xl bg-zinc-900/90 border border-white/[0.08] space-y-3">
-              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block">
+            <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-3">
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider block">
                 Gym Admin Sign-In Credentials
               </span>
 
               <div className="space-y-2">
                 <div className="space-y-1">
-                  <label className="text-[11px] text-zinc-400">Admin Email</label>
+                  <label className="text-[11px] text-muted-foreground font-medium">Admin Email</label>
                   <div className="flex items-center gap-2">
                     <Input
                       readOnly
                       value={result.tenant.contactEmail}
-                      className="font-mono text-xs bg-zinc-950 text-white select-all h-9"
+                      className="font-mono text-xs bg-background text-foreground select-all h-9 rounded-xl border-border"
                     />
                     <Button
                       size="icon"
                       variant="outline"
-                      className="h-9 w-9 shrink-0 border-white/[0.1]"
+                      className="h-9 w-9 shrink-0 rounded-xl border-border hover:bg-muted/80"
                       onClick={() => {
                         navigator.clipboard.writeText(result.tenant.contactEmail);
                         toast.success("Email copied to clipboard");
                       }}
                       title="Copy Email"
                     >
-                      <Copy className="w-4 h-4 text-zinc-300" />
+                      <Copy className="w-4 h-4 text-muted-foreground" />
                     </Button>
                   </div>
                 </div>
 
                 {result.tempPassword && (
                   <div className="space-y-1">
-                    <label className="text-[11px] text-zinc-400">Initial Password</label>
+                    <label className="text-[11px] text-muted-foreground font-medium">Initial Password</label>
                     <div className="flex items-center gap-2">
                       <Input
                         readOnly
                         value={result.tempPassword}
-                        className="font-mono text-xs bg-zinc-950 text-emerald-400 select-all h-9 font-semibold"
+                        className="font-mono text-xs bg-background text-emerald-600 dark:text-emerald-400 select-all h-9 font-semibold rounded-xl border-border"
                       />
                       <Button
                         size="icon"
                         variant="outline"
-                        className="h-9 w-9 shrink-0 border-white/[0.1]"
+                        className="h-9 w-9 shrink-0 rounded-xl border-border hover:bg-muted/80"
                         onClick={() => {
                           navigator.clipboard.writeText(result.tempPassword!);
                           toast.success("Password copied to clipboard");
                         }}
                         title="Copy Password"
                       >
-                        <Copy className="w-4 h-4 text-zinc-300" />
+                        <Copy className="w-4 h-4 text-muted-foreground" />
                       </Button>
                     </div>
                   </div>
@@ -198,7 +198,7 @@ export function CreateTenantDialog({ onTenantCreated }: CreateTenantDialogProps 
                   href="/login"
                   target="_blank"
                   rel="noreferrer"
-                  className="font-semibold underline underline-offset-2 hover:text-white transition-colors"
+                  className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity"
                 >
                   Open Portal →
                 </a>
@@ -208,33 +208,33 @@ export function CreateTenantDialog({ onTenantCreated }: CreateTenantDialogProps 
             {/* Onboarding Password Reset Link */}
             {result.inviteLink && (
               <div className="space-y-1.5">
-                <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                <label className="text-[11px] font-mono text-muted-foreground uppercase">
                   Alternative: Direct Password Reset Link
                 </label>
                 <div className="flex items-center gap-2">
                   <Input
                     readOnly
                     value={result.inviteLink}
-                    className="font-mono text-xs bg-zinc-900 select-all h-9 text-zinc-400"
+                    className="font-mono text-xs bg-background border-border select-all h-9 text-muted-foreground rounded-xl"
                   />
                   <Button
                     size="icon"
                     variant="outline"
-                    className="h-9 w-9 shrink-0 border-white/[0.1]"
+                    className="h-9 w-9 shrink-0 rounded-xl border-border hover:bg-muted/80"
                     onClick={copyInvite}
                     title="Copy Link"
                   >
-                    {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-zinc-300" />}
+                    {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
                   </Button>
                 </div>
-                <p className="text-[11px] text-zinc-500">
+                <p className="text-[11px] text-muted-foreground">
                   You can send this link to the gym owner so they can set a personalized password.
                 </p>
               </div>
             )}
 
             <Button
-              className="w-full mt-2 bg-primary text-[#08090a] hover:bg-primary-deep font-semibold"
+              className="w-full mt-2 rounded-xl"
               onClick={() => {
                 setOpen(false);
                 resetForm();
@@ -246,34 +246,36 @@ export function CreateTenantDialog({ onTenantCreated }: CreateTenantDialogProps 
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300">Gym Name</label>
+              <label className="text-xs font-medium text-foreground">Gym Name</label>
               <Input
                 required
                 placeholder="e.g., Apex Martial Arts"
                 value={formData.name}
                 onChange={handleNameChange}
+                className="rounded-xl text-xs bg-background"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Workspace Slug</label>
+                <label className="text-xs font-medium text-foreground">Workspace Slug</label>
                 <Input
                   required
                   placeholder="apex-martial-arts"
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  className="rounded-xl text-xs bg-background"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">License Term</label>
+                <label className="text-xs font-medium text-foreground">License Term</label>
                 <select
                   value={formData.licenseDurationDays}
                   onChange={(e) =>
                     setFormData({ ...formData, licenseDurationDays: Number(e.target.value) })
                   }
-                  className="flex h-10 w-full rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500/50"
+                  className="flex h-9 w-full rounded-xl border border-input bg-background px-3 py-1.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
                   <option value={30}>30 Days (Trial)</option>
                   <option value={90}>90 Days (Quarterly)</option>
@@ -284,53 +286,56 @@ export function CreateTenantDialog({ onTenantCreated }: CreateTenantDialogProps 
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Admin Full Name</label>
+                <label className="text-xs font-medium text-foreground">Admin Full Name</label>
                 <Input
                   required
                   placeholder="e.g., Sarah Connor"
                   value={formData.adminFullName}
                   onChange={(e) => setFormData({ ...formData, adminFullName: e.target.value })}
+                  className="rounded-xl text-xs bg-background"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Contact Phone</label>
+                <label className="text-xs font-medium text-foreground">Contact Phone</label>
                 <Input
                   required
                   placeholder="+1 (555) 019-2834"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="rounded-xl text-xs bg-background"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300">Admin Email Address</label>
+              <label className="text-xs font-medium text-foreground">Admin Email Address</label>
               <Input
                 type="email"
                 required
                 placeholder="owner@apexmartialarts.com"
                 value={formData.contactEmail}
                 onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                className="rounded-xl text-xs bg-background"
               />
             </div>
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-zinc-300">Initial Admin Password (Optional)</label>
-                <span className="text-[10px] text-zinc-500">Min 6 chars</span>
+                <label className="text-xs font-medium text-foreground">Initial Admin Password (Optional)</label>
+                <span className="text-[10px] text-muted-foreground">Min 6 chars</span>
               </div>
               <Input
                 type="text"
                 placeholder="Leave blank to auto-generate a secure password"
                 value={formData.adminPassword || ""}
                 onChange={(e) => setFormData({ ...formData, adminPassword: e.target.value })}
-                className="font-mono text-xs"
+                className="font-mono text-xs rounded-xl bg-background"
               />
             </div>
 
             <div className="pt-2">
-              <Button type="submit" disabled={loading} className="w-full glow-bottom">
+              <Button type="submit" disabled={loading} className="w-full rounded-xl">
                 {loading ? (
                   <>
                     <Spinner size="sm" className="mr-2" />

@@ -16,7 +16,7 @@ export default async function MemberPortalLayout({
   const session = await getMemberSession();
 
   if (!session) {
-    redirect("/portal/login");
+    redirect("/member/login");
   }
 
   // Fetch Member and Gym Tenant details
@@ -58,7 +58,7 @@ export default async function MemberPortalLayout({
   };
 
   if (!member) {
-    redirect("/portal/login");
+    redirect("/member/login");
   }
 
   return (

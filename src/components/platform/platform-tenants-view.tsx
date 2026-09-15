@@ -148,15 +148,11 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
               days === -1
                 ? new Date(Date.now() + 100 * 365 * 24 * 3600 * 1000)
                 : new Date(currentExpiry.getTime() + days * 24 * 3600 * 1000);
-            return { ...t, licenseExpiresAt: nextExpiry.toISOString() };
+            return { ...t, licenseExpiresAt: nextExpiry };
           })
         );
         router.refresh();
-        toast.success(
-          days === -1
-            ? `Granted lifetime license to ${licenseModalTenant.name}`
-            : `Extended license by ${days} days for ${licenseModalTenant.name}`
-        );
+        toast.success(`License extended for ${licenseModalTenant.name}`);
         setLicenseModalTenant(null);
       } catch (err: any) {
         toast.error(err.message || "Failed to extend license");
@@ -178,12 +174,8 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
           customResetPassword.trim() || undefined
         );
         if (!res.success) throw new Error(res.error);
-        setResetResult({
-          email: res.adminEmail || passwordModalTenant.contactEmail || "",
-          newPassword: res.newPassword,
-          resetLink: res.resetLink,
-        });
-        toast.success(`Admin credentials updated for ${passwordModalTenant.name}`);
+        setResetResult(res as any);
+        toast.success("Admin password reset generated successfully");
       } catch (err: any) {
         toast.error(err.message || "Failed to reset password");
       } finally {
@@ -195,7 +187,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
   const handleDeleteTenant = () => {
     if (!deleteModalTenant) return;
     if (confirmDeleteName.trim().toLowerCase() !== deleteModalTenant.name.trim().toLowerCase()) {
-      toast.error("Gym name does not match. Purge cancelled.");
+      toast.error("Please type the exact gym name to confirm deletion");
       return;
     }
 
@@ -238,29 +230,29 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex flex-1 items-center gap-2 max-w-md">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search gym by name, slug, or email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-zinc-950/60"
+              className="pl-9 rounded-xl bg-card border-input text-foreground text-xs"
             />
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {/* Status Filters */}
-          <div className="flex items-center rounded-xl bg-zinc-900/80 p-1 border border-zinc-800 text-xs">
+          <div className="flex items-center rounded-xl bg-muted/60 p-1 border border-border text-xs">
             {["all", "active", "trial", "suspended"].map((filter) => {
               const active = statusFilter === filter;
               return (
                 <button
                   key={filter}
                   onClick={() => setStatusFilter(filter)}
-                  className={`px-3 py-1 rounded-lg capitalize font-medium transition-colors ${
+                  className={`px-3 py-1 rounded-lg capitalize font-medium transition-colors cursor-pointer ${
                     active
-                      ? "bg-zinc-800 text-white shadow-sm"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      ? "bg-background text-foreground shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {filter}
@@ -277,23 +269,23 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
         </div>
       </div>
 
-      {/* Tenants Table */}
-      <div className="glass-panel rounded-2xl overflow-hidden border border-zinc-800/80">
-        <div className="p-5 border-b border-zinc-800/80 flex items-center justify-between">
+      {/* Tenants Table Card */}
+      <div className="rounded-2xl overflow-hidden border border-border bg-card/85 backdrop-blur-xl shadow-xs">
+        <div className="p-5 border-b border-border flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-white">Registered Gym Tenants</h2>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Superadmin fleet management · Total: {filteredTenants.length}
+            <h2 className="text-base font-semibold text-foreground">Registered Gym Tenants</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Superadmin fleet management &middot; Total: {filteredTenants.length}
             </p>
           </div>
-          <div className="text-xs text-zinc-400 px-3 py-1 rounded-lg bg-zinc-900 border border-zinc-800">
+          <div className="text-xs font-medium text-muted-foreground px-3 py-1 rounded-xl bg-muted/60 border border-border">
             Platform Master Tier
           </div>
         </div>
 
         <Table>
           <TableHeader>
-            <TableRow className="bg-zinc-900/50">
+            <TableRow className="bg-muted/40 hover:bg-muted/40 border-b border-border">
               <TableHead>Gym Name</TableHead>
               <TableHead>Workspace Slug</TableHead>
               <TableHead>Status</TableHead>
@@ -305,9 +297,9 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
           <TableBody>
             {filteredTenants.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center text-zinc-500">
+                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <Building2 className="w-8 h-8 text-zinc-600" />
+                    <Building2 className="w-8 h-8 text-muted-foreground/60" />
                     <span>No gym tenants match your criteria</span>
                   </div>
                 </TableCell>
@@ -317,41 +309,41 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                 const isProcessing = isPending && pendingId === tenant.id;
 
                 return (
-                  <TableRow key={tenant.id} className="hover:bg-zinc-800/30">
-                    <TableCell className="font-medium text-white">
+                  <TableRow key={tenant.id} className="hover:bg-muted/30 transition-colors border-b border-border/60">
+                    <TableCell className="font-medium text-foreground">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0 shadow-xs">
                           {tenant.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-semibold">{tenant.name}</p>
-                          <p className="text-[11px] font-mono text-zinc-500">
+                          <p className="font-semibold text-foreground">{tenant.name}</p>
+                          <p className="text-[11px] font-mono text-muted-foreground">
                             ID: {tenant.id.slice(0, 8)}...
                           </p>
                         </div>
                       </div>
                     </TableCell>
 
-                    <TableCell className="font-mono text-xs text-zinc-300">
-                      <span className="bg-zinc-900/80 px-2 py-1 rounded border border-zinc-800">
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      <span className="bg-muted/70 px-2 py-0.5 rounded-lg border border-border text-foreground">
                         {tenant.slug}
                       </span>
                     </TableCell>
 
                     <TableCell>{getStatusBadge(tenant.status)}</TableCell>
 
-                    <TableCell className="text-xs text-zinc-300">
+                    <TableCell className="text-xs text-foreground">
                       <p className="font-medium">{tenant.contactEmail || "—"}</p>
-                      <p className="text-zinc-500 font-mono text-[11px]">{tenant.phone || "—"}</p>
+                      <p className="text-muted-foreground font-mono text-[11px]">{tenant.phone || "—"}</p>
                     </TableCell>
 
-                    <TableCell className="font-mono text-xs text-zinc-400">
+                    <TableCell className="font-mono text-xs text-muted-foreground">
                       {tenant.licenseExpiresAt ? (
                         <span
                           className={
                             new Date(tenant.licenseExpiresAt) < new Date()
-                              ? "text-red-400 font-semibold"
-                              : "text-zinc-300"
+                              ? "text-red-500 font-semibold"
+                              : "text-foreground"
                           }
                         >
                           {new Date(tenant.licenseExpiresAt).toLocaleDateString(undefined, {
@@ -361,7 +353,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                           })}
                         </span>
                       ) : (
-                        <span className="text-emerald-400 font-semibold">Lifetime</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Lifetime</span>
                       )}
                     </TableCell>
 
@@ -373,9 +365,9 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                           variant="ghost"
                           title="Extend License Duration"
                           onClick={() => setLicenseModalTenant(tenant)}
-                          className="h-8 px-2 text-zinc-400 hover:text-white hover:bg-zinc-800/80"
+                          className="h-8 px-2 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg cursor-pointer"
                         >
-                          <CalendarPlus className="w-4 h-4 text-emerald-400" />
+                          <CalendarPlus className="w-4 h-4 text-emerald-500" />
                         </Button>
 
                         {/* Reset Password Trigger */}
@@ -388,9 +380,9 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                             setResetResult(null);
                             setCustomResetPassword("");
                           }}
-                          className="h-8 px-2 text-zinc-400 hover:text-white hover:bg-zinc-800/80"
+                          className="h-8 px-2 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10 rounded-lg cursor-pointer"
                         >
-                          <KeyRound className="w-4 h-4 text-amber-400" />
+                          <KeyRound className="w-4 h-4 text-amber-500" />
                         </Button>
 
                         {/* Open Gym Kiosk in New Tab */}
@@ -399,9 +391,9 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                           target="_blank"
                           rel="noreferrer"
                           title="Launch Gym Live Kiosk"
-                          className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-colors"
+                          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
                         >
-                          <ExternalLink className="w-4 h-4 text-cyan-400" />
+                          <ExternalLink className="w-4 h-4 text-sky-500" />
                         </a>
 
                         {/* Status Toggle (Suspend / Activate) */}
@@ -411,10 +403,10 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                             variant="secondary"
                             disabled={isProcessing}
                             onClick={() => handleStatusToggle(tenant)}
-                            className="h-8 text-xs text-emerald-400 hover:text-emerald-300 gap-1 border border-emerald-800/40 bg-emerald-950/20"
+                            className="h-8 text-xs text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/15 gap-1 border border-emerald-500/20 bg-emerald-500/10 rounded-xl cursor-pointer"
                           >
                             {isProcessing ? (
-                              <Spinner size="xs" className="text-emerald-400" />
+                              <Spinner size="xs" className="text-emerald-500" />
                             ) : (
                               <ShieldCheck className="w-3.5 h-3.5" />
                             )}
@@ -426,10 +418,10 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                             variant="secondary"
                             disabled={isProcessing}
                             onClick={() => handleStatusToggle(tenant)}
-                            className="h-8 text-xs text-red-400 hover:text-red-300 gap-1 border border-red-800/40 bg-red-950/20"
+                            className="h-8 text-xs text-destructive hover:bg-destructive/15 gap-1 border border-destructive/20 bg-destructive/10 rounded-xl cursor-pointer"
                           >
                             {isProcessing ? (
-                              <Spinner size="xs" className="text-red-400" />
+                              <Spinner size="xs" className="text-destructive" />
                             ) : (
                               <ShieldAlert className="w-3.5 h-3.5" />
                             )}
@@ -446,7 +438,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                             setDeleteModalTenant(tenant);
                             setConfirmDeleteName("");
                           }}
-                          className="h-8 px-2 text-zinc-500 hover:text-red-400 hover:bg-red-950/20"
+                          className="h-8 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -465,21 +457,21 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
         open={Boolean(licenseModalTenant)}
         onOpenChange={(open) => !open && setLicenseModalTenant(null)}
       >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-white">
-              <CalendarPlus className="w-5 h-5 text-emerald-400" />
+        <DialogContent className="max-w-md rounded-2xl bg-card/95 backdrop-blur-2xl border border-border/80 text-foreground p-6 shadow-2xl">
+          <DialogHeader className="p-0 border-none">
+            <DialogTitle className="flex items-center gap-2 text-foreground font-semibold text-base">
+              <CalendarPlus className="w-5 h-5 text-emerald-500" />
               <span>Extend License Duration</span>
             </DialogTitle>
-            <DialogDescription className="text-zinc-400 text-xs">
-              Add subscription validity for <strong>{licenseModalTenant?.name}</strong>.
+            <DialogDescription className="text-muted-foreground text-xs mt-1">
+              Add subscription validity for <strong className="text-foreground">{licenseModalTenant?.name}</strong>.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3 py-3">
-            <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-300">
+            <div className="p-3 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground">
               Current Expiry:{" "}
-              <strong className="text-white">
+              <strong className="text-foreground">
                 {licenseModalTenant?.licenseExpiresAt
                   ? new Date(licenseModalTenant.licenseExpiresAt).toLocaleDateString()
                   : "Lifetime"}
@@ -491,7 +483,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                 variant="outline"
                 onClick={() => handleExtendLicense(30)}
                 disabled={isPending}
-                className="h-10 text-xs font-semibold border-zinc-800 hover:border-emerald-500/40 hover:bg-emerald-500/10"
+                className="h-10 text-xs font-semibold rounded-xl border-border hover:bg-muted/80"
               >
                 +30 Days (1 Mo)
               </Button>
@@ -499,7 +491,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                 variant="outline"
                 onClick={() => handleExtendLicense(90)}
                 disabled={isPending}
-                className="h-10 text-xs font-semibold border-zinc-800 hover:border-emerald-500/40 hover:bg-emerald-500/10"
+                className="h-10 text-xs font-semibold rounded-xl border-border hover:bg-muted/80"
               >
                 +90 Days (3 Mo)
               </Button>
@@ -507,7 +499,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                 variant="outline"
                 onClick={() => handleExtendLicense(365)}
                 disabled={isPending}
-                className="h-10 text-xs font-semibold border-zinc-800 hover:border-emerald-500/40 hover:bg-emerald-500/10"
+                className="h-10 text-xs font-semibold rounded-xl border-border hover:bg-muted/80"
               >
                 +1 Year (365 Days)
               </Button>
@@ -515,7 +507,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                 variant="outline"
                 onClick={() => handleExtendLicense(-1)}
                 disabled={isPending}
-                className="h-10 text-xs font-bold text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                className="h-10 text-xs font-bold text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-xl"
               >
                 Grant Lifetime Access
               </Button>
@@ -529,39 +521,39 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
         open={Boolean(passwordModalTenant)}
         onOpenChange={(open) => !open && setPasswordModalTenant(null)}
       >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-white">
-              <KeyRound className="w-5 h-5 text-amber-400" />
+        <DialogContent className="max-w-md rounded-2xl bg-card/95 backdrop-blur-2xl border border-border/80 text-foreground p-6 shadow-2xl">
+          <DialogHeader className="p-0 border-none">
+            <DialogTitle className="flex items-center gap-2 text-foreground font-semibold text-base">
+              <KeyRound className="w-5 h-5 text-amber-500" />
               <span>Reset Gym Admin Password</span>
             </DialogTitle>
-            <DialogDescription className="text-zinc-400 text-xs">
+            <DialogDescription className="text-muted-foreground text-xs mt-1">
               Change the password or generate a reset link for{" "}
-              <strong>{passwordModalTenant?.name}</strong>.
+              <strong className="text-foreground">{passwordModalTenant?.name}</strong>.
             </DialogDescription>
           </DialogHeader>
 
           {resetResult ? (
             <div className="space-y-4 py-2">
-              <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 space-y-3">
+              <div className="p-4 rounded-xl bg-muted/50 border border-border space-y-3">
                 <div>
-                  <label className="text-[11px] text-zinc-400">Admin Email</label>
+                  <label className="text-[11px] text-muted-foreground font-medium">Admin Email</label>
                   <div className="flex items-center gap-2 mt-1">
                     <Input
                       readOnly
                       value={resetResult.email}
-                      className="font-mono text-xs bg-zinc-950 text-white select-all h-9"
+                      className="font-mono text-xs bg-background text-foreground select-all h-9 rounded-xl border-border"
                     />
                     <Button
                       size="icon"
                       variant="outline"
-                      className="h-9 w-9 shrink-0"
+                      className="h-9 w-9 shrink-0 rounded-xl border-border"
                       onClick={() => copyToClipboard(resetResult.email, "email")}
                     >
                       {copiedKey === "email" ? (
-                        <Check className="w-4 h-4 text-emerald-400" />
+                        <Check className="w-4 h-4 text-emerald-500" />
                       ) : (
-                        <Copy className="w-4 h-4 text-zinc-400" />
+                        <Copy className="w-4 h-4 text-muted-foreground" />
                       )}
                     </Button>
                   </div>
@@ -569,23 +561,23 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
 
                 {resetResult.newPassword && (
                   <div>
-                    <label className="text-[11px] text-zinc-400">New Password</label>
+                    <label className="text-[11px] text-muted-foreground font-medium">New Password</label>
                     <div className="flex items-center gap-2 mt-1">
                       <Input
                         readOnly
                         value={resetResult.newPassword}
-                        className="font-mono text-xs bg-zinc-950 text-emerald-400 select-all h-9 font-semibold"
+                        className="font-mono text-xs bg-background text-emerald-600 dark:text-emerald-400 select-all h-9 font-semibold rounded-xl border-border"
                       />
                       <Button
                         size="icon"
                         variant="outline"
-                        className="h-9 w-9 shrink-0"
+                        className="h-9 w-9 shrink-0 rounded-xl border-border"
                         onClick={() => copyToClipboard(resetResult.newPassword!, "password")}
                       >
                         {copiedKey === "password" ? (
-                          <Check className="w-4 h-4 text-emerald-400" />
+                          <Check className="w-4 h-4 text-emerald-500" />
                         ) : (
-                          <Copy className="w-4 h-4 text-zinc-400" />
+                          <Copy className="w-4 h-4 text-muted-foreground" />
                         )}
                       </Button>
                     </div>
@@ -595,23 +587,23 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
 
               {resetResult.resetLink && (
                 <div className="space-y-1">
-                  <label className="text-[11px] text-zinc-400">Direct Password Reset Link</label>
+                  <label className="text-[11px] text-muted-foreground font-medium">Direct Password Reset Link</label>
                   <div className="flex items-center gap-2">
                     <Input
                       readOnly
                       value={resetResult.resetLink}
-                      className="font-mono text-xs bg-zinc-900 select-all h-9 text-zinc-400"
+                      className="font-mono text-xs bg-background border-border select-all h-9 text-muted-foreground rounded-xl"
                     />
                     <Button
                       size="icon"
                       variant="outline"
-                      className="h-9 w-9 shrink-0"
+                      className="h-9 w-9 shrink-0 rounded-xl border-border"
                       onClick={() => copyToClipboard(resetResult.resetLink!, "link")}
                     >
                       {copiedKey === "link" ? (
-                        <Check className="w-4 h-4 text-emerald-400" />
+                        <Check className="w-4 h-4 text-emerald-500" />
                       ) : (
-                        <Copy className="w-4 h-4 text-zinc-400" />
+                        <Copy className="w-4 h-4 text-muted-foreground" />
                       )}
                     </Button>
                   </div>
@@ -619,7 +611,7 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
               )}
 
               <Button
-                className="w-full bg-primary text-[#08090a] hover:bg-primary-deep font-semibold"
+                className="w-full rounded-xl"
                 onClick={() => setPasswordModalTenant(null)}
               >
                 Done
@@ -628,28 +620,28 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
           ) : (
             <div className="space-y-4 py-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">
+                <label className="text-xs font-medium text-foreground">
                   Custom Password (Optional)
                 </label>
                 <Input
                   placeholder="Leave empty to auto-generate a secure password"
                   value={customResetPassword}
                   onChange={(e) => setCustomResetPassword(e.target.value)}
-                  className="font-mono text-xs bg-zinc-950"
+                  className="font-mono text-xs rounded-xl bg-background"
                 />
-                <p className="text-[11px] text-zinc-500">
+                <p className="text-[11px] text-muted-foreground">
                   Must be at least 6 characters if specified.
                 </p>
               </div>
 
               <Button
-                className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                className="w-full rounded-xl"
                 disabled={isPending}
                 onClick={handleResetPassword}
               >
                 {isPending ? (
                   <>
-                    <Spinner size="sm" className="mr-2 text-black" />
+                    <Spinner size="sm" className="mr-2" />
                     <span>Resetting credentials...</span>
                   </>
                 ) : (
@@ -666,23 +658,23 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
         open={Boolean(deleteModalTenant)}
         onOpenChange={(open) => !open && setDeleteModalTenant(null)}
       >
-        <DialogContent className="max-w-md border-red-900/40">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-400">
-              <AlertTriangle className="w-5 h-5 text-red-500" />
+        <DialogContent className="max-w-md rounded-2xl bg-card/95 backdrop-blur-2xl border border-destructive/30 text-foreground p-6 shadow-2xl">
+          <DialogHeader className="p-0 border-none">
+            <DialogTitle className="flex items-center gap-2 text-destructive font-semibold text-base">
+              <AlertTriangle className="w-5 h-5" />
               <span>Purge Gym Tenant</span>
             </DialogTitle>
-            <DialogDescription className="text-zinc-400 text-xs">
-              This action is permanent and will cascade-delete all members, memberships, attendance logs, and staff accounts for <strong>{deleteModalTenant?.name}</strong>.
+            <DialogDescription className="text-muted-foreground text-xs mt-1 leading-relaxed">
+              This action is permanent and will cascade-delete all members, memberships, attendance logs, and staff accounts for <strong className="text-foreground">{deleteModalTenant?.name}</strong>.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            <div className="p-3 rounded-xl bg-red-950/20 border border-red-900/40 text-xs text-red-300 space-y-1">
+            <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive space-y-1">
               <p className="font-semibold">Destructive Action:</p>
-              <p className="text-zinc-400">
+              <p className="text-muted-foreground">
                 To confirm, type the exact gym name:{" "}
-                <strong className="text-white select-all">{deleteModalTenant?.name}</strong>
+                <strong className="text-foreground select-all">{deleteModalTenant?.name}</strong>
               </p>
             </div>
 
@@ -690,14 +682,14 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
               placeholder={deleteModalTenant?.name}
               value={confirmDeleteName}
               onChange={(e) => setConfirmDeleteName(e.target.value)}
-              className="bg-zinc-950 text-xs"
+              className="rounded-xl text-xs bg-background"
             />
 
             <div className="flex items-center justify-end gap-2 pt-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 onClick={() => setDeleteModalTenant(null)}
-                className="text-xs text-zinc-400 hover:text-white"
+                className="text-xs rounded-xl"
               >
                 Cancel
               </Button>
@@ -709,11 +701,11 @@ export function PlatformTenantsView({ initialTenants }: PlatformTenantsViewProps
                     deleteModalTenant?.name.trim().toLowerCase()
                 }
                 onClick={handleDeleteTenant}
-                className="text-xs font-semibold"
+                className="text-xs font-semibold rounded-xl gap-1.5"
               >
                 {isPending ? (
                   <>
-                    <Spinner size="xs" className="mr-1.5 text-white" />
+                    <Spinner size="xs" variant="current" />
                     <span>Purging...</span>
                   </>
                 ) : (

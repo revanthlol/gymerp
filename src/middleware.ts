@@ -25,6 +25,8 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute =
     pathname === "/" ||
     pathname === "/login" ||
+    pathname === "/member/login" ||
+    pathname.startsWith("/member/scan") ||
     pathname === "/portal/login" ||
     pathname.startsWith("/portal/scan") ||
     pathname.startsWith("/kiosk") ||
@@ -36,17 +38,24 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/manifest") ||
     pathname.includes(".");
 
-  // Public routes always render directly. Never redirect away from /login in middleware
-  // to avoid infinite ping-pong loops when server-side tokens are stale/revoked.
+  // Legacy /portal 308 redirect to /member
+  if (pathname.startsWith("/portal")) {
+    const targetPath = pathname.replace(/^\/portal/, "/member") || "/member";
+    const redirectUrl = new URL(targetPath, request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
+  // Public routes always render directly.
   if (isPublicRoute) {
     return NextResponse.next();
   }
 
-  // Member Portal protection (except /portal/scan which is accessible for quick phone check-in)
-  if (pathname.startsWith("/portal")) {
+  // Member Portal protection (except /member/scan which is accessible for quick phone check-in)
+  if (pathname.startsWith("/member")) {
     const memberSession = request.cookies.get("__member_session")?.value;
     if (!memberSession) {
-      return NextResponse.redirect(new URL("/portal/login", request.url));
+      return NextResponse.redirect(new URL("/member/login", request.url));
     }
     return NextResponse.next();
   }

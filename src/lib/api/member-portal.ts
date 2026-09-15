@@ -82,13 +82,13 @@ export async function memberLoginAction(input: {
 
 export async function memberLogoutAction() {
   cookies().set("__member_session", "", { path: "/", maxAge: 0 });
-  redirect("/portal/login");
+  redirect("/member/login");
 }
 
 export async function getMemberPortalDataAction() {
   const session = await getMemberSession();
   if (!session) {
-    redirect("/portal/login");
+    redirect("/member/login");
   }
 
   // Fetch Member, Tenant, Memberships, Attendance, Payments, and Classes
@@ -171,7 +171,7 @@ export async function getMemberPortalDataAction() {
   };
 
   if (!member) {
-    redirect("/portal/login");
+    redirect("/member/login");
   }
 
   // Calculate membership active status and days remaining

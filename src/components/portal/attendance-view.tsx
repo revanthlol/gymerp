@@ -238,8 +238,67 @@ export function AttendanceView({ memberUid, attendanceList, stats }: AttendanceV
           </div>
         </div>
 
-        {/* Ledger Table */}
-        <div className="overflow-x-auto">
+        {/* Mobile Clean Feed (<sm) */}
+        <div className="sm:hidden divide-y divide-border/60">
+          {filteredList.length === 0 ? (
+            <div className="py-8 text-center text-xs text-muted-foreground">
+              No matching attendance logs found.
+            </div>
+          ) : (
+            filteredList.map((log) => {
+              const dateObj = new Date(log.checkedInAt);
+              const isExit = log.method.includes("exit");
+              return (
+                <div key={log.id} className="p-3.5 flex items-center justify-between gap-3 hover:bg-muted/20 transition-colors">
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[10px] font-bold tracking-wider uppercase border shrink-0 mt-0.5",
+                        isExit
+                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                          : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "size-1.5 rounded-full shrink-0",
+                          isExit ? "bg-amber-500" : "bg-emerald-500"
+                        )}
+                      />
+                      {isExit ? "Exit" : "Entry"}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <span>{dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                        <span className="text-muted-foreground/60 font-normal">&bull;</span>
+                        <span className="text-muted-foreground font-normal text-[11px]">
+                          {dateObj.toLocaleDateString([], { month: "short", day: "numeric", weekday: "short" })}
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-mono text-muted-foreground truncate mt-0.5">
+                        {log.kioskId
+                          ? log.kioskId.startsWith("kiosk:")
+                            ? `Kiosk #${log.kioskId.replace("kiosk:", "").slice(0, 6)}`
+                            : log.kioskId.startsWith("qr:")
+                            ? `QR #${log.kioskId.replace("qr:", "").slice(0, 6)}`
+                            : log.kioskId.slice(0, 16)
+                          : "Turnstile Station"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center text-emerald-500 text-[10px] font-semibold gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Approved</span>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop Ledger Table (sm+) */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-muted/40 border-b border-border/60 text-muted-foreground font-semibold">
               <tr>
@@ -272,17 +331,29 @@ export function AttendanceView({ memberUid, attendanceList, stats }: AttendanceV
                       <td className="py-3.5 px-4">
                         <span
                           className={cn(
-                            "px-2.5 py-0.5 rounded-full text-[11px] font-semibold",
+                            "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md font-mono text-[10px] font-bold tracking-wider uppercase border",
                             isExit
-                              ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                              : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                              : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
                           )}
                         >
-                          {isExit ? "Facility Exit" : "Facility Entry"}
+                          <span
+                            className={cn(
+                              "size-1.5 rounded-full shrink-0",
+                              isExit ? "bg-amber-500" : "bg-emerald-500"
+                            )}
+                          />
+                          {isExit ? "Exit" : "Entry"}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 font-mono text-xs text-muted-foreground">
-                        {log.kioskId || "Turnstile Station"}
+                        {log.kioskId
+                          ? log.kioskId.startsWith("kiosk:")
+                            ? `Kiosk #${log.kioskId.replace("kiosk:", "").slice(0, 6)}`
+                            : log.kioskId.startsWith("qr:")
+                            ? `QR #${log.kioskId.replace("qr:", "").slice(0, 6)}`
+                            : log.kioskId
+                          : "Turnstile Station"}
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <span className="inline-flex items-center gap-1 text-emerald-500 font-semibold text-[11px]">
