@@ -3,24 +3,22 @@
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { members, memberships, membershipPlans, tenants, attendance, payments, gymClasses } from "@/lib/db/schema";
-import { eq, and, desc, sql, or } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { signMemberToken, getMemberSession, MemberSession } from "@/lib/auth/member-session";
 import { redirect } from "next/navigation";
 
 export async function memberLoginAction(input: {
-  identifier: string; // phone number or email
+  email?: string;
+  identifier?: string;
   tenantSlug?: string;
 }) {
-  const rawId = input.identifier.trim();
-  if (!rawId) {
-    return { success: false, message: "Please enter your registered phone number or email" };
+  const rawEmail = (input.email ?? input.identifier ?? "").trim();
+  if (!rawEmail) {
+    return { success: false, message: "Please enter your registered email address" };
   }
 
-  // Normalize phone number: remove non-digits if mostly digits
-  const cleanPhone = rawId.replace(/[\s\(\)\-\.]/g, "");
-
   try {
-    // Search by phone or email
+    // Search strictly by registered email
     const matchedMembers = await db
       .select({
         id: members.id,
@@ -32,19 +30,13 @@ export async function memberLoginAction(input: {
         qrToken: members.qrToken,
       })
       .from(members)
-      .where(
-        or(
-          eq(members.phone, rawId),
-          eq(members.phone, cleanPhone),
-          eq(members.email, rawId.toLowerCase())
-        )
-      )
+      .where(eq(members.email, rawEmail.toLowerCase()))
       .limit(5);
 
     if (matchedMembers.length === 0) {
       return {
         success: false,
-        message: "No gym account found matching that phone number or email. Please check with front-desk staff.",
+        message: "No gym account found matching that email address. Please check with front-desk staff.",
       };
     }
 
